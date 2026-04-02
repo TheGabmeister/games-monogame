@@ -35,6 +35,10 @@ Assets go in `Content/` and must be registered in `Content/Content.mgcb`. The MG
 dotnet mgcb-editor-windows Content/Content.mgcb
 ```
 
+## Scope
+
+This project is the Template directory only. Do not read, reference, or modify files in sibling directories (e.g., `../Pong/`). Other projects in the parent repo are unrelated.
+
 ## Key Conventions
 
 - Escape key exits the game — preserve this unless asked otherwise.
