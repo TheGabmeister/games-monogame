@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "C#: monogame_simple Debug",
+        "name": "C#: Template Debug",
         "type": "dotnet",
         "request": "launch",
-        "projectPath": "${workspaceFolder}/monogame_simple.csproj"
+        "projectPath": "${workspaceFolder}/Template.csproj"
       }
     ],
   }
