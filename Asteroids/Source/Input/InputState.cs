@@ -29,8 +29,6 @@ namespace Asteroids.Input
 
         public bool IsConfirmPressed =>
             IsNewKeyPress(Keys.Enter) ||
-            IsNewKeyPress(Keys.Space) ||
-            IsNewButtonPress(Buttons.A) ||
             IsNewButtonPress(Buttons.Start);
 
         public bool IsFirePressed =>

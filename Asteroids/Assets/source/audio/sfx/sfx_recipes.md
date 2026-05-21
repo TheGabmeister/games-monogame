@@ -3,7 +3,7 @@
 These sound effects were generated with ffmpeg lavfi sources. Regenerate from the project root with the commands below.
 
 ```powershell
-ffmpeg -y -f lavfi -i "sine=frequency=1040:duration=0.09,volume=0.35,afade=t=out:st=0.04:d=0.05" -ar 44100 -ac 1 Content\audio\sfx\shoot.wav
+ffmpeg -y -f lavfi -i "sine=frequency=960:duration=0.14,volume=0.75,afade=t=out:st=0.035:d=0.105" -ar 44100 -ac 1 Content\audio\sfx\shoot.wav
 ffmpeg -y -f lavfi -i "anoisesrc=color=pink:duration=0.70:amplitude=0.22,lowpass=f=520,highpass=f=90,afade=t=in:st=0:d=0.03,afade=t=out:st=0.65:d=0.05" -ar 44100 -ac 1 Content\audio\sfx\thrust_loop.wav
 ffmpeg -y -f lavfi -i "anoisesrc=color=brown:duration=0.22:amplitude=0.45,lowpass=f=900,afade=t=out:st=0.04:d=0.18" -ar 44100 -ac 1 Content\audio\sfx\asteroid_hit.wav
 ffmpeg -y -f lavfi -i "anoisesrc=color=brown:duration=0.85:amplitude=0.65,lowpass=f=1300,afade=t=out:st=0.12:d=0.73" -ar 44100 -ac 1 Content\audio\sfx\ship_explosion.wav

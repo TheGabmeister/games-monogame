@@ -58,8 +58,8 @@ namespace Asteroids
 
         protected override void Initialize()
         {
-            RecalculateDisplayRectangle();
             base.Initialize();
+            RecalculateDisplayRectangle();
         }
 
         protected override void LoadContent()
@@ -225,7 +225,7 @@ namespace Asteroids
             _wave++;
             _waitingForWave = true;
             _waveTimer = GameConstants.WaveTransitionDelay;
-            _waveStartSound.Play(0.45f, 0f, 0f);
+            _waveStartSound.Play(1f, 0f, 0f);
         }
 
         private void SpawnWave()
@@ -249,7 +249,7 @@ namespace Asteroids
 
             _bullets.Add(new Bullet(_bulletTexture, spawnPosition, velocity));
             _player.MarkFired();
-            _shootSound.Play(0.4f, 0f, 0f);
+            _shootSound.Play(1f, 0f, 0f);
         }
 
         private void UpdateBullets(float deltaTime)
@@ -290,7 +290,7 @@ namespace Asteroids
 
                     _bullets.RemoveAt(bulletIndex);
                     BreakAsteroid(asteroidIndex);
-                    _asteroidHitSound.Play(0.45f, 0f, 0f);
+                    _asteroidHitSound.Play(1f, 0f, 0f);
                     break;
                 }
             }
@@ -338,7 +338,7 @@ namespace Asteroids
             _player.Kill();
             _lives--;
             _deathTimer = GameConstants.DeathDelay;
-            _shipExplosionSound.Play(0.55f, 0f, 0f);
+            _shipExplosionSound.Play(1f, 0f, 0f);
         }
 
         private void UpdateRespawn(float deltaTime)
