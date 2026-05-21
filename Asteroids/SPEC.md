@@ -468,6 +468,7 @@ Content/sprites/asteroids/small_01.png
 Content/sprites/asteroids/small_02.png
 Content/sprites/effects/thruster_particle.png
 Content/sprites/effects/explosion_particle.png
+Content/sprites/projectiles/bullet.png
 Content/sprites/enemies/saucer.png, milestone 3
 ```
 
@@ -524,13 +525,14 @@ Source/
 
 Only add folders/classes as needed by the milestone being implemented.
 
+Use a simple custom `GameState` flow for the initial implementation rather than MonoGame.Extended screen management. The first version should keep transitions explicit and easy to debug.
+
 ## MonoGame.Extended Usage
 
 Use MonoGame.Extended selectively as helper tooling.
 
 Good candidates:
 
-- Screen management for `MainMenu`, `Gameplay`, `Pause`, and `GameOver`.
 - Input helpers such as `KeyboardExtended`.
 - Camera or viewport helpers if they simplify `960x720` virtual scaling, letterboxing, or screen shake.
 - Particles if the Extended particle API feels lighter than custom particles.
@@ -540,6 +542,7 @@ Good candidates:
 Avoid using MonoGame.Extended for:
 
 - The main gameplay architecture.
+- Screen management for the initial implementation.
 - ECS/entity framework as the default architecture.
 - Tiled maps.
 - Complex collision pipeline unless the simple custom collision system becomes insufficient.

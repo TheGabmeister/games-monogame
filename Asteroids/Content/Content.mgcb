@@ -121,6 +121,18 @@
 /processorParam:TextureFormat=Color
 /build:sprites/effects/explosion_particle.png
 
+#begin sprites/projectiles/bullet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/projectiles/bullet.png
+
 #begin sprites/enemies/saucer.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -182,3 +194,10 @@
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /build:audio/sfx/wave_start.wav
+
+#begin fonts/ui.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:fonts/ui.spritefont
