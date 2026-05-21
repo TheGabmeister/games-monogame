@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="28" viewBox="0 0 36 28">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Octopus body - round dome -->
+  <path d="M10 14 L10 8 Q10 3 18 3 Q26 3 26 8 L26 14 L28 16 L28 18 L8 18 L8 16 Z"
+        fill="none" stroke="#ffaa22" stroke-width="1.8" filter="url(#glow)"/>
+  <path d="M10 14 L10 8 Q10 3 18 3 Q26 3 26 8 L26 14 L28 16 L28 18 L8 18 L8 16 Z"
+        fill="#ffaa22" opacity="0.12"/>
+  <!-- Eyes -->
+  <circle cx="14" cy="11" r="2" fill="#ffaa22" opacity="0.9" filter="url(#glow)"/>
+  <circle cx="22" cy="11" r="2" fill="#ffaa22" opacity="0.9" filter="url(#glow)"/>
+  <!-- Tentacles frame 1 - wavy spread -->
+  <path d="M8,18 Q6,22 4,24" fill="none" stroke="#ffaa22" stroke-width="1.4" filter="url(#glow)"/>
+  <path d="M12,18 Q11,22 10,26" fill="none" stroke="#ffaa22" stroke-width="1.4" filter="url(#glow)"/>
+  <path d="M16,18 Q15,23 14,27" fill="none" stroke="#ffaa22" stroke-width="1.4" filter="url(#glow)"/>
+  <path d="M20,18 Q21,23 22,27" fill="none" stroke="#ffaa22" stroke-width="1.4" filter="url(#glow)"/>
+  <path d="M24,18 Q25,22 26,26" fill="none" stroke="#ffaa22" stroke-width="1.4" filter="url(#glow)"/>
+  <path d="M28,18 Q30,22 32,24" fill="none" stroke="#ffaa22" stroke-width="1.4" filter="url(#glow)"/>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="15" height="12" viewBox="0 0 15 12">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="0.8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Shield chunk - solid glowing block -->
+  <rect x="1" y="1" width="13" height="10" rx="1" fill="#22dd66" opacity="0.35" filter="url(#glow)"/>
+  <rect x="1" y="1" width="13" height="10" rx="1" fill="none" stroke="#22dd66" stroke-width="1.2" filter="url(#glow)"/>
+</svg>

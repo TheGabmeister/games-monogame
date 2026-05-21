@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Squid body - tall narrow shape -->
+  <path d="M14 4 L18 4 L20 8 L22 12 L22 18 L20 20 L12 20 L10 18 L10 12 L12 8 Z"
+        fill="none" stroke="#ff44ff" stroke-width="1.8" filter="url(#glow)"/>
+  <!-- Inner glow fill -->
+  <path d="M14 4 L18 4 L20 8 L22 12 L22 18 L20 20 L12 20 L10 18 L10 12 L12 8 Z"
+        fill="#ff44ff" opacity="0.12"/>
+  <!-- Eyes -->
+  <circle cx="13" cy="13" r="1.5" fill="#ff44ff" opacity="0.9" filter="url(#glow)"/>
+  <circle cx="19" cy="13" r="1.5" fill="#ff44ff" opacity="0.9" filter="url(#glow)"/>
+  <!-- Tentacles frame 1 - spread out -->
+  <line x1="10" y1="20" x2="6" y2="26" stroke="#ff44ff" stroke-width="1.5" filter="url(#glow)"/>
+  <line x1="14" y1="20" x2="12" y2="28" stroke="#ff44ff" stroke-width="1.5" filter="url(#glow)"/>
+  <line x1="18" y1="20" x2="20" y2="28" stroke="#ff44ff" stroke-width="1.5" filter="url(#glow)"/>
+  <line x1="22" y1="20" x2="26" y2="26" stroke="#ff44ff" stroke-width="1.5" filter="url(#glow)"/>
+</svg>
