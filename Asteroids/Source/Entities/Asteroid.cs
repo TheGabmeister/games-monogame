@@ -46,8 +46,7 @@ public sealed class Asteroid
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        var origin = new Vector2(_texture.Width * 0.5f, _texture.Height * 0.5f);
-        spriteBatch.Draw(_texture, Position, null, Color.White, Rotation, origin, _spriteScale, SpriteEffects.None, 0f);
+        spriteBatch.Draw(_texture, Position, null, Color.White, Rotation, _texture.Center(), _spriteScale, SpriteEffects.None, 0f);
     }
 
     public static float GetRadius(AsteroidSize size) => size switch

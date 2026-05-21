@@ -31,7 +31,7 @@ public sealed class AsteroidSpawner
 
     public Vector2 GetEdgeSpawnPosition(Vector2 avoidPosition)
     {
-        for (int attempt = 0; attempt < 40; attempt++)
+        for (int attempt = 0; attempt < GameConstants.MaxSpawnAttempts; attempt++)
         {
             Vector2 position = RandomEdgePosition();
 

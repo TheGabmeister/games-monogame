@@ -94,7 +94,6 @@ public sealed class PlayerShip
         if (IsInvulnerable && ((int)(InvulnerabilityTimer * 12f) % 2 == 0))
             return;
 
-        var origin = new Vector2(_texture.Width * 0.5f, _texture.Height * 0.5f);
-        spriteBatch.Draw(_texture, Position, null, Color.White, Rotation, origin, SpriteScale, SpriteEffects.None, 0f);
+        spriteBatch.Draw(_texture, Position, null, Color.White, Rotation, _texture.Center(), SpriteScale, SpriteEffects.None, 0f);
     }
 }

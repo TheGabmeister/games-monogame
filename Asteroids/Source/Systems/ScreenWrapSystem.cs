@@ -4,16 +4,18 @@ public static class ScreenWrapSystem
 {
     public static Vector2 Wrap(Vector2 position, float radius)
     {
-        if (position.X < -radius)
-            position.X = GameConstants.VirtualWidth + radius;
-        else if (position.X > GameConstants.VirtualWidth + radius)
-            position.X = -radius;
+        return new Vector2(
+            WrapAxis(position.X, radius, GameConstants.VirtualWidth),
+            WrapAxis(position.Y, radius, GameConstants.VirtualHeight)
+        );
+    }
 
-        if (position.Y < -radius)
-            position.Y = GameConstants.VirtualHeight + radius;
-        else if (position.Y > GameConstants.VirtualHeight + radius)
-            position.Y = -radius;
-
-        return position;
+    private static float WrapAxis(float value, float radius, float screenSize)
+    {
+        if (value < -radius)
+            return screenSize + radius;
+        if (value > screenSize + radius)
+            return -radius;
+        return value;
     }
 }

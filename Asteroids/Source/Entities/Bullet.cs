@@ -34,7 +34,6 @@ public sealed class Bullet
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        var origin = new Vector2(_texture.Width * 0.5f, _texture.Height * 0.5f);
-        spriteBatch.Draw(_texture, Position, null, Color.White, 0f, origin, SpriteScale, SpriteEffects.None, 0f);
+        spriteBatch.Draw(_texture, Position, null, Color.White, 0f, _texture.Center(), SpriteScale, SpriteEffects.None, 0f);
     }
 }

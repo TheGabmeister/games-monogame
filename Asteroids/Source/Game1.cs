@@ -120,7 +120,7 @@ public class Game1 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.SetRenderTarget(_virtualTarget);
-        GraphicsDevice.Clear(new Color(4, 7, 13));
+        GraphicsDevice.Clear(UiColors.Background);
 
         _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp);
 
@@ -238,8 +238,8 @@ public class Game1 : Game
 
     private void FireBullet()
     {
-        Vector2 spawnPosition = _player.Position + _player.Forward * 26f;
-        Vector2 velocity = _player.Forward * GameConstants.BulletSpeed + _player.Velocity * 0.35f;
+        Vector2 spawnPosition = _player.Position + _player.Forward * GameConstants.BulletSpawnOffset;
+        Vector2 velocity = _player.Forward * GameConstants.BulletSpeed + _player.Velocity * GameConstants.BulletVelocityInheritance;
 
         _bullets.Add(new Bullet(_bulletTexture, spawnPosition, velocity));
         _player.MarkFired();
@@ -354,7 +354,7 @@ public class Game1 : Game
         if (IsCenterSafe())
             _player.ResetToCenter();
         else
-            _deathTimer = 0.25f;
+            _deathTimer = GameConstants.RespawnRetryDelay;
     }
 
     private bool IsCenterSafe()
@@ -399,42 +399,41 @@ public class Game1 : Game
     private void DrawHud()
     {
         string hud = $"SCORE {_score:00000}   LIVES {_lives}   WAVE {Math.Max(1, _wave)}";
-        _spriteBatch.DrawString(_uiFont, hud, new Vector2(18, 16), new Color(218, 251, 255));
+        _spriteBatch.DrawString(_uiFont, hud, new Vector2(GameConstants.HudX, GameConstants.HudY), UiColors.HudText);
 
         if (_state == GameState.Playing)
-            _spriteBatch.DrawString(_uiFont, "Esc/Start Pause", new Vector2(764, 16), new Color(92, 149, 168));
+            _spriteBatch.DrawString(_uiFont, "Esc/Start Pause", new Vector2(GameConstants.PauseHintX, GameConstants.HudY), UiColors.HudHint);
     }
 
     private void DrawThruster()
     {
-        Vector2 position = _player.Position - _player.Forward * 24f;
-        var origin = new Vector2(_thrusterTexture.Width * 0.5f, _thrusterTexture.Height * 0.5f);
-        _spriteBatch.Draw(_thrusterTexture, position, null, Color.White, _player.Rotation, origin, 0.55f, SpriteEffects.None, 0f);
+        Vector2 position = _player.Position - _player.Forward * GameConstants.ThrusterOffset;
+        _spriteBatch.Draw(_thrusterTexture, position, null, Color.White, _player.Rotation, _thrusterTexture.Center(), GameConstants.ThrusterScale, SpriteEffects.None, 0f);
     }
 
     private void DrawWaveText()
     {
-        string text = $"WAVE {_wave}";
-        Vector2 size = _uiFont.MeasureString(text);
-        _spriteBatch.DrawString(_uiFont, text, new Vector2((GameConstants.VirtualWidth - size.X) * 0.5f, 105f), new Color(125, 246, 255));
+        DrawStringCentered($"WAVE {_wave}", GameConstants.WaveTextY, UiColors.WaveText);
     }
 
     private void DrawCenteredText(string title, string subtitle)
     {
-        Vector2 titleSize = _uiFont.MeasureString(title);
-        Vector2 titlePosition = new((GameConstants.VirtualWidth - titleSize.X) * 0.5f, 275f);
-
-        _spriteBatch.DrawString(_uiFont, title, titlePosition, new Color(223, 251, 255));
+        DrawStringCentered(title, GameConstants.TitleY, UiColors.TitleText);
 
         string[] lines = subtitle.Split('\n');
-        float y = 325f;
+        float y = GameConstants.SubtitleStartY;
 
         for (int i = 0; i < lines.Length; i++)
         {
-            Vector2 lineSize = _uiFont.MeasureString(lines[i]);
-            _spriteBatch.DrawString(_uiFont, lines[i], new Vector2((GameConstants.VirtualWidth - lineSize.X) * 0.5f, y), new Color(125, 221, 234));
-            y += 28f;
+            DrawStringCentered(lines[i], y, UiColors.SubtitleText);
+            y += GameConstants.TextLineSpacing;
         }
+    }
+
+    private void DrawStringCentered(string text, float y, Color color)
+    {
+        Vector2 size = _uiFont.MeasureString(text);
+        _spriteBatch.DrawString(_uiFont, text, new Vector2((GameConstants.VirtualWidth - size.X) * 0.5f, y), color);
     }
 
     private void RecalculateDisplayRectangle()
