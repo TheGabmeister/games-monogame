@@ -13,3 +13,172 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin sprites/player/ship.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/player/ship.png
+
+#begin sprites/asteroids/large_01.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/asteroids/large_01.png
+
+#begin sprites/asteroids/large_02.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/asteroids/large_02.png
+
+#begin sprites/asteroids/medium_01.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/asteroids/medium_01.png
+
+#begin sprites/asteroids/medium_02.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/asteroids/medium_02.png
+
+#begin sprites/asteroids/small_01.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/asteroids/small_01.png
+
+#begin sprites/asteroids/small_02.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/asteroids/small_02.png
+
+#begin sprites/effects/thruster_particle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/effects/thruster_particle.png
+
+#begin sprites/effects/explosion_particle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/effects/explosion_particle.png
+
+#begin sprites/enemies/saucer.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=False
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:sprites/enemies/saucer.png
+
+#begin audio/sfx/shoot.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/shoot.wav
+
+#begin audio/sfx/thrust_loop.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/thrust_loop.wav
+
+#begin audio/sfx/asteroid_hit.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/asteroid_hit.wav
+
+#begin audio/sfx/ship_explosion.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/ship_explosion.wav
+
+#begin audio/sfx/menu_move.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/menu_move.wav
+
+#begin audio/sfx/menu_select.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/menu_select.wav
+
+#begin audio/sfx/ufo_spawn.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/ufo_spawn.wav
+
+#begin audio/sfx/ufo_shoot.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/ufo_shoot.wav
+
+#begin audio/sfx/hyperspace.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/hyperspace.wav
+
+#begin audio/sfx/wave_start.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:audio/sfx/wave_start.wav
