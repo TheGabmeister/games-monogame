@@ -1,10 +1,7 @@
-namespace Asteroids.Core
+public enum GameState
 {
-    public enum GameState
-    {
-        MainMenu,
-        Playing,
-        Paused,
-        GameOver
-    }
+    MainMenu,
+    Playing,
+    Paused,
+    GameOver
 }

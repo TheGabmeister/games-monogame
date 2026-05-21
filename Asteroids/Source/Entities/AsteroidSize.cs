@@ -1,9 +1,6 @@
-namespace Asteroids.Entities
+public enum AsteroidSize
 {
-    public enum AsteroidSize
-    {
-        Large,
-        Medium,
-        Small
-    }
+    Large,
+    Medium,
+    Small
 }
