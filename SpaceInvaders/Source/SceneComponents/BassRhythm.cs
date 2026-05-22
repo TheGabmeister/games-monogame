@@ -20,10 +20,10 @@ namespace SpaceInvaders
             _waveManager = Scene.GetSceneComponent<WaveManager>();
             _bassNotes = new[]
             {
-                Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note1),
-                Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note2),
-                Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note3),
-                Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note4),
+                Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note1),
+                Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note2),
+                Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note3),
+                Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note4),
             };
             _playing = true;
             _timer = MaxInterval;

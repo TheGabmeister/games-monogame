@@ -42,7 +42,7 @@ namespace SpaceInvaders
 
         void CreatePlayer()
         {
-            var cannon = Core.Content.LoadTexture(ContentPaths.Sprites.Player.Cannon, true);
+            var cannon = Content.LoadTexture(ContentPaths.Sprites.Player.Cannon, true);
             var player = CreateEntity("player", new Vector2(GameConstants.ScreenWidth / 2f, GameConstants.PlayerY));
             player.Tag = Tags.Player;
 
@@ -58,7 +58,7 @@ namespace SpaceInvaders
 
         void CreateShields()
         {
-            var shieldChunkTex = Core.Content.LoadTexture(ContentPaths.Sprites.Shields.ShieldChunk, true);
+            var shieldChunkTex = Content.LoadTexture(ContentPaths.Sprites.Shields.ShieldChunk, true);
             float totalWidth = (GameConstants.ShieldCount - 1) * 180f;
             float startX = (GameConstants.ScreenWidth - totalWidth) / 2f;
 

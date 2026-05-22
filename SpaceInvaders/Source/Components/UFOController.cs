@@ -19,12 +19,12 @@ namespace SpaceInvaders
 
         public override void OnAddedToEntity()
         {
-            var ufoHum = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.UfoHum);
+            var ufoHum = Entity.Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.UfoHum);
             _humInstance = ufoHum.CreateInstance();
             _humInstance.IsLooped = true;
             _humInstance.Volume = 0.5f;
             _humInstance.Play();
-            _ufoScore = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.UfoScore);
+            _ufoScore = Entity.Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.UfoScore);
         }
 
         public override void OnRemovedFromEntity()

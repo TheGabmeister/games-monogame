@@ -10,7 +10,7 @@ namespace SpaceInvaders
 
         public override void OnAddedToEntity()
         {
-            _shieldHit = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.ShieldHit);
+            _shieldHit = Entity.Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.ShieldHit);
         }
 
         public void OnTriggerEnter(Collider other, Collider local)

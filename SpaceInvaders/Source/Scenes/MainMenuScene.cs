@@ -23,8 +23,8 @@ namespace SpaceInvaders
             SetDesignResolution(GameConstants.ScreenWidth, GameConstants.ScreenHeight, SceneResolutionPolicy.ShowAll);
             ClearColor = Color.Black;
 
-            _menuMove = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.MenuMove);
-            _menuSelect = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.MenuSelect);
+            _menuMove = Content.LoadSoundEffect(ContentPaths.Audio.Sfx.MenuMove);
+            _menuSelect = Content.LoadSoundEffect(ContentPaths.Audio.Sfx.MenuSelect);
 
             var font = Graphics.Instance.BitmapFont;
 
