@@ -18,8 +18,7 @@ namespace SpaceInvaders
         TextComponent _gameOverText;
         PlayerController _playerController;
         bool _paused;
-        bool _isRespawningPlayer;
-        float _playerRespawnTimer;
+        ITimer _playerRespawnTimer;
         VirtualButton _pauseInput;
         VirtualButton _restartInput;
 
@@ -50,6 +49,9 @@ namespace SpaceInvaders
 
         public override void Unload()
         {
+            _playerRespawnTimer?.Stop();
+            _playerRespawnTimer = null;
+
             _pauseInput?.Deregister();
             _restartInput?.Deregister();
         }
@@ -82,8 +84,21 @@ namespace SpaceInvaders
             if (_gameState.IsGameOver)
                 return;
 
-            _isRespawningPlayer = true;
-            _playerRespawnTimer = Constants.DeathDelay;
+            SchedulePlayerRespawn();
+        }
+
+        void SchedulePlayerRespawn()
+        {
+            _playerRespawnTimer?.Stop();
+            _playerRespawnTimer = Core.Schedule(Constants.DeathDelay, this, timer =>
+            {
+                _playerRespawnTimer = null;
+
+                if (_gameState.IsGameOver)
+                    return;
+
+                CreatePlayer(startInvulnerable: true);
+            });
         }
 
         void CreateShields()
@@ -176,8 +191,6 @@ namespace SpaceInvaders
                 Core.StartSceneTransition(new FadeTransition(() => new GameplayScene()));
             }
 
-            UpdatePlayerRespawn();
-
             _scoreText.SetText($"SCORE: {_gameState.Score}");
             _highScoreText.SetText($"HI: {_gameState.HighScore}");
             _livesText.SetText($"LIVES: {_gameState.Lives}");
@@ -191,26 +204,6 @@ namespace SpaceInvaders
                 _gameOverText.SetText("");
 
             base.Update();
-        }
-
-        void UpdatePlayerRespawn()
-        {
-            if (_gameState.IsGameOver)
-            {
-                _isRespawningPlayer = false;
-
-                return;
-            }
-
-            if (!_isRespawningPlayer)
-                return;
-
-            _playerRespawnTimer -= Time.DeltaTime;
-            if (_playerRespawnTimer > 0)
-                return;
-
-            _isRespawningPlayer = false;
-            CreatePlayer(startInvulnerable: true);
         }
     }
 }
