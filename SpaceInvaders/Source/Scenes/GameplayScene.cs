@@ -17,8 +17,8 @@ namespace SpaceInvaders
         TextComponent _waveText;
         TextComponent _gameOverText;
         bool _paused;
-        KeyboardState _prevKb;
-        GamePadState _prevGp;
+        VirtualButton _pauseInput;
+        VirtualButton _restartInput;
 
         public override void Initialize()
         {
@@ -30,23 +30,28 @@ namespace SpaceInvaders
             _waveManager = AddSceneComponent<WaveManager>();
             AddSceneComponent<BassRhythm>();
 
+            _pauseInput = new VirtualButton();
+            _pauseInput.AddKeyboardKey(Keys.Escape);
+            _pauseInput.AddGamePadButton(0, Buttons.Start);
+
+            _restartInput = new VirtualButton();
+            _restartInput.AddKeyboardKey(Keys.Enter);
+            _restartInput.AddGamePadButton(0, Buttons.A);
+
             CreatePlayer();
             CreateShields();
             CreateHud();
 
             _waveManager.SpawnFormation();
-
-            _prevKb = Keyboard.GetState();
-            _prevGp = GamePad.GetState(PlayerIndex.One);
         }
 
         void CreatePlayer()
         {
             var player = CreateEntity("player", new Vector2(GameConstants.ScreenWidth / 2f, GameConstants.PlayerY));
-            
+
             var cannon = Content.LoadTexture(Assets.Sprites.Player.Cannon, true);
             player.AddComponent(new SpriteRenderer(cannon));
-            
+
             var collider = player.AddComponent(new BoxCollider(60, 36));
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
             collider.CollidesWithLayers = 0;
@@ -128,10 +133,7 @@ namespace SpaceInvaders
 
         public override void Update()
         {
-            var kb = Keyboard.GetState();
-            var gp = GamePad.GetState(PlayerIndex.One);
-
-            if (WasPressed(kb, _prevKb, Keys.Escape) || WasPressed(gp, _prevGp, Buttons.Start))
+            if (_pauseInput.IsPressed)
             {
                 if (_gameState.IsGameOver)
                 {
@@ -144,14 +146,11 @@ namespace SpaceInvaders
                 }
             }
 
-            if (_gameState.IsGameOver && (WasPressed(kb, _prevKb, Keys.Enter) || WasPressed(gp, _prevGp, Buttons.A)))
+            if (_gameState.IsGameOver && _restartInput.IsPressed)
             {
                 Time.TimeScale = 1;
                 Core.StartSceneTransition(new FadeTransition(() => new GameplayScene()));
             }
-
-            _prevKb = kb;
-            _prevGp = gp;
 
             _scoreText.SetText($"SCORE: {_gameState.Score}");
             _highScoreText.SetText($"HI: {_gameState.HighScore}");
@@ -167,11 +166,5 @@ namespace SpaceInvaders
 
             base.Update();
         }
-
-        static bool WasPressed(KeyboardState current, KeyboardState prev, Keys key)
-            => current.IsKeyDown(key) && !prev.IsKeyDown(key);
-
-        static bool WasPressed(GamePadState current, GamePadState prev, Buttons button)
-            => current.IsButtonDown(button) && !prev.IsButtonDown(button);
     }
 }

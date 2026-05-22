@@ -14,6 +14,8 @@ namespace SpaceInvaders
         GameState _gameState;
         SoundEffect _shoot;
         SoundEffect _playerDeath;
+        VirtualIntegerAxis _moveInput;
+        VirtualButton _fireInput;
 
         bool _isDead;
         float _deathTimer;
@@ -28,6 +30,16 @@ namespace SpaceInvaders
             _gameState = Entity.Scene.GetSceneComponent<GameState>();
             _shoot = Entity.Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.Shoot);
             _playerDeath = Entity.Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.PlayerDeath);
+
+            _moveInput = new VirtualIntegerAxis();
+            _moveInput.AddKeyboardKeys(VirtualInput.OverlapBehavior.TakeNewer, Keys.Left, Keys.Right);
+            _moveInput.AddKeyboardKeys(VirtualInput.OverlapBehavior.TakeNewer, Keys.A, Keys.D);
+            _moveInput.AddGamePadLeftStickX();
+            _moveInput.AddGamePadDPadLeftRight();
+
+            _fireInput = new VirtualButton();
+            _fireInput.AddKeyboardKey(Keys.Space);
+            _fireInput.AddGamePadButton(0, Buttons.A);
         }
 
         public void Update()
@@ -60,15 +72,7 @@ namespace SpaceInvaders
 
         void HandleMovement()
         {
-            float moveDir = 0;
-            var kb = Keyboard.GetState();
-            var gp = GamePad.GetState(PlayerIndex.One);
-
-            if (kb.IsKeyDown(Keys.Left) || kb.IsKeyDown(Keys.A) || gp.ThumbSticks.Left.X < -0.3f || gp.DPad.Left == ButtonState.Pressed)
-                moveDir = -1;
-            else if (kb.IsKeyDown(Keys.Right) || kb.IsKeyDown(Keys.D) || gp.ThumbSticks.Left.X > 0.3f || gp.DPad.Right == ButtonState.Pressed)
-                moveDir = 1;
-
+            int moveDir = _moveInput.Value;
             if (moveDir != 0)
             {
                 var pos = Entity.Transform.Position;
@@ -83,11 +87,7 @@ namespace SpaceInvaders
             if (_activeBullet != null && !_activeBullet.IsDestroyed)
                 return;
 
-            var kb = Keyboard.GetState();
-            var gp = GamePad.GetState(PlayerIndex.One);
-            bool fire = kb.IsKeyDown(Keys.Space) || gp.Buttons.A == ButtonState.Pressed;
-
-            if (fire)
+            if (_fireInput.IsDown)
             {
                 var bulletPos = Entity.Transform.Position + new Vector2(0, -20);
                 _activeBullet = BulletController.CreateBullet(Entity.Scene, bulletPos, isPlayerBullet: true);

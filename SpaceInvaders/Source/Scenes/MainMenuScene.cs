@@ -12,10 +12,10 @@ namespace SpaceInvaders
         readonly string[] _options = { "Start Game", "Quit" };
         TextComponent[] _optionTexts;
         TextComponent _titleText;
-        KeyboardState _prevKb;
-        GamePadState _prevGp;
         SoundEffect _menuMove;
         SoundEffect _menuSelect;
+        VirtualIntegerAxis _menuAxis;
+        VirtualButton _selectInput;
 
         public override void Initialize()
         {
@@ -25,6 +25,16 @@ namespace SpaceInvaders
 
             _menuMove = Content.LoadSoundEffect(Assets.Audio.Sfx.MenuMove);
             _menuSelect = Content.LoadSoundEffect(Assets.Audio.Sfx.MenuSelect);
+
+            _menuAxis = new VirtualIntegerAxis();
+            _menuAxis.AddKeyboardKeys(VirtualInput.OverlapBehavior.TakeNewer, Keys.Up, Keys.Down);
+            _menuAxis.AddKeyboardKeys(VirtualInput.OverlapBehavior.TakeNewer, Keys.W, Keys.S);
+            _menuAxis.AddGamePadDPadUpDown();
+
+            _selectInput = new VirtualButton();
+            _selectInput.AddKeyboardKey(Keys.Enter);
+            _selectInput.AddKeyboardKey(Keys.Space);
+            _selectInput.AddGamePadButton(0, Buttons.A);
 
             var font = Graphics.Instance.BitmapFont;
 
@@ -42,30 +52,20 @@ namespace SpaceInvaders
                 entity.Transform.SetScale(3f);
             }
 
-            _prevKb = Keyboard.GetState();
-            _prevGp = GamePad.GetState(PlayerIndex.One);
             UpdateSelection();
         }
 
         public override void Update()
         {
-            var kb = Keyboard.GetState();
-            var gp = GamePad.GetState(PlayerIndex.One);
-
-            if (WasPressed(kb, _prevKb, Keys.Up) || WasPressed(kb, _prevKb, Keys.W) || WasPressed(gp, _prevGp, Buttons.DPadUp))
+            int dir = _menuAxis.DirectionJustPushed;
+            if (dir != 0)
             {
-                _selectedIndex = (_selectedIndex - 1 + _options.Length) % _options.Length;
-                UpdateSelection();
-                _menuMove.Play();
-            }
-            else if (WasPressed(kb, _prevKb, Keys.Down) || WasPressed(kb, _prevKb, Keys.S) || WasPressed(gp, _prevGp, Buttons.DPadDown))
-            {
-                _selectedIndex = (_selectedIndex + 1) % _options.Length;
+                _selectedIndex = (_selectedIndex + dir + _options.Length) % _options.Length;
                 UpdateSelection();
                 _menuMove.Play();
             }
 
-            if (WasPressed(kb, _prevKb, Keys.Enter) || WasPressed(kb, _prevKb, Keys.Space) || WasPressed(gp, _prevGp, Buttons.A))
+            if (_selectInput.IsPressed)
             {
                 _menuSelect.Play();
                 if (_selectedIndex == 0)
@@ -73,9 +73,6 @@ namespace SpaceInvaders
                 else if (_selectedIndex == 1)
                     Core.Exit();
             }
-
-            _prevKb = kb;
-            _prevGp = gp;
 
             base.Update();
         }
@@ -85,11 +82,5 @@ namespace SpaceInvaders
             for (int i = 0; i < _optionTexts.Length; i++)
                 _optionTexts[i].SetColor(i == _selectedIndex ? Color.White : Color.Gray);
         }
-
-        static bool WasPressed(KeyboardState current, KeyboardState prev, Keys key)
-            => current.IsKeyDown(key) && !prev.IsKeyDown(key);
-
-        static bool WasPressed(GamePadState current, GamePadState prev, Buttons button)
-            => current.IsButtonDown(button) && !prev.IsButtonDown(button);
     }
 }
