@@ -176,7 +176,7 @@ namespace SpaceInvaders
 
         InvaderData GetBottomAliveInColumn(int col)
         {
-            for (int row = 0; row < Constants.FormationRows; row++)
+            for (int row = Constants.FormationRows - 1; row >= 0; row--)
             {
                 var inv = _grid[col, row];
                 if (inv != null && inv.IsAlive)

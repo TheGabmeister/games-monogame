@@ -19,7 +19,7 @@ namespace SpaceInvaders
 
     public static class Tags
     {
-        public const int EnemyBullet = 0;
+        public const int EnemyBullet = 1;
     }
 
     public enum InvaderType

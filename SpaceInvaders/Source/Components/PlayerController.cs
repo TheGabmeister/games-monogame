@@ -107,6 +107,12 @@ namespace SpaceInvaders
 
         public void Die()
         {
+            // Prevents death being called multiple times per frame.
+            if (_isDead)
+                return;
+
+            _isDead = true;
+            _playerDeath.Play();
             Died?.Invoke();
             Entity.Destroy();
         }
