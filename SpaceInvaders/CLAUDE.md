@@ -145,7 +145,7 @@ Use Nez virtual input (`VirtualButton`, `VirtualIntegerAxis`), not raw MonoGame 
 - WAV files are loaded directly with `LoadSoundEffect`; no content pipeline processing is needed for them.
 - Nez bitmap fonts cannot be resized directly; scale the text entity transform instead.
 - Virtual inputs must be deregistered, or they leak.
-- `Collider.CollidesWithLayers` defaults to `Physics.AllLayers` (-1). When using `Flags.SetFlag` to build a collision mask, clear it to 0 first: `collider.CollidesWithLayers = 0;` then call `Flags.SetFlag`. `Flags.SetFlagExclusive` is safe because it assigns (replaces), but `Flags.SetFlag` ORs onto the existing value.
+- `Collider.CollidesWithLayers` defaults to `Physics.AllLayers` (-1). When building a multi-layer mask, use `Flags.SetFlagExclusive` for the first layer (wipes the default), then `Flags.SetFlag` for additional layers. Never use `Flags.SetFlag` alone on an uncleared `CollidesWithLayers` — it ORs onto -1 and changes nothing.
 - Debug collider rendering is currently disabled in `Game1.Initialize()` with `DebugRenderEnabled = false`. Set it to `true` temporarily when debugging physics.
 
 ## Dependencies
