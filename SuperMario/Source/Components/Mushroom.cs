@@ -9,7 +9,11 @@ namespace SuperMario
         {
             var player = other.Entity.GetComponent<PlayerController>();
             if (player != null)
+            {
                 player.GrowPlayer();
+                Entity.Destroy();
+            }
+                
         }
 
         public void OnTriggerExit(Collider other, Collider local)

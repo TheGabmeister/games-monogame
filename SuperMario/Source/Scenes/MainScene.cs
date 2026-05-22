@@ -56,6 +56,9 @@ namespace SuperMario
                     case "Mushroom":
                         CreateMushroom(center, obj.Width, obj.Height);
                         break;
+                    case "KillVolume":
+                        CreateKillVolume(center, obj.Width, obj.Height);
+                        break;
                 }
             }
         }
@@ -103,6 +106,16 @@ namespace SuperMario
             }
 
             return new Vector2(obj.X + offset.X, obj.Y + offset.Y);
+        }
+
+        private void CreateKillVolume(Vector2 position, float width, float height)
+        {
+            var killVolume = CreateEntity("killvolume", position);
+            var collider = killVolume.AddComponent(new BoxCollider(-width / 2f, -height / 2f, width, height));
+            collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
+            collider.CollidesWithLayers = 1 << PhysicsLayers.Player;
+            collider.IsTrigger = true;
+            killVolume.AddComponent(new KillVolume());
         }
 
         private void CreateMushroom(Vector2 position, float width, float height)
