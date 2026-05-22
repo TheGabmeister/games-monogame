@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SpaceInvaders is a modernized Space Invaders-style game built with MonoGame and the Nez framework. Nez provides the scene/entity/component model, collision helpers, sprite rendering, virtual input, timers, and scene transitions. See `SPEC.md` for the full game design.
+SpaceInvaders is a modernized Space Invaders-style game built with MonoGame and the Nez framework. Nez provides the scene/entity/component model, collision helpers, sprite rendering, virtual input, timers, and scene transitions. See `SPEC.md` for the full game design and `PHASES.md` for the Milestone 2 development roadmap.
 
-The project targets `net9.0`, uses MonoGame DesktopGL 3.8.x, and references Nez from local source at `D:\Nez\Nez.Portable\Nez.MG38.csproj`.
+The project targets `net9.0`, uses MonoGame DesktopGL 3.8.x, and references Nez from local source at `D:\Nez\Nez.Portable\Nez.MG38.csproj`. Nez sample projects are available at `D:\Nez-Samples\Nez.Samples` for reference.
 
 ## Build and Run
 
@@ -33,6 +33,18 @@ Nez is component-based: scenes contain entities, and entities contain components
 - `Source/Constants.cs` - tuning values, physics layers, tags, and enums.
 - `Content/` - runtime PNG/WAV/effect assets copied to output by `.csproj` globs.
 - `Assets/` - app resources and editable source SVGs under `Assets/source/`.
+
+## Nez Component Lifecycle
+
+Components implement behavior through Nez interfaces and lifecycle hooks:
+
+- `IUpdatable` — implement `Update()` for per-frame logic (movement, input, timers).
+- `ITriggerListener` — implement `OnTriggerEnter`/`OnTriggerExit` for collision callbacks from `ProjectileMover`.
+- `OnAddedToEntity()` — called when a component is attached. Use for setup: get sibling components, load assets, create virtual inputs.
+- `OnRemovedFromEntity()` — called on removal. Use for cleanup: deregister virtual inputs, unsubscribe events.
+- `OnEnabled()` (SceneComponent) — called when the scene component is added. Equivalent of `OnAddedToEntity` for scene-level managers.
+
+Access scene-level managers from any component via `Entity.Scene.GetSceneComponent<T>()`.
 
 ## Current Gameplay Scene Shape
 
