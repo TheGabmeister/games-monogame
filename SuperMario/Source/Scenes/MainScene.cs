@@ -19,7 +19,7 @@ namespace SuperMario
             AddRenderer(new DefaultRenderer());
 
             _factory = new EntityFactory();
-            var map = Content.LoadTiledMap("Content/debug.tmx");
+            var map = Content.LoadTiledMap(Assets.Maps.Debug);
             _factory.Load(this, map.GetObjectGroup("entities"));
 
             _factory.Player.OnDied += OnPlayerDied;
