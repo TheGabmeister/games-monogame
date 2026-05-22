@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using Nez;
-using Nez.Sprites;
 using Nez.Systems;
 
 namespace SpaceInvaders
@@ -17,12 +16,12 @@ namespace SpaceInvaders
         SoundEffect _playerDeath;
         VirtualIntegerAxis _moveInput;
         VirtualButton _fireInput;
+        Blinker _blinker;
 
         bool _isDead;
         bool _startInvulnerable;
         bool _invulnerable;
         float _invulnerabilityTimer;
-        SpriteRenderer _renderer;
 
         public PlayerController() : this(false)
         {
@@ -35,7 +34,7 @@ namespace SpaceInvaders
 
         public override void OnAddedToEntity()
         {
-            _renderer = Entity.GetComponent<SpriteRenderer>();
+            _blinker = Entity.GetComponent<Blinker>();
             _shoot = Entity.Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.Shoot);
             _playerDeath = Entity.Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.PlayerDeath);
 
@@ -65,19 +64,23 @@ namespace SpaceInvaders
             if (_isDead)
                 return;
 
-            if (_invulnerable)
-            {
-                _invulnerabilityTimer -= Time.DeltaTime;
-                _renderer.Enabled = ((int)(_invulnerabilityTimer * 10) % 2) == 0;
-                if (_invulnerabilityTimer <= 0)
-                {
-                    _invulnerable = false;
-                    _renderer.Enabled = true;
-                }
-            }
-
+            UpdateInvulnerability();
             HandleMovement();
             HandleFiring();
+        }
+
+        void UpdateInvulnerability()
+        {
+            if (!_invulnerable)
+                return;
+
+            _invulnerabilityTimer -= Time.DeltaTime;
+            if (_invulnerabilityTimer > 0)
+                return;
+
+            _invulnerable = false;
+            if (_blinker != null)
+                _blinker.Enabled = false;
         }
 
         void HandleMovement()
@@ -107,8 +110,7 @@ namespace SpaceInvaders
 
         public void Die()
         {
-            // Prevents death being called multiple times per frame.
-            if (_isDead)
+            if (_isDead || _invulnerable)
                 return;
 
             _isDead = true;
@@ -119,9 +121,10 @@ namespace SpaceInvaders
 
         void StartInvulnerability()
         {
-            _renderer.Enabled = true;
             _invulnerable = true;
             _invulnerabilityTimer = Constants.RespawnInvulnerability;
+            if (_blinker != null)
+                _blinker.Enabled = true;
         }
 
         public void OnTriggerEnter(Collider other, Collider local)

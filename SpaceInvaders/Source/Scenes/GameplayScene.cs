@@ -66,6 +66,8 @@ namespace SpaceInvaders
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
             collider.CollidesWithLayers = 0;
 
+            player.AddComponent(new Blinker()).Enabled = false;
+
             var controller = player.AddComponent(new PlayerController(startInvulnerable));
             controller.Died += OnPlayerDied;
 
