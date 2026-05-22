@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using Nez;
 using Nez.Sprites;
+using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -10,6 +12,8 @@ namespace SpaceInvaders
         Entity _activeBullet;
         Collider _collider;
         GameState _gameState;
+        SoundEffect _shoot;
+        SoundEffect _playerDeath;
 
         bool _isDead;
         float _deathTimer;
@@ -22,6 +26,8 @@ namespace SpaceInvaders
             _collider = Entity.GetComponent<Collider>();
             _renderer = Entity.GetComponent<SpriteRenderer>();
             _gameState = Entity.Scene.GetSceneComponent<GameState>();
+            _shoot = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Shoot);
+            _playerDeath = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.PlayerDeath);
         }
 
         public void Update()
@@ -40,7 +46,6 @@ namespace SpaceInvaders
             if (_invulnerable)
             {
                 _invulnerabilityTimer -= Time.DeltaTime;
-                // Flicker effect
                 _renderer.Enabled = ((int)(_invulnerabilityTimer * 10) % 2) == 0;
                 if (_invulnerabilityTimer <= 0)
                 {
@@ -86,7 +91,7 @@ namespace SpaceInvaders
             {
                 var bulletPos = Entity.Transform.Position + new Vector2(0, -20);
                 _activeBullet = BulletController.CreateBullet(Entity.Scene, bulletPos, isPlayerBullet: true);
-                Assets.Shoot.Play();
+                _shoot.Play();
             }
         }
 
@@ -98,7 +103,7 @@ namespace SpaceInvaders
             _isDead = true;
             _deathTimer = GameConstants.DeathDelay;
             _renderer.Enabled = false;
-            Assets.PlayerDeath.Play();
+            _playerDeath.Play();
             if (_collider != null)
                 _collider.Enabled = false;
             _gameState.LoseLife();

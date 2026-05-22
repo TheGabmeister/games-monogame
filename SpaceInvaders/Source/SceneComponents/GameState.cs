@@ -1,4 +1,6 @@
+using Microsoft.Xna.Framework.Audio;
 using Nez;
+using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -10,11 +12,17 @@ namespace SpaceInvaders
         public int Wave { get; set; }
         public bool IsGameOver { get; private set; }
         public bool ExtraLifeAwarded { get; private set; }
+        SoundEffect _extraLife;
 
         public GameState()
         {
             Lives = GameConstants.StartingLives;
             Wave = 1;
+        }
+
+        public override void OnEnabled()
+        {
+            _extraLife = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.ExtraLife);
         }
 
         public void AddScore(int points)
@@ -27,7 +35,7 @@ namespace SpaceInvaders
             {
                 ExtraLifeAwarded = true;
                 Lives++;
-                Assets.ExtraLife.Play();
+                _extraLife.Play();
             }
         }
 

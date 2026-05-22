@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Nez;
+using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -9,6 +10,7 @@ namespace SpaceInvaders
         readonly int _direction;
         static readonly System.Random _rng = new System.Random();
         SoundEffectInstance _humInstance;
+        SoundEffect _ufoScore;
 
         public UFOController(int direction)
         {
@@ -17,10 +19,12 @@ namespace SpaceInvaders
 
         public override void OnAddedToEntity()
         {
-            _humInstance = Assets.UfoHum.CreateInstance();
+            var ufoHum = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.UfoHum);
+            _humInstance = ufoHum.CreateInstance();
             _humInstance.IsLooped = true;
             _humInstance.Volume = 0.5f;
             _humInstance.Play();
+            _ufoScore = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.UfoScore);
         }
 
         public override void OnRemovedFromEntity()
@@ -46,7 +50,7 @@ namespace SpaceInvaders
                 int score = GameConstants.UfoScores[_rng.Next(GameConstants.UfoScores.Length)];
                 var gameState = Entity.Scene.GetSceneComponent<GameState>();
                 gameState?.AddScore(score);
-                Assets.UfoScore.Play();
+                _ufoScore.Play();
                 Entity.Destroy();
             }
         }

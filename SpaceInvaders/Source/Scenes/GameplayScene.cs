@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Nez;
 using Nez.Sprites;
+using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -40,10 +42,11 @@ namespace SpaceInvaders
 
         void CreatePlayer()
         {
+            var cannon = Core.Content.LoadTexture(ContentPaths.Sprites.Player.Cannon, true);
             var player = CreateEntity("player", new Vector2(GameConstants.ScreenWidth / 2f, GameConstants.PlayerY));
             player.Tag = Tags.Player;
 
-            player.AddComponent(new SpriteRenderer(Assets.Cannon));
+            player.AddComponent(new SpriteRenderer(cannon));
             player.Transform.SetScale(0.5f);
 
             var collider = player.AddComponent(new BoxCollider(60, 36));
@@ -55,6 +58,7 @@ namespace SpaceInvaders
 
         void CreateShields()
         {
+            var shieldChunkTex = Core.Content.LoadTexture(ContentPaths.Sprites.Shields.ShieldChunk, true);
             float totalWidth = (GameConstants.ShieldCount - 1) * 180f;
             float startX = (GameConstants.ScreenWidth - totalWidth) / 2f;
 
@@ -73,7 +77,7 @@ namespace SpaceInvaders
 
                         var chunk = CreateEntity($"shield_{s}_{cx}_{cy}", new Vector2(x, y));
                         chunk.Tag = Tags.Shield;
-                        chunk.AddComponent(new SpriteRenderer(Assets.ShieldChunk));
+                        chunk.AddComponent(new SpriteRenderer(shieldChunkTex));
                         chunk.Transform.SetScale(GameConstants.ShieldScale);
 
                         var collider = chunk.AddComponent(new BoxCollider(GameConstants.ShieldChunkW, GameConstants.ShieldChunkH));

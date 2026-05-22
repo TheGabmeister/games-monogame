@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Nez;
 using Nez.Sprites;
+using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -43,7 +44,10 @@ namespace SpaceInvaders
         {
             var bullet = scene.CreateEntity("bullet", position);
 
-            bullet.AddComponent(new SpriteRenderer(isPlayerBullet ? Assets.BulletPlayer : Assets.BulletEnemy));
+            var texturePath = isPlayerBullet
+                ? ContentPaths.Sprites.Effects.BulletPlayer
+                : ContentPaths.Sprites.Effects.BulletEnemy;
+            bullet.AddComponent(new SpriteRenderer(Core.Content.LoadTexture(texturePath, true)));
             bullet.Transform.SetScale(0.4f);
 
             var collider = bullet.AddComponent(new BoxCollider(6, 16));

@@ -1,5 +1,7 @@
+using Microsoft.Xna.Framework.Audio;
 using Nez;
 using Nez.Sprites;
+using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -10,6 +12,7 @@ namespace SpaceInvaders
         public int Column;
         public int Row;
         public bool IsAlive = true;
+        SoundEffect _invaderDeath;
 
         public InvaderData(InvaderType type, int col, int row)
         {
@@ -19,11 +22,16 @@ namespace SpaceInvaders
             Row = row;
         }
 
+        public override void OnAddedToEntity()
+        {
+            _invaderDeath = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.InvaderDeath);
+        }
+
         public void Kill()
         {
             if (!IsAlive) return;
             IsAlive = false;
-            Assets.InvaderDeath.Play();
+            _invaderDeath.Play();
 
             var renderer = Entity.GetComponent<SpriteRenderer>();
             if (renderer != null)

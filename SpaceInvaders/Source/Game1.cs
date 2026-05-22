@@ -15,7 +15,6 @@ namespace SpaceInvaders
         {
             base.Initialize();
             Core.DebugRenderEnabled = true;
-            Assets.Load(Content);
             Scene = new MainMenuScene();
         }
     }

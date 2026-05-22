@@ -1,6 +1,9 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 using Nez;
 using Nez.Sprites;
+using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -13,12 +16,14 @@ namespace SpaceInvaders
         float _ufoTimer;
         System.Random _rng = new System.Random();
         int _ufoDirection = 1;
+        SoundEffect _waveStart;
 
         public int AliveCount => _formation?.AliveCount ?? 0;
 
         public override void OnEnabled()
         {
             _gameState = Scene.GetSceneComponent<GameState>();
+            _waveStart = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.WaveStart);
             ResetUfoTimer();
         }
 
@@ -47,7 +52,7 @@ namespace SpaceInvaders
                 {
                     _transitioning = false;
                     _gameState.Wave++;
-                    Assets.WaveStart.Play();
+                    _waveStart.Play();
                     SpawnFormation();
                 }
                 return;
@@ -77,7 +82,8 @@ namespace SpaceInvaders
             float startX = _ufoDirection > 0 ? -48 : GameConstants.ScreenWidth + 48;
             var ufo = Scene.CreateEntity("ufo", new Vector2(startX, 40));
 
-            ufo.AddComponent(new SpriteRenderer(Assets.Ufo));
+            var ufoTex = Core.Content.LoadTexture(ContentPaths.Sprites.Invaders.Ufo, true);
+            ufo.AddComponent(new SpriteRenderer(ufoTex));
             ufo.Transform.SetScale(0.5f);
 
             var collider = ufo.AddComponent(new BoxCollider(48, 20));
@@ -111,7 +117,7 @@ namespace SpaceInvaders
             for (int row = 0; row < GameConstants.FormationRows; row++)
             {
                 var type = GameConstants.InvaderTypeForRow(row);
-                var texture = Assets.InvaderTexture(type);
+                var texture = InvaderTexture(type);
 
                 for (int col = 0; col < GameConstants.FormationColumns; col++)
                 {
@@ -134,6 +140,17 @@ namespace SpaceInvaders
             }
 
             _formation = controller;
+        }
+
+        static Texture2D InvaderTexture(InvaderType type)
+        {
+            var path = type switch
+            {
+                InvaderType.Squid => ContentPaths.Sprites.Invaders.Squid01,
+                InvaderType.Crab => ContentPaths.Sprites.Invaders.Crab01,
+                _ => ContentPaths.Sprites.Invaders.Octopus01
+            };
+            return Core.Content.LoadTexture(path, true);
         }
     }
 }

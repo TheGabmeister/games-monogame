@@ -1,4 +1,6 @@
+using Microsoft.Xna.Framework.Audio;
 using Nez;
+using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -8,6 +10,7 @@ namespace SpaceInvaders
         const float MinInterval = 0.08f;
 
         WaveManager _waveManager;
+        SoundEffect[] _bassNotes;
         int _noteIndex;
         float _timer;
         bool _playing;
@@ -15,6 +18,13 @@ namespace SpaceInvaders
         public override void OnEnabled()
         {
             _waveManager = Scene.GetSceneComponent<WaveManager>();
+            _bassNotes = new[]
+            {
+                Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note1),
+                Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note2),
+                Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note3),
+                Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Bass.Note4),
+            };
             _playing = true;
             _timer = MaxInterval;
         }
@@ -34,7 +44,7 @@ namespace SpaceInvaders
             float interval = MinInterval + (MaxInterval - MinInterval) * ratio;
             _timer = interval;
 
-            Assets.BassNotes[_noteIndex].Play();
+            _bassNotes[_noteIndex].Play();
             _noteIndex = (_noteIndex + 1) % 4;
         }
     }

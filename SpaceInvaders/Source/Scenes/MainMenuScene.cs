@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using Nez;
+using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -12,12 +14,18 @@ namespace SpaceInvaders
         TextComponent _titleText;
         KeyboardState _prevKb;
         GamePadState _prevGp;
+        SoundEffect _menuMove;
+        SoundEffect _menuSelect;
 
         public override void Initialize()
         {
             base.Initialize();
             SetDesignResolution(GameConstants.ScreenWidth, GameConstants.ScreenHeight, SceneResolutionPolicy.ShowAll);
             ClearColor = Color.Black;
+
+            _menuMove = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.MenuMove);
+            _menuSelect = Core.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.MenuSelect);
+
             var font = Graphics.Instance.BitmapFont;
 
             var titleEntity = CreateEntity("title", new Vector2(GameConstants.ScreenWidth / 2f, 200));
@@ -46,18 +54,18 @@ namespace SpaceInvaders
             {
                 _selectedIndex = (_selectedIndex - 1 + _options.Length) % _options.Length;
                 UpdateSelection();
-                Assets.MenuMove.Play();
+                _menuMove.Play();
             }
             else if (WasPressed(kb, _prevKb, Keys.Down) || WasPressed(kb, _prevKb, Keys.S) || WasPressed(gp, _prevGp, Buttons.DPadDown))
             {
                 _selectedIndex = (_selectedIndex + 1) % _options.Length;
                 UpdateSelection();
-                Assets.MenuMove.Play();
+                _menuMove.Play();
             }
 
             if (WasPressed(kb, _prevKb, Keys.Enter) || WasPressed(kb, _prevKb, Keys.Space) || WasPressed(gp, _prevGp, Buttons.A))
             {
-                Assets.MenuSelect.Play();
+                _menuSelect.Play();
                 if (_selectedIndex == 0)
                     Core.StartSceneTransition(new FadeTransition(() => new GameplayScene()));
                 else if (_selectedIndex == 1)
