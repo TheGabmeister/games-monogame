@@ -82,12 +82,21 @@ namespace SpaceInvaders
             _gameState.LoseLife();
 
             if (_gameState.IsGameOver)
+            {
+                OnGameOver();
                 return;
+            }
 
             _playerRespawnTimer = Core.Schedule(Constants.DeathDelay, timer =>
             {
                 CreatePlayer(startInvulnerable: true);
             });
+        }
+
+        void OnGameOver()
+        {
+            _gameOverText.SetText("GAME OVER\nPress ENTER to restart");
+            _gameOverText.Enabled = true;
         }
 
         void CreateShields()
@@ -153,9 +162,10 @@ namespace SpaceInvaders
             livesEntity.Transform.SetScale(3f);
 
             var gameOverEntity = CreateEntity("hud-gameover", new Vector2(Constants.ScreenWidth / 2f, Constants.ScreenHeight / 2f));
-            _gameOverText = gameOverEntity.AddComponent(new TextComponent(font, "", Vector2.Zero, Color.Red));
+            _gameOverText = gameOverEntity.AddComponent(new TextComponent(font, "GAME OVER\nPress ENTER to restart", Vector2.Zero, Color.Red));
             _gameOverText.SetHorizontalAlign(HorizontalAlign.Center);
             _gameOverText.SetVerticalAlign(VerticalAlign.Center);
+            _gameOverText.Enabled = false;
             gameOverEntity.Transform.SetScale(3f);
         }
 
@@ -185,12 +195,16 @@ namespace SpaceInvaders
             _livesText.SetText($"LIVES: {_gameState.Lives}");
             _waveText.SetText($"WAVE {_gameState.Wave}");
 
-            if (_gameState.IsGameOver)
-                _gameOverText.SetText("GAME OVER\nPress ENTER to restart");
-            else if (_paused)
+            if (_paused)
+            {
                 _gameOverText.SetText("PAUSED\nPress ESC to resume");
-            else
+                _gameOverText.Enabled = true;
+            }
+            else if (!_gameState.IsGameOver)
+            {
                 _gameOverText.SetText("");
+                _gameOverText.Enabled = false;
+            }
 
             base.Update();
         }
