@@ -9,7 +9,7 @@ namespace SpaceInvaders
     public class MainMenuScene : Scene
     {
         int _selectedIndex;
-        readonly string[] _options = { "Start Game", "Quit" };
+        readonly string[] _options = { "Start Game", "Options", "Quit" };
         TextComponent[] _optionTexts;
         TextComponent _titleText;
         SoundEffect _menuMove;
@@ -71,10 +71,18 @@ namespace SpaceInvaders
                 if (_selectedIndex == 0)
                     Core.StartSceneTransition(new FadeTransition(() => new GameplayScene()));
                 else if (_selectedIndex == 1)
+                    Core.StartSceneTransition(new FadeTransition(() => new OptionsScene()));
+                else if (_selectedIndex == 2)
                     Core.Exit();
             }
 
             base.Update();
+        }
+
+        public override void Unload()
+        {
+            _menuAxis?.Deregister();
+            _selectInput?.Deregister();
         }
 
         void UpdateSelection()

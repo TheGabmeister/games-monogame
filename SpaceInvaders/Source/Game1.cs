@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework.Audio;
 using Nez;
 
 namespace SpaceInvaders
@@ -14,6 +15,16 @@ namespace SpaceInvaders
         {
             base.Initialize();
             DebugRenderEnabled = false;
+
+            var settings = Settings.Instance;
+            SoundEffect.MasterVolume = settings.Volume;
+            Screen.HardwareModeSwitch = false;
+            if (settings.Fullscreen)
+            {
+                Screen.IsFullscreen = true;
+                Screen.ApplyChanges();
+            }
+
             Scene = new MainMenuScene();
         }
     }

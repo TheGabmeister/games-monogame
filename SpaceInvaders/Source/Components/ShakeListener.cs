@@ -24,12 +24,14 @@ namespace SpaceInvaders
 
         void OnPlayerDied()
         {
-            _cameraShake.Shake(15f, 0.9f);
+            if (Settings.Instance.ScreenShake)
+                _cameraShake.Shake(15f, 0.9f);
         }
 
         void OnUfoDestroyed()
         {
-            _cameraShake.Shake(8f, 0.9f);
+            if (Settings.Instance.ScreenShake)
+                _cameraShake.Shake(8f, 0.9f);
         }
     }
 }

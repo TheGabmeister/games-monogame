@@ -23,6 +23,7 @@ namespace SpaceInvaders
 
         public GameState()
         {
+            HighScore = Settings.Instance.HighScore;
             Lives = Constants.StartingLives;
             Wave = 1;
         }
@@ -41,6 +42,8 @@ namespace SpaceInvaders
             {
                 HighScore = Score;
                 HighScoreChanged?.Invoke(HighScore);
+                Settings.Instance.HighScore = HighScore;
+                Settings.Instance.Save();
             }
 
             if (!ExtraLifeAwarded && Score >= Constants.ExtraLifeScore)
