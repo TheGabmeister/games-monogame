@@ -24,7 +24,7 @@ namespace SpaceInvaders
 
         public override void OnAddedToEntity()
         {
-            _invaderDeath = Entity.Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.InvaderDeath);
+            _invaderDeath = Entity.Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.InvaderDeath);
         }
 
         public void Kill()

@@ -26,8 +26,8 @@ namespace SpaceInvaders
             _collider = Entity.GetComponent<Collider>();
             _renderer = Entity.GetComponent<SpriteRenderer>();
             _gameState = Entity.Scene.GetSceneComponent<GameState>();
-            _shoot = Entity.Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.Shoot);
-            _playerDeath = Entity.Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.PlayerDeath);
+            _shoot = Entity.Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.Shoot);
+            _playerDeath = Entity.Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.PlayerDeath);
         }
 
         public void Update()

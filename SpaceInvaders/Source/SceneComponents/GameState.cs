@@ -22,7 +22,7 @@ namespace SpaceInvaders
 
         public override void OnEnabled()
         {
-            _extraLife = Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.ExtraLife);
+            _extraLife = Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.ExtraLife);
         }
 
         public void AddScore(int points)

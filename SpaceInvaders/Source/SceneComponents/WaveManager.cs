@@ -23,7 +23,7 @@ namespace SpaceInvaders
         public override void OnEnabled()
         {
             _gameState = Scene.GetSceneComponent<GameState>();
-            _waveStart = Scene.Content.LoadSoundEffect(ContentPaths.Audio.Sfx.WaveStart);
+            _waveStart = Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.WaveStart);
             ResetUfoTimer();
         }
 
@@ -82,7 +82,7 @@ namespace SpaceInvaders
             float startX = _ufoDirection > 0 ? -48 : GameConstants.ScreenWidth + 48;
             var ufo = Scene.CreateEntity("ufo", new Vector2(startX, 40));
 
-            var ufoTex = Scene.Content.LoadTexture(ContentPaths.Sprites.Invaders.Ufo, true);
+            var ufoTex = Scene.Content.LoadTexture(Assets.Sprites.Invaders.Ufo, true);
             ufo.AddComponent(new SpriteRenderer(ufoTex));
             ufo.Transform.SetScale(0.5f);
 
@@ -146,9 +146,9 @@ namespace SpaceInvaders
         {
             var path = type switch
             {
-                InvaderType.Squid => ContentPaths.Sprites.Invaders.Squid01,
-                InvaderType.Crab => ContentPaths.Sprites.Invaders.Crab01,
-                _ => ContentPaths.Sprites.Invaders.Octopus01
+                InvaderType.Squid => Assets.Sprites.Invaders.Squid01,
+                InvaderType.Crab => Assets.Sprites.Invaders.Crab01,
+                _ => Assets.Sprites.Invaders.Octopus01
             };
             return Scene.Content.LoadTexture(path, true);
         }

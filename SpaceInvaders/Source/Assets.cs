@@ -1,6 +1,6 @@
 namespace SpaceInvaders
 {
-    static class ContentPaths
+    static class Assets
     {
         public static class Sprites
         {

@@ -42,23 +42,23 @@ namespace SpaceInvaders
 
         void CreatePlayer()
         {
-            var cannon = Content.LoadTexture(ContentPaths.Sprites.Player.Cannon, true);
             var player = CreateEntity("player", new Vector2(GameConstants.ScreenWidth / 2f, GameConstants.PlayerY));
-            player.Tag = Tags.Player;
-
+            
+            var cannon = Content.LoadTexture(Assets.Sprites.Player.Cannon, true);
             player.AddComponent(new SpriteRenderer(cannon));
-            player.Transform.SetScale(0.5f);
-
+            
             var collider = player.AddComponent(new BoxCollider(60, 36));
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
             collider.CollidesWithLayers = 0;
 
             player.AddComponent<PlayerController>();
+            player.Transform.SetScale(0.5f);
+            player.Tag = Tags.Player;
         }
 
         void CreateShields()
         {
-            var shieldChunkTex = Content.LoadTexture(ContentPaths.Sprites.Shields.ShieldChunk, true);
+            var shieldChunkTex = Content.LoadTexture(Assets.Sprites.Shields.ShieldChunk, true);
             float totalWidth = (GameConstants.ShieldCount - 1) * 180f;
             float startX = (GameConstants.ScreenWidth - totalWidth) / 2f;
 
