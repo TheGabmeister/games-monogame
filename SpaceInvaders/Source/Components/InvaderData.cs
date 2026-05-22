@@ -23,6 +23,7 @@ namespace SpaceInvaders
         {
             if (!IsAlive) return;
             IsAlive = false;
+            Assets.InvaderDeath.Play();
 
             var renderer = Entity.GetComponent<SpriteRenderer>();
             if (renderer != null)

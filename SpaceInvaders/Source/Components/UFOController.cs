@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Nez;
 
 namespace SpaceInvaders
@@ -7,10 +8,25 @@ namespace SpaceInvaders
     {
         readonly int _direction;
         static readonly System.Random _rng = new System.Random();
+        SoundEffectInstance _humInstance;
 
         public UFOController(int direction)
         {
             _direction = direction;
+        }
+
+        public override void OnAddedToEntity()
+        {
+            _humInstance = Assets.UfoHum.CreateInstance();
+            _humInstance.IsLooped = true;
+            _humInstance.Volume = 0.5f;
+            _humInstance.Play();
+        }
+
+        public override void OnRemovedFromEntity()
+        {
+            _humInstance?.Stop();
+            _humInstance?.Dispose();
         }
 
         public void Update()
@@ -30,6 +46,7 @@ namespace SpaceInvaders
                 int score = GameConstants.UfoScores[_rng.Next(GameConstants.UfoScores.Length)];
                 var gameState = Entity.Scene.GetSceneComponent<GameState>();
                 gameState?.AddScore(score);
+                Assets.UfoScore.Play();
                 Entity.Destroy();
             }
         }

@@ -6,6 +6,7 @@ namespace SpaceInvaders
     {
         public void OnTriggerEnter(Collider other, Collider local)
         {
+            Assets.ShieldHit.Play();
             Entity.Destroy();
         }
 

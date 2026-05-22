@@ -47,6 +47,7 @@ namespace SpaceInvaders
                 {
                     _transitioning = false;
                     _gameState.Wave++;
+                    Assets.WaveStart.Play();
                     SpawnFormation();
                 }
                 return;

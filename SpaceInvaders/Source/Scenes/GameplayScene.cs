@@ -28,6 +28,7 @@ namespace SpaceInvaders
 
             _gameState = AddSceneComponent<GameState>();
             _waveManager = AddSceneComponent<WaveManager>();
+            AddSceneComponent<BassRhythm>();
 
             CreatePlayer();
             CreateShields();

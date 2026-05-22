@@ -18,6 +18,7 @@ namespace SpaceInvaders
             base.Initialize();
             SetDesignResolution(GameConstants.ScreenWidth, GameConstants.ScreenHeight, SceneResolutionPolicy.ShowAll);
             ClearColor = Color.Black;
+            Assets.Load(Content);
 
             var font = Graphics.Instance.BitmapFont;
 
@@ -47,15 +48,18 @@ namespace SpaceInvaders
             {
                 _selectedIndex = (_selectedIndex - 1 + _options.Length) % _options.Length;
                 UpdateSelection();
+                Assets.MenuMove.Play();
             }
             else if (WasPressed(kb, _prevKb, Keys.Down) || WasPressed(kb, _prevKb, Keys.S) || WasPressed(gp, _prevGp, Buttons.DPadDown))
             {
                 _selectedIndex = (_selectedIndex + 1) % _options.Length;
                 UpdateSelection();
+                Assets.MenuMove.Play();
             }
 
             if (WasPressed(kb, _prevKb, Keys.Enter) || WasPressed(kb, _prevKb, Keys.Space) || WasPressed(gp, _prevGp, Buttons.A))
             {
+                Assets.MenuSelect.Play();
                 if (_selectedIndex == 0)
                     Core.StartSceneTransition(new FadeTransition(() => new GameplayScene()));
                 else if (_selectedIndex == 1)

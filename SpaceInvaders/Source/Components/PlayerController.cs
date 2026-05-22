@@ -86,6 +86,7 @@ namespace SpaceInvaders
             {
                 var bulletPos = Entity.Transform.Position + new Vector2(0, -20);
                 _activeBullet = BulletController.CreateBullet(Entity.Scene, bulletPos, isPlayerBullet: true);
+                Assets.Shoot.Play();
             }
         }
 
@@ -97,6 +98,7 @@ namespace SpaceInvaders
             _isDead = true;
             _deathTimer = GameConstants.DeathDelay;
             _renderer.Enabled = false;
+            Assets.PlayerDeath.Play();
             if (_collider != null)
                 _collider.Enabled = false;
             _gameState.LoseLife();

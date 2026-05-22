@@ -27,6 +27,7 @@ namespace SpaceInvaders
             {
                 ExtraLifeAwarded = true;
                 Lives++;
+                Assets.ExtraLife.Play();
             }
         }
 
