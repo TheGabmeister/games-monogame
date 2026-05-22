@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(Rename-Item -Path \"c:\\\\dev\\\\games-monogame\\\\SuperMario\\\\Template.csproj\" -NewName \"SuperMario.csproj\")",
+      "PowerShell(Rename-Item -Path \"c:\\\\dev\\\\games-monogame\\\\SuperMario\\\\Template.csproj\" -NewName \"SuperMario.csproj\")",
+      "PowerShell(Rename-Item -Path \"c:\\\\dev\\\\games-monogame\\\\SuperMario\\\\Template.slnx\" -NewName \"SuperMario.slnx\")",
+      "PowerShell(dotnet build SuperMario.slnx -v minimal 2>&1)"
+    ]
+  }
+}

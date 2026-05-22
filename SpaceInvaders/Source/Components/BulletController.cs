@@ -54,12 +54,14 @@ namespace SpaceInvaders
             if (isPlayerBullet)
             {
                 Flags.SetFlagExclusive(ref collider.PhysicsLayer, PhysicsLayers.PlayerBullet);
+                collider.CollidesWithLayers = 0;
                 Flags.SetFlag(ref collider.CollidesWithLayers, PhysicsLayers.Invader);
                 Flags.SetFlag(ref collider.CollidesWithLayers, PhysicsLayers.Shield);
             }
             else
             {
                 Flags.SetFlagExclusive(ref collider.PhysicsLayer, PhysicsLayers.EnemyBullet);
+                collider.CollidesWithLayers = 0;
                 Flags.SetFlag(ref collider.CollidesWithLayers, PhysicsLayers.Player);
                 Flags.SetFlag(ref collider.CollidesWithLayers, PhysicsLayers.Shield);
                 bullet.Tag = Tags.EnemyBullet;
