@@ -65,10 +65,9 @@ namespace SpaceInvaders
 
             player.AddComponent(new Blinker()).Enabled = false;
 
-            var controller = player.AddComponent(new PlayerController(startInvulnerable));
-            controller.Died += OnPlayerDied;
+            _playerController = player.AddComponent(new PlayerController(startInvulnerable));
+            _playerController.Died += OnPlayerDied;
 
-            _playerController = controller;
         }
 
         void OnPlayerDied()

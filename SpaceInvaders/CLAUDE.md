@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SpaceInvaders is a modernized Space Invaders (1978) built with MonoGame and the Nez framework. Nez provides a component-based architecture (Scene → Entity → Component), built-in collision, sprite animation, particles, tweening, camera shake, and scene transitions. See SPEC.md for the full game design.
+SpaceInvaders is a modernized Space Invaders-style game built with MonoGame and the Nez framework. Nez provides the scene/entity/component model, collision helpers, sprite rendering, virtual input, timers, and scene transitions. See `SPEC.md` for the full game design.
+
+The project targets `net9.0`, uses MonoGame DesktopGL 3.8.x, and references Nez from local source at `D:\Nez\Nez.Portable\Nez.MG38.csproj`.
 
 ## Build and Run
 
@@ -13,7 +15,7 @@ dotnet build
 dotnet run
 ```
 
-Content pipeline tools (MGCB) are installed as local dotnet tools. Restore them before editing content:
+Content pipeline tools are configured as local dotnet tools. Restore them before editing MGCB content:
 
 ```shell
 dotnet tool restore
@@ -21,61 +23,117 @@ dotnet tool restore
 
 ## Architecture
 
-Nez component-based: Scenes contain Entities, Entities contain Components. Custom behavior lives in Components and SceneComponents. No ECS — components hold both data and behavior (like Unity MonoBehaviour).
+Nez is component-based: scenes contain entities, and entities contain components. Custom behavior lives in Nez `Component` and `SceneComponent` classes. This is not data-oriented ECS; components hold both data and behavior, similar to Unity `MonoBehaviour`.
 
-- **Source/** — All C# game code. Entry point is `Program.cs`, main game class is `Game1.cs` (namespace `SpaceInvaders`).
-- **Source/Scenes/** — Nez Scene subclasses (MainMenuScene, GameplayScene).
-- **Source/Components/** — Custom Nez Components attached to entities (FormationController, PlayerController, BulletController, etc.).
-- **Source/SceneComponents/** — Scene-level managers (WaveManager, BassRhythm, GameState). SceneComponents update before entities each frame.
-- **Source/Assets.cs** — `Assets` static class with nested `const string` paths for all content files (e.g., `Assets.Sprites.Player.Cannon`). Update this file when adding, renaming, or removing content files.
-- **Source/Constants.cs** — All tuning values, physics layer definitions, tag constants, and enums.
-- **Content/** — Runtime assets (PNGs, WAVs, compiled effects). Copied to output via .csproj globs.
-- **Assets/** — App-level build resources (icons, manifest) and editable source SVGs under `Assets/source/`.
+- `Source/` - all C# game code. Entry point is `Program.cs`; main game class is `Game1.cs`.
+- `Source/Scenes/` - Nez `Scene` subclasses: `MainMenuScene` and `GameplayScene`.
+- `Source/Components/` - entity components such as `PlayerController`, `FormationController`, `BulletController`, `InvaderData`, `ShieldChunk`, `UFOController`, and `Blinker`.
+- `Source/SceneComponents/` - scene-level managers: `GameState`, `HudController`, `WaveManager`, and `BassRhythm`.
+- `Source/Assets.cs` - nested `const string` paths for runtime content. Update this when adding, renaming, or removing content.
+- `Source/Constants.cs` - tuning values, physics layers, tags, and enums.
+- `Content/` - runtime PNG/WAV/effect assets copied to output by `.csproj` globs.
+- `Assets/` - app resources and editable source SVGs under `Assets/source/`.
+
+## Current Gameplay Scene Shape
+
+`GameplayScene` composes the level:
+
+- Adds `GameState`, `WaveManager`, `HudController`, and `BassRhythm` scene components.
+- Creates the player entity and shield entities.
+- Starts the first invader formation through `WaveManager.SpawnFormation()`.
+- Polls only high-level scene input in `Update()` for pause/menu/restart.
+
+Avoid putting HUD refresh logic or repeated state checks in `GameplayScene.Update()`. Prefer event callbacks, Nez timers, or focused scene components.
+
+## Event-Driven State and HUD
+
+`GameState` is the source of truth for score, high score, lives, wave, and game-over state. It exposes events:
+
+- `ScoreChanged`
+- `HighScoreChanged`
+- `LivesChanged`
+- `WaveChanged`
+- `GameOver`
+
+Use `GameState.AddScore()`, `LoseLife()`, `AdvanceWave()`, and `TriggerGameOver()` instead of mutating state fields directly. `HighScore` and `Wave` have private setters by design.
+
+`HudController` owns HUD creation and display updates. It creates the HUD text entities, subscribes to `GameState` events, refreshes labels only when state changes, and exposes `ShowPause()` / `HidePause()` for `GameplayScene`.
+
+## Player Death and Respawn
+
+The player entity is destroyed on death, not hidden. `PlayerController.Die()` sets its dead flag, plays the death sound, raises `Died`, then destroys the entity.
+
+`GameplayScene.OnPlayerDied()` handles life loss. If the game is not over, it uses Nez's global timer system:
+
+```csharp
+_playerRespawnTimer = Core.Schedule(Constants.DeathDelay, timer =>
+{
+    CreatePlayer(startInvulnerable: true);
+});
+```
+
+Store scheduled timers that belong to a scene and stop them in `Unload()`:
+
+```csharp
+_playerRespawnTimer?.Stop();
+_playerRespawnTimer = null;
+```
+
+`Core.Schedule` uses `Time.DeltaTime`, so scheduled respawn timing respects `Time.TimeScale`. Pausing with `Time.TimeScale = 0` pauses these timers too.
+
+## Entity Construction Boundaries
+
+Current player construction still lives in `GameplayScene.CreatePlayer()`: it creates the entity, attaches `SpriteRenderer`, `BoxCollider`, `Blinker`, and `PlayerController`, then subscribes to `PlayerController.Died`.
+
+Do not move renderer/collider setup into `PlayerController`. Keep `PlayerController` focused on behavior: movement, firing, death, and invulnerability. If player construction grows, prefer extracting a small factory or spawner component rather than turning `PlayerController` into a builder.
+
+`BulletController.CreateBullet()` is currently a static factory for bullet entities. It creates the renderer, collider, `ProjectileMover`, and controller in one place.
 
 ## Asset Loading
 
-Assets are loaded per-scene using the scene-scoped content manager, not a centralized loader. Each scene and component loads what it needs:
+Assets are loaded with the scene-scoped content manager:
 
-- **Scenes** load in `Initialize()` via `Content.LoadTexture(Assets.Path, true)` or `Content.LoadSoundEffect(Assets.Path)`.
-- **Components** load in `OnAddedToEntity()` via `Entity.Scene.Content.LoadSoundEffect(...)`.
-- **SceneComponents** load in `OnEnabled()` via `Scene.Content.LoadSoundEffect(...)`.
+- Scenes use `Content.LoadTexture(..., true)` or `Content.LoadSoundEffect(...)`.
+- Components use `Entity.Scene.Content.LoadTexture(...)` / `LoadSoundEffect(...)`.
+- SceneComponents use `Scene.Content.LoadTexture(...)` / `LoadSoundEffect(...)`.
 
-Scene-scoped content is automatically disposed on scene transition. Use `Core.Content` only for assets that must persist across scenes (currently none).
+Scene-scoped content is disposed on scene transition. Use `Core.Content` only for assets that must persist across scenes; currently none do.
 
 ## Input
 
-Input uses Nez's virtual input system (`VirtualButton`, `VirtualIntegerAxis`), not raw MonoGame `Keyboard.GetState()`/`GamePad.GetState()`. Virtual inputs are created in `Initialize()` (scenes) or `OnAddedToEntity()` (components) and deregistered in `Unload()`/`OnRemovedFromEntity()`.
+Use Nez virtual input (`VirtualButton`, `VirtualIntegerAxis`), not raw MonoGame keyboard/gamepad polling.
 
-## Player Death/Respawn
+- Scene-level virtual inputs are created in `Scene.Initialize()` and deregistered in `Unload()`.
+- Component-level virtual inputs are created in `OnAddedToEntity()` and deregistered in `OnRemovedFromEntity()`.
 
-The player entity is fully destroyed on death (`Entity.Destroy()`), not hidden. `PlayerController` fires a `Died` event, and `GameplayScene.OnPlayerDied` handles the respawn timer. After the delay, `CreatePlayer(startInvulnerable: true)` builds a fresh player entity with temporary invulnerability (blink effect via `Blinker` component).
+`GameplayScene.Update()` still polls virtual button edge states for pause, main menu, and restart. That is acceptable; avoid adding unrelated gameplay counters or HUD refreshes there.
 
-## Nez Framework
+## Nez Framework Notes
 
-Nez source is at `D:\Nez`. It is referenced as a project dependency, not a NuGet package. Key patterns:
-
-- Collision uses `BoxCollider` + physics layers (bitmasks) + `ProjectileMover` + `ITriggerListener` callbacks.
-- Manual overlap checks via `Physics.BoxcastBroadphase(bounds, layerMask)`.
-- `SpriteRenderer` (in `Nez.Sprites` namespace) for drawing. `SpriteAnimator` for frame animation.
-- `NezContentManager` (in `Nez.Systems` namespace) for loading textures/sounds.
-- `SceneResolutionPolicy.ShowAll` for 960×720 virtual resolution with letterboxing.
-- Scene transitions via `Core.StartSceneTransition(new FadeTransition(...))`.
-- Formation hierarchy uses `Transform.SetParent` — moving the parent entity moves all child invaders.
-- Debug collider rendering: `Core.DebugRenderEnabled = true` (set in `Game1.Initialize()`), or press tilde (`~`) at runtime and type `physics`.
+- Collision uses `BoxCollider`, physics layer bitmasks, `ProjectileMover`, and `ITriggerListener`.
+- Manual broadphase checks can use `Physics.BoxcastBroadphase(bounds, layerMask)`.
+- `SpriteRenderer` is in `Nez.Sprites`.
+- `TextComponent`, `VirtualButton`, `VirtualIntegerAxis`, and content helpers are in `Nez.Systems`.
+- Scene resolution uses `SceneResolutionPolicy.ShowAll` at `960x720`.
+- Scene transitions use `Core.StartSceneTransition(new FadeTransition(...))`.
+- Formation hierarchy uses `Transform.SetParent`; moving the parent moves all child invaders.
+- Nez timers are global through `Core.Schedule`; store and stop scene-owned timers.
+- `Time.DeltaTime` is scaled by `Time.TimeScale`; `Time.UnscaledDeltaTime` ignores it.
 
 ## Gotchas
 
-- Use `System.Random`, not `Nez.Random` (ambiguous namespace conflict).
-- Use `(float)System.Math.Pow()` — `MathF.Pow` may not resolve in all target configs.
-- Sprites are exported at 3× size from SVG for detail, then scaled down at runtime via `Entity.Transform.SetScale()`. Don't change PNG dimensions without adjusting scale constants.
-- `LoadTexture` requires `premultiplyAlpha: true` for correct rendering.
-- `LoadSoundEffect` loads WAV files directly (no content pipeline processing needed).
-- Nez bitmap fonts can't be resized — scale the entity transform instead (e.g., `entity.Transform.SetScale(3f)`).
-- Virtual inputs must be deregistered (`Deregister()`) when the scene or component is removed, or they leak.
+- Use `System.Random`, not `Nez.Random`, to avoid namespace ambiguity.
+- Use `(float)System.Math.Pow()` if needed; `MathF.Pow` may not resolve in all target configs.
+- Sprites are exported large from SVGs, then scaled down at runtime with `Entity.Transform.SetScale()`.
+- `LoadTexture` should pass `premultiplyAlpha: true`.
+- WAV files are loaded directly with `LoadSoundEffect`; no content pipeline processing is needed for them.
+- Nez bitmap fonts cannot be resized directly; scale the text entity transform instead.
+- Virtual inputs must be deregistered, or they leak.
+- Debug collider rendering is currently disabled in `Game1.Initialize()` with `DebugRenderEnabled = false`. Set it to `true` temporarily when debugging physics.
 
 ## Dependencies
 
 - `MonoGame.Framework.DesktopGL` 3.8.x
 - `MonoGame.Content.Builder.Task` 3.8.x
-- Nez framework (project reference from `D:\Nez\Nez.Portable\Nez.MG38.csproj`)
-- MGCB tools 3.8.4.1 (local dotnet tools)
+- Nez framework project reference: `D:\Nez\Nez.Portable\Nez.MG38.csproj`
+- Target framework: `net9.0`
