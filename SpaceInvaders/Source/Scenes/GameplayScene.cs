@@ -89,14 +89,8 @@ namespace SpaceInvaders
 
         void SchedulePlayerRespawn()
         {
-            _playerRespawnTimer?.Stop();
-            _playerRespawnTimer = Core.Schedule(Constants.DeathDelay, this, timer =>
+            _playerRespawnTimer = Core.Schedule(Constants.DeathDelay, timer =>
             {
-                _playerRespawnTimer = null;
-
-                if (_gameState.IsGameOver)
-                    return;
-
                 CreatePlayer(startInvulnerable: true);
             });
         }
