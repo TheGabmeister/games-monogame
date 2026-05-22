@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Nez;
 
 namespace SpaceInvaders
@@ -14,7 +13,7 @@ namespace SpaceInvaders
         protected override void Initialize()
         {
             base.Initialize();
-            Core.DebugRenderEnabled = true;
+            DebugRenderEnabled = false;
             Scene = new MainMenuScene();
         }
     }
