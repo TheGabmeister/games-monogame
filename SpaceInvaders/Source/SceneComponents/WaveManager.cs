@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Nez;
 using Nez.Sprites;
-using Nez.Systems;
 
 namespace SpaceInvaders
 {
@@ -110,7 +109,6 @@ namespace SpaceInvaders
             float startX = (Constants.ScreenWidth - formationWidth) / 2f;
 
             var formationEntity = Scene.CreateEntity("formation", new Vector2(startX, startY));
-            formationEntity.Tag = Tags.Formation;
             var controller = formationEntity.AddComponent<FormationController>();
             controller.SetWave(wave);
 
@@ -125,7 +123,6 @@ namespace SpaceInvaders
                     var invader = Scene.CreateEntity($"invader_{col}_{row}");
                     invader.Transform.SetParent(formationEntity.Transform);
                     invader.Transform.LocalPosition = localPos;
-                    invader.Tag = Tags.Invader;
 
                     invader.AddComponent(new SpriteRenderer(texture));
                     invader.Transform.SetScale(Constants.InvaderScale);

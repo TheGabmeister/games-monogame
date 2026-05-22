@@ -55,7 +55,6 @@ namespace SpaceInvaders
             {
                 collider.PhysicsLayer = 1 << PhysicsLayers.PlayerBullet;
                 collider.CollidesWithLayers = PhysicsLayers.Mask(PhysicsLayers.Invader, PhysicsLayers.Shield);
-                bullet.Tag = Tags.PlayerBullet;
             }
             else
             {

@@ -51,14 +51,13 @@ namespace SpaceInvaders
 
             var cannon = Content.LoadTexture(Assets.Sprites.Player.Cannon, true);
             player.AddComponent(new SpriteRenderer(cannon));
+            player.Transform.SetScale(0.5f);
 
             var collider = player.AddComponent(new BoxCollider(60, 36));
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
             collider.CollidesWithLayers = 0;
 
             player.AddComponent<PlayerController>();
-            player.Transform.SetScale(0.5f);
-            player.Tag = Tags.Player;
         }
 
         void CreateShields()
@@ -87,7 +86,6 @@ namespace SpaceInvaders
                         float y = shieldTop + cy * chunkH + chunkH / 2f;
 
                         var chunk = CreateEntity($"shield_{s}_{cx}_{cy}", new Vector2(x, y));
-                        chunk.Tag = Tags.Shield;
                         chunk.AddComponent(new SpriteRenderer(texture));
                         chunk.Transform.SetScale(Constants.ShieldScale);
 
