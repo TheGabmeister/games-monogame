@@ -4,7 +4,6 @@ namespace SuperMario
 {
     public enum GameEvents
     {
-        
     }
 
     public static class Events

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Nez;
@@ -6,6 +7,7 @@ namespace SuperMario
 {
     public class PlayerController : Component, IUpdatable
     {
+        public event Action OnDied;
         const float Gravity = 1200f;
         const float JumpForce = -680f;
         const float MaxFallSpeed = 600f;
@@ -70,6 +72,16 @@ namespace SuperMario
                     _velocity.Y = 0;
             }
 
+            if (Entity.Position.Y > Constants.ScreenHeight + 100)
+                OnDied?.Invoke();
+        }
+
+        public void Reset(Vector2 position)
+        {
+            Entity.Position = position;
+            _velocity = Vector2.Zero;
+            _state = PlayerState.Small;
+            ApplyStateVisuals();
         }
 
         public void GrowPlayer()

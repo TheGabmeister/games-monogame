@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="30" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="7">
  <objectgroup id="2" name="entities">
-  <object id="1" name="Platform" type="Platform" x="68.1684" y="580.753" width="388.112" height="44.6893"/>
+  <object id="1" name="Platform" type="Platform" x="66.1494" y="575.705" width="390.131" height="52.7654" rotation="8"/>
   <object id="2" name="Mushroom" type="Mushroom" x="88.3795" y="503.083" width="59.8115" height="45.8136"/>
-  <object id="3" name="Mushroom" type="Mushroom" x="859.005" y="519.37" width="57.6357" height="40.8285"/>
+  <object id="3" name="Mushroom" type="Mushroom" x="848.91" y="376.082" width="57.6357" height="40.8285" rotation="42.2285"/>
   <object id="4" name="Platform" type="Platform" x="546.929" y="577.308" width="388.112" height="44.6893"/>
   <object id="5" name="PlayerStart" type="PlayerStart" x="554.225" y="507.787" width="60.571" height="51.4854"/>
  </objectgroup>

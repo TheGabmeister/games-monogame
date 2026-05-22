@@ -13,6 +13,7 @@ namespace SuperMario
         protected override void Initialize()
         {
             base.Initialize();
+            DebugRenderEnabled = true;
 
             Scene = new MainScene();
         }

@@ -1,11 +1,13 @@
 using Microsoft.Xna.Framework;
 using Nez;
+using Nez.Tiled;
 
 namespace SuperMario
 {
     public class MainScene : Scene
     {
         PlayerController _playerController;
+        Vector2 _playerSpawn;
 
         public override void Initialize()
         {
@@ -25,26 +27,31 @@ namespace SuperMario
             {
                 if (obj.Type == "PlayerStart")
                 {
-                    var center = new Vector2(obj.X + obj.Width / 2f, obj.Y + obj.Height / 2f);
-                    CreatePlayer(center);
+                    _playerSpawn = GetObjectCenter(obj);
+                    CreatePlayer(_playerSpawn);
                     break;
                 }
             }
 
             if (_playerController == null)
-                CreatePlayer(new Vector2(Constants.ScreenWidth / 2f, 300f));
+            {
+                _playerSpawn = new Vector2(Constants.ScreenWidth / 2f, 300f);
+                CreatePlayer(_playerSpawn);
+            }
+
+            _playerController.OnDied += OnPlayerDied;
 
             foreach (var obj in objects.Objects)
             {
                 if (obj.Type == "PlayerStart")
                     continue;
 
-                var center = new Vector2(obj.X + obj.Width / 2f, obj.Y + obj.Height / 2f);
+                var center = GetObjectCenter(obj);
 
                 switch (obj.Type)
                 {
                     case "Platform":
-                        CreatePlatform(obj.Name, center, obj.Width, obj.Height);
+                        CreatePlatform(obj.Name, center, obj.Width, obj.Height, obj.Rotation);
                         break;
                     case "Mushroom":
                         CreateMushroom(center, obj.Width, obj.Height);
@@ -66,7 +73,7 @@ namespace SuperMario
             _playerController = player.AddComponent(new PlayerController());
         }
 
-        private void CreatePlatform(string name, Vector2 position, float width, float height)
+        private void CreatePlatform(string name, Vector2 position, float width, float height, float rotationDegrees)
         {
             var envLayer = 1 << PhysicsLayers.Environment;
             var envCollidesWith = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Item);
@@ -76,6 +83,26 @@ namespace SuperMario
             var collider = platform.AddComponent(new BoxCollider(-width / 2f, -height / 2f, width, height));
             collider.PhysicsLayer = envLayer;
             collider.CollidesWithLayers = envCollidesWith;
+
+            if (rotationDegrees != 0)
+                platform.RotationDegrees = rotationDegrees;
+        }
+
+        private static Vector2 GetObjectCenter(TmxObject obj)
+        {
+            var offset = new Vector2(obj.Width / 2f, obj.Height / 2f);
+
+            if (obj.Rotation != 0)
+            {
+                var rad = MathHelper.ToRadians(obj.Rotation);
+                var cos = Mathf.Cos(rad);
+                var sin = Mathf.Sin(rad);
+                offset = new Vector2(
+                    cos * offset.X - sin * offset.Y,
+                    sin * offset.X + cos * offset.Y);
+            }
+
+            return new Vector2(obj.X + offset.X, obj.Y + offset.Y);
         }
 
         private void CreateMushroom(Vector2 position, float width, float height)
@@ -89,6 +116,11 @@ namespace SuperMario
             collider.CollidesWithLayers = itemCollidesWith;
             collider.IsTrigger = true;
             mushroom.AddComponent(new Mushroom(_playerController));
+        }
+
+        void OnPlayerDied()
+        {
+            _playerController.Reset(_playerSpawn);
         }
     }
 }
