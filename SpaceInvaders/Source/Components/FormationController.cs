@@ -123,7 +123,7 @@ namespace SpaceInvaders
 
                     float worldX = formationX + col * GameConstants.InvaderSpacingX;
                     float worldY = formationY + row * GameConstants.InvaderSpacingY;
-                    var invBounds = new RectangleF(worldX - 35, worldY - 30, 70, 60);
+                    var invBounds = new RectangleF(worldX - 25, worldY - 20, 50, 40);
 
                     var hits = Physics.BoxcastBroadphase(invBounds, 1 << PhysicsLayers.Shield);
                     foreach (var hit in hits)

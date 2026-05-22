@@ -78,8 +78,9 @@ namespace SpaceInvaders
 
             var texture = Scene.Content.LoadTexture("Content/sprites/invaders/ufo.png", true);
             ufo.AddComponent(new SpriteRenderer(texture));
+            ufo.Transform.SetScale(0.5f);
 
-            var collider = ufo.AddComponent(new BoxCollider(144, 60));
+            var collider = ufo.AddComponent(new BoxCollider(48, 20));
             collider.PhysicsLayer = 1 << PhysicsLayers.Invader;
             collider.CollidesWithLayers = 0;
 
@@ -130,8 +131,9 @@ namespace SpaceInvaders
                     invader.Tag = Tags.Invader;
 
                     invader.AddComponent(new SpriteRenderer(texture));
+                    invader.Transform.SetScale(GameConstants.InvaderScale);
 
-                    var collider = invader.AddComponent(new BoxCollider(70, 60));
+                    var collider = invader.AddComponent(new BoxCollider(50, 40));
                     collider.PhysicsLayer = 1 << PhysicsLayers.Invader;
                     collider.CollidesWithLayers = 0;
 

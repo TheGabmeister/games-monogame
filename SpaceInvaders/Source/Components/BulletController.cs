@@ -46,8 +46,9 @@ namespace SpaceInvaders
             var texture = scene.Content.LoadTexture(
                 isPlayerBullet ? "Content/sprites/effects/bullet_player.png" : "Content/sprites/effects/bullet_enemy.png", true);
             bullet.AddComponent(new SpriteRenderer(texture));
+            bullet.Transform.SetScale(0.4f);
 
-            var collider = bullet.AddComponent(new BoxCollider(10, 30));
+            var collider = bullet.AddComponent(new BoxCollider(6, 16));
             if (isPlayerBullet)
             {
                 collider.PhysicsLayer = 1 << PhysicsLayers.PlayerBullet;

@@ -44,8 +44,9 @@ namespace SpaceInvaders
 
             var texture = Content.LoadTexture("Content/sprites/player/cannon.png", true);
             player.AddComponent(new SpriteRenderer(texture));
+            player.Transform.SetScale(0.5f);
 
-            var collider = player.AddComponent(new BoxCollider(120, 70));
+            var collider = player.AddComponent(new BoxCollider(60, 36));
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
             collider.CollidesWithLayers = 0;
 
@@ -75,6 +76,7 @@ namespace SpaceInvaders
                         var chunk = CreateEntity($"shield_{s}_{cx}_{cy}", new Vector2(x, y));
                         chunk.Tag = Tags.Shield;
                         chunk.AddComponent(new SpriteRenderer(chunkTex));
+                        chunk.Transform.SetScale(GameConstants.ShieldScale);
 
                         var collider = chunk.AddComponent(new BoxCollider(GameConstants.ShieldChunkW, GameConstants.ShieldChunkH));
                         collider.PhysicsLayer = 1 << PhysicsLayers.Shield;

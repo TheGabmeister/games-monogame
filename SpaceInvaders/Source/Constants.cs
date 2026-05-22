@@ -41,11 +41,12 @@ namespace SpaceInvaders
 
         public const int FormationColumns = 11;
         public const int FormationRows = 5;
-        public const float InvaderSpacingX = 80f;
-        public const float InvaderSpacingY = 70f;
-        public const float FormationMarginX = 60f;
-        public const float FormationDropDistance = 30f;
-        public const float FormationStartY = 60f;
+        public const float InvaderSpacingX = 58f;
+        public const float InvaderSpacingY = 50f;
+        public const float FormationMarginX = 40f;
+        public const float FormationDropDistance = 28f;
+        public const float FormationStartY = 80f;
+        public const float InvaderScale = 0.45f;
 
         public const float BaseFormationSpeed = 30f;
         public const float MaxFormationSpeed = 500f;
@@ -67,12 +68,13 @@ namespace SpaceInvaders
         public const float DeathDelay = 1.5f;
         public const float RespawnInvulnerability = 1.5f;
 
-        public const float ShieldY = 540f;
+        public const float ShieldY = 560f;
         public const int ShieldCount = 4;
         public const int ShieldChunksX = 4;
         public const int ShieldChunksY = 4;
-        public const float ShieldChunkW = 45f;
-        public const float ShieldChunkH = 36f;
+        public const float ShieldChunkW = 20f;
+        public const float ShieldChunkH = 16f;
+        public const float ShieldScale = 0.45f;
 
         public const float InvasionLineY = 640f;
 
