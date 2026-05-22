@@ -55,17 +55,15 @@ Damage reduction is applied via bit-shifting: enemy attack values are right-shif
 
 | Shield | Blocks |
 |---|---|
-| Small Shield (starting) | Arrows, Rocks (Octorok) |
-| Magical Shield | Arrows, Rocks, Sword projectiles (Lynel), Magic blasts (Wizzrobe), fireballs |
-
-The Magical Shield can be eaten by Like Likes, reverting Link to the Small Shield.
+| Small Shield (starting) | Rocks (Octorok), Arrows (Moblin) |
+| Magical Shield | All of the above + Sword beams (Lynel), Magic blasts (Wizzrobe), fireballs |
 
 ### Resource Management
 
 - **Hearts:** Link's health. Starts with 3 Heart Containers, max 16. Each container holds 2 half-hearts. Damage is measured in half-heart increments.
 - **Rupees:** Currency. Max 255. Spent on shop items and arrows (1 Rupee per shot).
-- **Bombs:** Carried explosives. Initial max capacity 8; upgradeable to 12, then 16.
-- **Keys:** Consumable. Each Key opens one locked door. Max 255. The Magical Key (from Level 8) replaces all Keys and opens all locked doors infinitely.
+- **Bombs:** Carried explosives. Initial max capacity 8. Upgrades found in Level 5 (to 12) and Level 7 (to 16).
+- **Keys:** Consumable. Each Key opens one locked door. Max 255. The Magical Key (Level 8) replaces all Keys with infinite uses.
 
 ---
 
@@ -76,10 +74,12 @@ NES controller (single-player):
 | Input | Action |
 |---|---|
 | D-Pad | Move Link in four cardinal directions |
-| A Button | Use equipped B-item (selected on subscreen) |
-| B Button | Sword attack (swing in facing direction) |
+| A Button | Sword attack (swing in facing direction) |
+| B Button | Use equipped item (selected on subscreen) |
 | Start | Pause / open inventory subscreen |
 | Select | Not used during gameplay |
+
+The HUD labels the two item slots: "A" above the sword icon, "B" above the secondary item icon, matching their respective buttons.
 
 **Saving:** Press Up + A on Controller 2 while paused to bring up the Save/Continue/Retry screen. Also appears on death.
 
@@ -91,6 +91,10 @@ NES controller (single-player):
 - Direction changes are instant with no momentum.
 - **Grid alignment:** While Link can be at any pixel position, continuous movement automatically nudges him toward the underlying 8x8 half-tile grid. If Link is N pixels off-grid, he re-aligns within N pixels of movement. This prevents snagging on obstacle corners.
 - Screen transitions trigger when Link reaches a screen edge. The view scrolls to the adjacent screen. Link cannot move during transitions.
+
+### Link's Sprite
+
+Link's sprite is 16x16 pixels (one tile). His hitbox is slightly smaller than his visual sprite, allowing some overlap with obstacles without collision.
 
 ---
 
@@ -141,14 +145,18 @@ Nine underground dungeons, each with a unique floor plan of interconnected rooms
 | 9 | Death Mountain | Ganon | Silver Arrow, Red Ring | No (final dungeon) |
 
 **Dungeon rooms** are single-screen chambers. Rooms may contain:
-- Locked doors (require a Key)
-- Bombable walls (destructible with Bombs)
-- Dark rooms (require Candle to illuminate)
-- Floor Traps (spike blocks that rush toward Link)
-- Old Men who give hints, demand Rupee payment, or offer item choices
-- Old Women (Hungry Goriya in Level 7 requires Food/Bait to pass)
+- **Locked doors** (require a Key to open)
+- **Bombable walls** (destructible with Bombs; reveals passage to adjacent room)
+- **Dark rooms** (completely black until lit with a Candle; relighting required each visit)
+- **Pushable blocks** (one block per room can be pushed to trigger a door opening or reveal a staircase; the correct block must be pushed in the correct direction)
+- **Staircases** (lead to underground passages connecting distant rooms, or to item rooms containing the dungeon's key treasure)
+- **Floor Traps** (spike blocks that rush toward Link when he aligns horizontally or vertically; indestructible)
+- **Old Men** who give hints, demand Rupee payment ("PAY ME FOR THE DOOR REPAIR CHARGE"), or offer item choices ("TAKE ANY ONE YOU WANT")
+- A Goriya in Level 7 that blocks passage until given Food ("GRUMBLE, GRUMBLE")
 
-**Dungeon items per dungeon:** Map (reveals room layout on minimap), Compass (shows boss/Triforce room location).
+**Room clearing:** Some rooms have "shuttered doors" that slam shut when Link enters and only open once all enemies are killed. Regular (open or locked) doors are unaffected. Enemies respawn every time Link leaves and re-enters a room, but item-containing rooms stay collected.
+
+**Dungeon items per dungeon:** Map (reveals room layout on minimap), Compass (shows boss/Triforce room location with a blinking dot).
 
 ### Progression Gating
 
@@ -195,84 +203,86 @@ There is no further content after completing the Second Quest.
 
 ## 6. Items & Equipment
 
+For weapon damage values and defense multipliers, see §1. This section covers acquisition and non-combat properties.
+
 ### Swords
 
-| Sword | Damage | Location | Requirement |
-|---|---|---|---|
-| Wooden Sword | 1 | Starting cave (Old Man) | None |
-| White Sword | 2 | Overworld cave (waterfall area) | 5+ Heart Containers |
-| Magical Sword | 4 | Under grave in Graveyard | 12+ Heart Containers |
+| Sword | Location | Requirement |
+|---|---|---|
+| Wooden Sword | Starting cave (Old Man) | None |
+| White Sword | Overworld cave (waterfall area) | 5+ Heart Containers |
+| Magical Sword | Under grave in Graveyard | 12+ Heart Containers |
 
-Each sword upgrade replaces the previous one. All swords fire a beam projectile when Link is at full health.
+Each sword upgrade replaces the previous one.
 
 ### Shields
 
-| Shield | Blocks | Source |
-|---|---|---|
-| Small Shield | Rocks, Arrows | Starting equipment |
-| Magical Shield | Rocks, Arrows, Sword beams, Magic blasts, Fireballs | Shop (90-160 Rupees) |
+| Shield | Source |
+|---|---|
+| Small Shield | Starting equipment |
+| Magical Shield | Shop (90-160 Rupees) |
+
+The Magical Shield can be eaten by Like Likes (see §7), reverting Link to the Small Shield.
 
 ### Rings
 
-| Ring | Effect | Source | Cost |
-|---|---|---|---|
-| Blue Ring | Half damage taken | Overworld shop | 250 Rupees |
-| Red Ring | Quarter damage taken | Level 9 | Free (dungeon item) |
+| Ring | Source |
+|---|---|
+| Blue Ring | Overworld shop (250 Rupees) |
+| Red Ring | Level 9 (dungeon item) |
 
 ### Ranged Weapons
 
-| Item | Effect | Source |
+| Item | Source | Notes |
 |---|---|---|
-| Boomerang | Stuns enemies; kills Keese/Gel; half-screen range | Level 1 |
-| Magical Boomerang | Same as Boomerang; full-screen range | Level 2 |
-| Bow | Required to fire Arrows | Level 1 |
-| Arrow | 2 HP damage per shot; costs 1 Rupee per use | Shop (80 Rupees) |
-| Silver Arrow | 2 HP damage; required to kill Ganon | Level 9 |
-| Bombs | 4 HP damage; destroys weak walls; max 8/12/16 | Drops, shops (20 Rupees per 4) |
-| Magical Rod | Fires magic beam (2 HP damage) | Level 6 |
-| Book of Magic | Adds fire trail to Magical Rod shots | Level 8 |
+| Boomerang | Level 1 | Half-screen range |
+| Magical Boomerang | Level 2 | Full-screen range; replaces Boomerang |
+| Bow | Level 1 | Required to fire Arrows |
+| Arrow | Shop (80 Rupees) | Costs 1 Rupee per shot |
+| Silver Arrow | Level 9 | Required to kill Ganon |
+| Bombs | Drops, shops (20 Rupees per 4) | Destroys weak walls; capacity 8/12/16 |
+| Magical Rod | Level 6 | Fires magic beam |
+| Book of Magic | Level 8 | Adds fire trail to Magical Rod shots |
 
 ### Candles
 
-| Candle | Effect | Source |
+| Candle | Source | Notes |
 |---|---|---|
-| Blue Candle | Creates fire tile; one use per screen | Shop (60 Rupees) |
-| Red Candle | Creates fire tile; unlimited per screen | Level 7 |
+| Blue Candle | Shop (60 Rupees) | One fire per screen |
+| Red Candle | Level 7 | Unlimited fires per screen; replaces Blue |
 
-Both light dark dungeon rooms, burn bushes to reveal secrets, and deal 1 HP contact damage to enemies.
+Both light dark dungeon rooms, burn bushes to reveal secrets, and damage enemies on contact.
 
 ### Utility Items
 
-| Item | Effect | Source |
+| Item | Source | Effect |
 |---|---|---|
-| Raft | Lets Link sail from specific dock tiles | Level 3 |
-| Stepladder | Crosses single-tile water/gaps | Level 4 |
-| Recorder (Whistle) | Warps to a visited dungeon entrance; reveals Level 7 entrance | Level 5 |
-| Power Bracelet | Push certain rocks; reveals transport stairs | Overworld |
-| Food (Bait) | Lures enemies; offered to Hungry Goriya in Level 7 | Shop (60-100 Rupees) |
-| Letter | Give to Old Woman to unlock Potion shop | Overworld |
-| Magical Key | Opens all locked doors infinitely; replaces Keys | Level 8 |
+| Raft | Level 3 | Sail from specific dock tiles |
+| Stepladder | Level 4 | Cross single-tile water/gaps |
+| Recorder (Whistle) | Level 5 | Warp to visited dungeon entrance; reveals Level 7 entrance |
+| Power Bracelet | Overworld | Push certain rocks; reveals transport stairs |
+| Food (Bait) | Shop (60-100 Rupees) | Lures enemies; required to pass Goriya in Level 7 |
+| Letter | Overworld | Give to Old Woman to unlock Potion shop |
+| Magical Key | Level 8 | Opens all locked doors infinitely; replaces Keys |
 
 ### Consumables
 
-| Item | Effect | Source |
+| Item | Source | Effect |
 |---|---|---|
-| Heart | Restores 1 heart | Enemy drops, shops (10 Rupees) |
-| Fairy | Restores 3 hearts | Enemy drops; overworld fairy ponds restore all hearts |
-| Blue Potion | Restores all hearts; single use | Potion shop (40 Rupees); requires Letter |
-| Red Potion | Restores all hearts; two uses (becomes Blue after first) | Potion shop (68 Rupees) |
-| Clock | Freezes all enemies on screen | Rare enemy drop |
+| Heart | Enemy drops, shops (10 Rupees) | Restores 1 heart |
+| Fairy | Enemy drops; overworld fairy ponds | Drops restore 3 hearts; fairy ponds restore all |
+| Blue Potion | Potion shop (40 Rupees) | Restores all hearts; single use; requires Letter |
+| Red Potion | Potion shop (68 Rupees) | Restores all hearts; two uses (becomes Blue after first) |
+| Clock | Rare enemy drop | Freezes all enemies on current screen |
 
 ### Dungeon Navigation Items
 
-| Item | Effect | Per Dungeon |
+| Item | Per Dungeon | Effect |
 |---|---|---|
-| Map | Reveals dungeon room layout on minimap | 1 per dungeon |
-| Compass | Shows boss/Triforce room as blinking dot | 1 per dungeon |
-| Key | Opens one locked dungeon door | Multiple per dungeon |
-| Triforce Fragment | Quest item; 8 required to enter Level 9 | 1 per dungeon (Levels 1-8) |
-
-Collecting a Triforce Fragment fully restores Link's health.
+| Map | 1 | Reveals dungeon room layout on minimap |
+| Compass | 1 | Shows boss/Triforce room as blinking dot |
+| Key | Multiple | Opens one locked dungeon door; consumed on use |
+| Triforce Fragment | 1 (Levels 1-8) | Quest item; collecting one fully restores health; all 8 required to enter Level 9 |
 
 ---
 
@@ -333,15 +343,14 @@ Collecting a Triforce Fragment fully restores Link's health.
 |---|---|---|---|---|
 | Aquamentus | 6 | 1, 7 | Walks slowly; fires 3 fireballs in spread pattern | Sword strikes; stand off to the side |
 | Dodongo | N/A | 2, 5, 7 | Charges across room | Feed 2 Bombs (walk into its open mouth); immune to sword |
-| Manhandla | 4 heads | 3, 4, 8 | 4-armed plant; moves and fires projectiles; speeds up as heads are destroyed | Destroy each head; Bombs can kill multiple heads at once |
-| Gleeok (2 heads) | ~10/head | 4 | Stationary dragon; fires constant stream of fireballs; severed heads become flying projectiles | Sword each head (10 hits for first head, 6 for second with Wooden Sword) |
-| Gleeok (3 heads) | ~10/head | 6 | Same as 2-head; one additional head | Same strategy |
-| Gleeok (4 heads) | ~10/head | 8 | Same; four heads | Same strategy; most dangerous Gleeok |
-| Digdogger | N/A | 5, 7 | Large eye creature; invulnerable in large form | Play Recorder to shrink; then sword the small form(s). Level 5: shrinks to 1. Level 7: splits into 3 |
-| Gohma (Red) | 1 (arrow) | 6 | Moves horizontally; fires fireballs; eye opens/closes | Shoot Arrow into open eye; one-hit kill |
-| Gohma (Blue) | 3 (arrows) | 8 | Same as Red; faster | Requires 3 Arrow hits to eye |
-| Patra | 11 (core) | 9 | Core orbited by 8 smaller eyes; orbiting eyes must be killed first | Kill all 8 orbiting eyes (6 HP each), then attack core |
-| Ganon | 15 | 9 | Invisible; teleports; fires fireballs from random positions | Hit 4 times with Magical Sword (8 with White, 15 with Wooden) to make visible; finish with Silver Arrow |
+| Manhandla | 4 heads | 3, 4, 8 | 4-armed plant; moves and fires projectiles; speeds up as heads are destroyed | Destroy each head; a well-placed Bomb can kill multiple heads at once |
+| Gleeok (2 heads) | ~10/head | 4 | Stationary dragon; fires constant fireballs; severed heads detach and fly independently as projectiles | Sword each head (10 Wooden Sword hits for first head, 6 for second) |
+| Gleeok (4 heads) | ~10/head | 8 | Same as 2-head but with four heads; severed heads accumulate as threats | Same strategy; most dangerous variant in First Quest |
+| Digdogger | N/A | 5, 7 | Large eye creature; invulnerable in large form | Play Recorder to shrink, then sword. Level 5: shrinks to 1. Level 7: splits into 3 small forms |
+| Gohma (Red) | 1 (arrow) | 6 | Moves horizontally; fires fireballs; eye opens and closes periodically | Shoot Arrow into open eye; one-hit kill |
+| Gohma (Blue) | 3 (arrows) | 8 | Same as Red; faster | 3 Arrow hits to the open eye |
+| Patra | 11 (core) | 9 | Core orbited by 8 smaller eyes; orbit pattern alternates between tight circle and expanding ring | Kill all 8 orbiting eyes (6 HP each) first, then attack core; sub-boss before Ganon |
+| Ganon | 15 | 9 | Invisible; teleports around room; fires fireballs from random positions | Sword him (4 Magical Sword / 8 White / 15 Wooden hits) until he turns brown and becomes visible; finish with one Silver Arrow |
 
 ### Enemy Scaling
 
@@ -419,10 +428,12 @@ A **kill counter** increments with each enemy killed (excluding X-group spawns).
 - 10 kills without being hit: next dropping enemy gives 5 Rupees (or a Bomb if killed with a Bomb).
 - 16 kills without being hit: next dropping enemy gives a Fairy. Resets the streak counter.
 
-### Secrets and Collection
+### Heart Container Distribution
 
-- **Heart Containers:** 13 total beyond starting 3 hearts. 8 from dungeon bosses (Levels 1-8), 5 hidden in overworld caves. Max 16 hearts.
-- **Bomb capacity upgrades:** Found in specific dungeon rooms. 8 -> 12 (Level 5) -> 16 (Level 7).
+- 3 starting hearts.
+- 8 from dungeon bosses (Levels 1-8), one per boss.
+- 5 hidden in overworld caves (require specific items or secrets to access).
+- **Max: 16 hearts.**
 
 ---
 
@@ -436,29 +447,31 @@ The top portion of the screen (3 tile rows) is a persistent HUD, always visible 
 
 | Element | Position | Description |
 |---|---|---|
-| Minimap | Top-left | Shows overworld position (16x8 grid) or dungeon room layout (if Map collected). Link's position shown as a blinking dot. Compass makes boss room blink. |
-| Rupee count | Center-left | Numerical display; "X" prefix; max 255 |
-| Key count | Center-left (below Rupees) | Numerical display; "X" prefix |
-| Bomb count | Center-left (below Keys) | Numerical display; "X" prefix |
-| B-Button item | Center | Icon of currently equipped secondary item |
-| A-Button item | Center-right | Always shows Sword icon |
-| Life (hearts) | Top-right | Row of heart icons; full = red, half = half-filled, empty = outlined. Displays current/maximum hearts. |
+| Minimap | Top-left | Overworld: shows Link's position in the 16x8 grid. Dungeon: shows room layout (if Map collected); Compass makes boss room blink. |
+| Rupee count | Center-left | Numerical display with "X" prefix; max 255 |
+| Key count | Below Rupees | Numerical display with "X" prefix |
+| Bomb count | Below Keys | Numerical display with "X" prefix |
+| Item slot "B" | Center | Icon of currently equipped secondary item (used with B button) |
+| Sword slot "A" | Center-right | Always shows current sword icon (used with A button) |
+| Life (hearts) | Top-right | Row of heart icons; full = red, half = half-filled, empty = outlined |
 
 ### Inventory Subscreen
 
-Pressing Start pauses the game and reveals the inventory subscreen, which overlays the play area:
+Pressing Start pauses the game and scrolls the play area down, revealing the subscreen above it:
 
-- **Item grid:** Shows all collected secondary items (Boomerang, Bombs, Bow + Arrows, Candle, Recorder, Food, Potion, Magical Rod, etc.). Player selects one to assign to the B Button.
-- **Triforce tracker:** Shows which of the 8 Triforce fragments have been collected.
-- **Dungeon map:** If Map is collected, shows full room layout of current dungeon.
+- **Item grid:** Shows all collected secondary items in a 2-row grid. Player moves a cursor to select one, equipping it to the B button.
+- **Triforce display:** Eight triangular slots showing which Triforce fragments have been collected (filled = collected, empty = remaining).
+- **Map/Compass indicators:** Shows whether Map and Compass have been found for the current dungeon.
+- **Dungeon map:** Full room layout of current dungeon (if Map collected). Not shown on overworld.
 
 ### Damage Feedback
 
-- Link flashes/blinks when hit (invincibility frames).
-- Enemies flash when struck.
+- **Invincibility frames:** Link flashes and becomes invulnerable for approximately 1 second (~64 frames) after taking damage. During this time he can move but cannot be hit again.
+- **Knockback:** Link is pushed back several pixels in the opposite direction of the hit on contact damage.
+- Enemies flash white briefly when struck.
 - No damage numbers displayed.
-- Enemy death: enemy sprite disappears in a puff animation.
-- Boss death: extended explosion animation before dropping Heart Container and revealing Triforce Fragment room.
+- **Enemy death:** Sprite disappears in a puff/explosion animation. May drop an item (see §9).
+- **Boss death:** Extended explosion animation; drops a Heart Container. The room's wall opens to reveal the Triforce Fragment chamber.
 
 ---
 
@@ -469,7 +482,7 @@ Pressing Start pauses the game and reveals the inventory subscreen, which overla
 The Legend of Zelda was the first NES game to feature battery-backed save RAM.
 
 - **3 save slots**, each with a player-chosen name (up to 8 characters).
-- **Saved state includes:** inventory, Heart Containers, collected Triforce pieces, collected dungeon items, Rupees (reset to 0 on continue for some versions), bomb count, keys. Dungeon room clear states are saved; enemy positions reset.
+- **Saved state includes:** inventory, Heart Containers, collected Triforce pieces, collected dungeon items, Rupees, bomb capacity upgrades, key count. Dungeon room clear states and opened doors are not saved; enemies and doors reset on reload.
 - **Save access:** Death screen (Continue / Save / Retry) or Up+A on Controller 2 while paused.
 - **Continue:** Respawns Link at the overworld start screen (or dungeon entrance if in a dungeon) with 3 hearts, retaining all items and progress.
 - **Retry:** Same as Continue but does not save.
@@ -497,13 +510,13 @@ No difficulty settings. The Second Quest (see §5) serves as a built-in hard mod
 
 ## 12. Open Questions / Unverified
 
-- **Exact boss HP values:** Aquamentus is well-documented at 6 HP. Gleeok head HP (~10 per head with Wooden Sword) is sourced from speedrun communities but not fully ROM-verified in accessible sources. Manhandla per-head HP and Digdogger (shrunken form) HP need ROM disassembly confirmation.
-- **Arrow damage vs. bomb damage:** Arrows are widely cited as 2 HP (equal to White Sword). Some sources suggest arrows deal 4 HP (equal to bombs). The disassembly at `github.com/aldonunez/zelda1-disassembly` would be authoritative.
-- **Exact drop sequence tables:** The per-position item in each group's 10-entry kill counter sequence is documented in speedrun community charts (ZeldaSpeedRuns) but stored as images, not text. Full table could not be extracted.
-- **Shop variant stock:** Four shop types exist with varying prices, but the exact item list per variant and all shop overworld locations are not fully catalogued here.
-- **Enemy damage values (complete):** The table above lists damage for common enemies. Contact damage for some rarer enemies (Lanmola, Moldorm segments) may differ and needs verification.
-- **Pols Voice microphone weakness:** In the Famicom Disk System version, Pols Voice can be killed by shouting into the Famicom's second controller microphone. This feature does not exist on the NES version (no microphone). On NES, Arrows are the intended weakness.
-- **Second Quest enemy placement:** Full room-by-room enemy assignments for the Second Quest dungeons are not documented here.
+- **Boss HP values:** Aquamentus (6 HP) and Ganon (15 HP) are well-documented. Gleeok head HP (~10 per head) is sourced from speedrun communities but not fully ROM-verified. Manhandla per-head HP and Digdogger shrunken-form HP need disassembly confirmation.
+- **Arrow damage:** Widely cited as 2 HP (equal to White Sword). Some sources suggest 4 HP (equal to Bombs). The disassembly at `github.com/aldonunez/zelda1-disassembly` would be authoritative.
+- **Drop sequence tables:** The per-position item in each group's 10-entry kill counter sequence is documented in ZeldaSpeedRuns charts but stored as images. Full numerical table could not be extracted for this spec.
+- **Shop variants:** Four shop types exist with varying stock and prices. The exact item list per variant and all overworld locations are not fully catalogued here.
+- **Pols Voice (FDS vs. NES):** On the Famicom Disk System, Pols Voice can be killed via the second controller's microphone. This does not exist on NES (no microphone); Arrows are the NES weakness.
+- **Second Quest specifics:** Dungeon layouts, enemy placements, and item/secret locations for the Second Quest are entirely different from the First Quest but are not documented in this spec.
+- **Invincibility frame duration:** Estimated at ~64 frames (~1 second). Exact frame count needs ROM verification.
 
 ---
 

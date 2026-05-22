@@ -76,10 +76,10 @@ namespace SpaceInvaders
             float startX = _ufoDirection > 0 ? -48 : GameConstants.ScreenWidth + 48;
             var ufo = Scene.CreateEntity("ufo", new Vector2(startX, 40));
 
-            var texture = Scene.Content.LoadTexture("Content/sprites/invaders/ufo.png");
+            var texture = Scene.Content.LoadTexture("Content/sprites/invaders/ufo.png", true);
             ufo.AddComponent(new SpriteRenderer(texture));
 
-            var collider = ufo.AddComponent(new BoxCollider(48, 20));
+            var collider = ufo.AddComponent(new BoxCollider(144, 60));
             collider.PhysicsLayer = 1 << PhysicsLayers.Invader;
             collider.CollidesWithLayers = 0;
 
@@ -107,9 +107,9 @@ namespace SpaceInvaders
             var controller = formationEntity.AddComponent<FormationController>();
             controller.SetWave(wave);
 
-            var squidTex = Scene.Content.LoadTexture("Content/sprites/invaders/squid_01.png");
-            var crabTex = Scene.Content.LoadTexture("Content/sprites/invaders/crab_01.png");
-            var octopusTex = Scene.Content.LoadTexture("Content/sprites/invaders/octopus_01.png");
+            var squidTex = Scene.Content.LoadTexture("Content/sprites/invaders/squid_01.png", true);
+            var crabTex = Scene.Content.LoadTexture("Content/sprites/invaders/crab_01.png", true);
+            var octopusTex = Scene.Content.LoadTexture("Content/sprites/invaders/octopus_01.png", true);
 
             for (int row = 0; row < GameConstants.FormationRows; row++)
             {
@@ -131,7 +131,7 @@ namespace SpaceInvaders
 
                     invader.AddComponent(new SpriteRenderer(texture));
 
-                    var collider = invader.AddComponent(new BoxCollider(30, 24));
+                    var collider = invader.AddComponent(new BoxCollider(70, 60));
                     collider.PhysicsLayer = 1 << PhysicsLayers.Invader;
                     collider.CollidesWithLayers = 0;
 
