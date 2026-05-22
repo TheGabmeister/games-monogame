@@ -1,0 +1,70 @@
+using Microsoft.Xna.Framework;
+using Nez;
+using Nez.Sprites;
+
+namespace SpaceInvaders
+{
+    public class BulletController : Component, IUpdatable, ITriggerListener
+    {
+        readonly bool _isPlayerBullet;
+        readonly float _speed;
+        ProjectileMover _mover;
+
+        public BulletController(bool isPlayerBullet)
+        {
+            _isPlayerBullet = isPlayerBullet;
+            _speed = isPlayerBullet ? GameConstants.PlayerBulletSpeed : GameConstants.EnemyBulletSpeed;
+        }
+
+        public override void OnAddedToEntity()
+        {
+            _mover = Entity.GetComponent<ProjectileMover>();
+        }
+
+        public void Update()
+        {
+            float direction = _isPlayerBullet ? -1 : 1;
+            var motion = new Vector2(0, direction * _speed * Time.DeltaTime);
+            _mover.Move(motion);
+
+            var y = Entity.Transform.Position.Y;
+            if (y < -20 || y > GameConstants.ScreenHeight + 20)
+                Entity.Destroy();
+        }
+
+        public void OnTriggerEnter(Collider other, Collider local)
+        {
+            Entity.Destroy();
+        }
+
+        public void OnTriggerExit(Collider other, Collider local) { }
+
+        public static Entity CreateBullet(Scene scene, Vector2 position, bool isPlayerBullet)
+        {
+            var bullet = scene.CreateEntity("bullet", position);
+
+            var texture = scene.Content.LoadTexture(
+                isPlayerBullet ? "Content/sprites/effects/bullet_player.png" : "Content/sprites/effects/bullet_enemy.png");
+            bullet.AddComponent(new SpriteRenderer(texture));
+
+            var collider = bullet.AddComponent(new BoxCollider(4, 12));
+            if (isPlayerBullet)
+            {
+                collider.PhysicsLayer = 1 << PhysicsLayers.PlayerBullet;
+                collider.CollidesWithLayers = PhysicsLayers.Mask(PhysicsLayers.Invader, PhysicsLayers.Shield);
+                bullet.Tag = Tags.PlayerBullet;
+            }
+            else
+            {
+                collider.PhysicsLayer = 1 << PhysicsLayers.EnemyBullet;
+                collider.CollidesWithLayers = PhysicsLayers.Mask(PhysicsLayers.Player, PhysicsLayers.Shield);
+                bullet.Tag = Tags.EnemyBullet;
+            }
+
+            bullet.AddComponent<ProjectileMover>();
+            bullet.AddComponent(new BulletController(isPlayerBullet));
+
+            return bullet;
+        }
+    }
+}
