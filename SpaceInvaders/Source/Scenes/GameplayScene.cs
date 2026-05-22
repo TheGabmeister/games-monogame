@@ -16,7 +16,7 @@ namespace SpaceInvaders
         TextComponent _livesText;
         TextComponent _waveText;
         TextComponent _gameOverText;
-        Entity _player;
+        PlayerController _playerController;
         bool _paused;
         bool _isRespawningPlayer;
         float _playerRespawnTimer;
@@ -71,12 +71,12 @@ namespace SpaceInvaders
             var controller = player.AddComponent(new PlayerController(startInvulnerable));
             controller.Died += OnPlayerDied;
 
-            _player = player;
+            _playerController = controller;
         }
 
         void OnPlayerDied()
         {
-            _player = null;
+            _playerController.Died -= OnPlayerDied;
             _gameState.LoseLife();
 
             if (_gameState.IsGameOver)
@@ -198,11 +198,7 @@ namespace SpaceInvaders
             if (_gameState.IsGameOver)
             {
                 _isRespawningPlayer = false;
-                if (_player != null && !_player.IsDestroyed)
-                {
-                    _player.Destroy();
-                    _player = null;
-                }
+
                 return;
             }
 
