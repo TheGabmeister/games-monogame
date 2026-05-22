@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Nez;
 using Nez.Sprites;
@@ -11,11 +10,7 @@ namespace SpaceInvaders
     {
         GameState _gameState;
         WaveManager _waveManager;
-        TextComponent _scoreText;
-        TextComponent _highScoreText;
-        TextComponent _livesText;
-        TextComponent _waveText;
-        TextComponent _gameOverText;
+        HudController _hud;
         PlayerController _playerController;
         bool _paused;
         ITimer _playerRespawnTimer;
@@ -30,6 +25,7 @@ namespace SpaceInvaders
 
             _gameState = AddSceneComponent<GameState>();
             _waveManager = AddSceneComponent<WaveManager>();
+            _hud = AddSceneComponent<HudController>();
             AddSceneComponent<BassRhythm>();
 
             _pauseInput = new VirtualButton();
@@ -42,9 +38,6 @@ namespace SpaceInvaders
 
             CreatePlayer();
             CreateShields();
-            CreateHud();
-            HookGameStateEvents();
-            RefreshHud();
 
             _waveManager.SpawnFormation();
         }
@@ -54,7 +47,6 @@ namespace SpaceInvaders
             _playerRespawnTimer?.Stop();
             _playerRespawnTimer = null;
 
-            UnhookGameStateEvents();
             _pauseInput?.Deregister();
             _restartInput?.Deregister();
         }
@@ -91,61 +83,6 @@ namespace SpaceInvaders
             {
                 CreatePlayer(startInvulnerable: true);
             });
-        }
-
-        void OnGameOver()
-        {
-            _gameOverText.SetText("GAME OVER\nPress ENTER to restart");
-            _gameOverText.Enabled = true;
-        }
-
-        void HookGameStateEvents()
-        {
-            _gameState.ScoreChanged += OnScoreChanged;
-            _gameState.HighScoreChanged += OnHighScoreChanged;
-            _gameState.LivesChanged += OnLivesChanged;
-            _gameState.WaveChanged += OnWaveChanged;
-            _gameState.GameOver += OnGameOver;
-        }
-
-        void UnhookGameStateEvents()
-        {
-            if (_gameState == null)
-                return;
-
-            _gameState.ScoreChanged -= OnScoreChanged;
-            _gameState.HighScoreChanged -= OnHighScoreChanged;
-            _gameState.LivesChanged -= OnLivesChanged;
-            _gameState.WaveChanged -= OnWaveChanged;
-            _gameState.GameOver -= OnGameOver;
-        }
-
-        void RefreshHud()
-        {
-            OnScoreChanged(_gameState.Score);
-            OnHighScoreChanged(_gameState.HighScore);
-            OnLivesChanged(_gameState.Lives);
-            OnWaveChanged(_gameState.Wave);
-        }
-
-        void OnScoreChanged(int score)
-        {
-            _scoreText.SetText($"SCORE: {score}");
-        }
-
-        void OnHighScoreChanged(int highScore)
-        {
-            _highScoreText.SetText($"HI: {highScore}");
-        }
-
-        void OnLivesChanged(int lives)
-        {
-            _livesText.SetText($"LIVES: {lives}");
-        }
-
-        void OnWaveChanged(int wave)
-        {
-            _waveText.SetText($"WAVE {wave}");
         }
 
         void CreateShields()
@@ -188,36 +125,6 @@ namespace SpaceInvaders
             }
         }
 
-        void CreateHud()
-        {
-            var font = Graphics.Instance.BitmapFont;
-
-            var scoreEntity = CreateEntity("hud-score", new Vector2(20, 10));
-            _scoreText = scoreEntity.AddComponent(new TextComponent(font, "SCORE: 0", Vector2.Zero, Color.White));
-            scoreEntity.Transform.SetScale(3f);
-
-            var highEntity = CreateEntity("hud-highscore", new Vector2(Constants.ScreenWidth / 2f, 10));
-            _highScoreText = highEntity.AddComponent(new TextComponent(font, "HI: 0", Vector2.Zero, Color.LightGray));
-            _highScoreText.SetHorizontalAlign(HorizontalAlign.Center);
-            highEntity.Transform.SetScale(3f);
-
-            var waveEntity = CreateEntity("hud-wave", new Vector2(Constants.ScreenWidth - 20, 10));
-            _waveText = waveEntity.AddComponent(new TextComponent(font, "WAVE 1", Vector2.Zero, Color.LightGreen));
-            _waveText.SetHorizontalAlign(HorizontalAlign.Right);
-            waveEntity.Transform.SetScale(3f);
-
-            var livesEntity = CreateEntity("hud-lives", new Vector2(20, Constants.ScreenHeight - 30));
-            _livesText = livesEntity.AddComponent(new TextComponent(font, "LIVES: 3", Vector2.Zero, Color.Green));
-            livesEntity.Transform.SetScale(3f);
-
-            var gameOverEntity = CreateEntity("hud-gameover", new Vector2(Constants.ScreenWidth / 2f, Constants.ScreenHeight / 2f));
-            _gameOverText = gameOverEntity.AddComponent(new TextComponent(font, "GAME OVER\nPress ENTER to restart", Vector2.Zero, Color.Red));
-            _gameOverText.SetHorizontalAlign(HorizontalAlign.Center);
-            _gameOverText.SetVerticalAlign(VerticalAlign.Center);
-            _gameOverText.Enabled = false;
-            gameOverEntity.Transform.SetScale(3f);
-        }
-
         public override void Update()
         {
             if (_pauseInput.IsPressed)
@@ -241,15 +148,9 @@ namespace SpaceInvaders
             Time.TimeScale = _paused ? 0 : 1;
 
             if (_paused)
-            {
-                _gameOverText.SetText("PAUSED\nPress ESC to resume");
-                _gameOverText.Enabled = true;
-            }
+                _hud.ShowPause();
             else
-            {
-                _gameOverText.SetText("");
-                _gameOverText.Enabled = false;
-            }
+                _hud.HidePause();
         }
 
         void RestartGame()
