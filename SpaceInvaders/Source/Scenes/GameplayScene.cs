@@ -24,6 +24,8 @@ namespace SpaceInvaders
             SetDesignResolution(GameConstants.ScreenWidth, GameConstants.ScreenHeight, SceneResolutionPolicy.ShowAll);
             ClearColor = Color.Black;
 
+            Assets.Load(Content);
+
             _gameState = AddSceneComponent<GameState>();
             _waveManager = AddSceneComponent<WaveManager>();
 
@@ -42,8 +44,7 @@ namespace SpaceInvaders
             var player = CreateEntity("player", new Vector2(GameConstants.ScreenWidth / 2f, GameConstants.PlayerY));
             player.Tag = Tags.Player;
 
-            var texture = Content.LoadTexture("Content/sprites/player/cannon.png", true);
-            player.AddComponent(new SpriteRenderer(texture));
+            player.AddComponent(new SpriteRenderer(Assets.Cannon));
             player.Transform.SetScale(0.5f);
 
             var collider = player.AddComponent(new BoxCollider(60, 36));
@@ -57,8 +58,6 @@ namespace SpaceInvaders
         {
             float totalWidth = (GameConstants.ShieldCount - 1) * 180f;
             float startX = (GameConstants.ScreenWidth - totalWidth) / 2f;
-
-            var chunkTex = Content.LoadTexture("Content/sprites/shields/shield_chunk.png", true);
 
             for (int s = 0; s < GameConstants.ShieldCount; s++)
             {
@@ -75,7 +74,7 @@ namespace SpaceInvaders
 
                         var chunk = CreateEntity($"shield_{s}_{cx}_{cy}", new Vector2(x, y));
                         chunk.Tag = Tags.Shield;
-                        chunk.AddComponent(new SpriteRenderer(chunkTex));
+                        chunk.AddComponent(new SpriteRenderer(Assets.ShieldChunk));
                         chunk.Transform.SetScale(GameConstants.ShieldScale);
 
                         var collider = chunk.AddComponent(new BoxCollider(GameConstants.ShieldChunkW, GameConstants.ShieldChunkH));

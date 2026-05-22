@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Read(//c/dev/games-monogame/**)"
+      "Read(//c/dev/games-monogame/**)",
+      "Bash(dotnet build *)"
     ]
   }
 }

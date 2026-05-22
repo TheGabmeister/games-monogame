@@ -76,8 +76,7 @@ namespace SpaceInvaders
             float startX = _ufoDirection > 0 ? -48 : GameConstants.ScreenWidth + 48;
             var ufo = Scene.CreateEntity("ufo", new Vector2(startX, 40));
 
-            var texture = Scene.Content.LoadTexture("Content/sprites/invaders/ufo.png", true);
-            ufo.AddComponent(new SpriteRenderer(texture));
+            ufo.AddComponent(new SpriteRenderer(Assets.Ufo));
             ufo.Transform.SetScale(0.5f);
 
             var collider = ufo.AddComponent(new BoxCollider(48, 20));
@@ -108,19 +107,10 @@ namespace SpaceInvaders
             var controller = formationEntity.AddComponent<FormationController>();
             controller.SetWave(wave);
 
-            var squidTex = Scene.Content.LoadTexture("Content/sprites/invaders/squid_01.png", true);
-            var crabTex = Scene.Content.LoadTexture("Content/sprites/invaders/crab_01.png", true);
-            var octopusTex = Scene.Content.LoadTexture("Content/sprites/invaders/octopus_01.png", true);
-
             for (int row = 0; row < GameConstants.FormationRows; row++)
             {
                 var type = GameConstants.InvaderTypeForRow(row);
-                var texture = type switch
-                {
-                    InvaderType.Squid => squidTex,
-                    InvaderType.Crab => crabTex,
-                    _ => octopusTex
-                };
+                var texture = Assets.InvaderTexture(type);
 
                 for (int col = 0; col < GameConstants.FormationColumns; col++)
                 {
