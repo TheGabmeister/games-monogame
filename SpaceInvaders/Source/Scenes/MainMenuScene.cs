@@ -31,6 +31,7 @@ namespace SpaceInvaders
             var titleEntity = CreateEntity("title", new Vector2(GameConstants.ScreenWidth / 2f, 200));
             _titleText = titleEntity.AddComponent(new TextComponent(font, "SPACE INVADERS", Vector2.Zero, Color.Green));
             _titleText.SetHorizontalAlign(HorizontalAlign.Center);
+            titleEntity.Transform.SetScale(3f);
 
             _optionTexts = new TextComponent[_options.Length];
             for (int i = 0; i < _options.Length; i++)
@@ -38,6 +39,7 @@ namespace SpaceInvaders
                 var entity = CreateEntity($"option_{i}", new Vector2(GameConstants.ScreenWidth / 2f, 360 + i * 50));
                 _optionTexts[i] = entity.AddComponent(new TextComponent(font, _options[i], Vector2.Zero, Color.Gray));
                 _optionTexts[i].SetHorizontalAlign(HorizontalAlign.Center);
+                entity.Transform.SetScale(3f);
             }
 
             _prevKb = Keyboard.GetState();

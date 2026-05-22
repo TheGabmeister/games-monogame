@@ -103,22 +103,27 @@ namespace SpaceInvaders
 
             var scoreEntity = CreateEntity("hud-score", new Vector2(20, 10));
             _scoreText = scoreEntity.AddComponent(new TextComponent(font, "SCORE: 0", Vector2.Zero, Color.White));
+            scoreEntity.Transform.SetScale(3f);
 
             var highEntity = CreateEntity("hud-highscore", new Vector2(GameConstants.ScreenWidth / 2f, 10));
             _highScoreText = highEntity.AddComponent(new TextComponent(font, "HI: 0", Vector2.Zero, Color.LightGray));
             _highScoreText.SetHorizontalAlign(HorizontalAlign.Center);
+            highEntity.Transform.SetScale(3f);
 
             var waveEntity = CreateEntity("hud-wave", new Vector2(GameConstants.ScreenWidth - 20, 10));
             _waveText = waveEntity.AddComponent(new TextComponent(font, "WAVE 1", Vector2.Zero, Color.LightGreen));
             _waveText.SetHorizontalAlign(HorizontalAlign.Right);
+            waveEntity.Transform.SetScale(3f);
 
             var livesEntity = CreateEntity("hud-lives", new Vector2(20, GameConstants.ScreenHeight - 30));
             _livesText = livesEntity.AddComponent(new TextComponent(font, "LIVES: 3", Vector2.Zero, Color.Green));
+            livesEntity.Transform.SetScale(3f);
 
             var gameOverEntity = CreateEntity("hud-gameover", new Vector2(GameConstants.ScreenWidth / 2f, GameConstants.ScreenHeight / 2f));
             _gameOverText = gameOverEntity.AddComponent(new TextComponent(font, "", Vector2.Zero, Color.Red));
             _gameOverText.SetHorizontalAlign(HorizontalAlign.Center);
             _gameOverText.SetVerticalAlign(VerticalAlign.Center);
+            gameOverEntity.Transform.SetScale(3f);
         }
 
         public override void Update()
