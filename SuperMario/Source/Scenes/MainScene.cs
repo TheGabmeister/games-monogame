@@ -23,13 +23,26 @@ namespace SuperMario
 
             foreach (var obj in objects.Objects)
             {
+                if (obj.Type == "PlayerStart")
+                {
+                    var center = new Vector2(obj.X + obj.Width / 2f, obj.Y + obj.Height / 2f);
+                    CreatePlayer(center);
+                    break;
+                }
+            }
+
+            if (_playerController == null)
+                CreatePlayer(new Vector2(Constants.ScreenWidth / 2f, 300f));
+
+            foreach (var obj in objects.Objects)
+            {
+                if (obj.Type == "PlayerStart")
+                    continue;
+
                 var center = new Vector2(obj.X + obj.Width / 2f, obj.Y + obj.Height / 2f);
 
                 switch (obj.Type)
                 {
-                    case "PlayerStart":
-                        CreatePlayer(center);
-                        break;
                     case "Platform":
                         CreatePlatform(obj.Name, center, obj.Width, obj.Height);
                         break;
@@ -38,9 +51,6 @@ namespace SuperMario
                         break;
                 }
             }
-
-            if (_playerController == null)
-                CreatePlayer(new Vector2(Constants.ScreenWidth / 2f, 300f));
         }
 
         private void CreatePlayer(Vector2 position)
