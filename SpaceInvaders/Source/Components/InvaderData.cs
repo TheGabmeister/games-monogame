@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Nez;
 using Nez.Sprites;
@@ -32,6 +33,8 @@ namespace SpaceInvaders
             if (!IsAlive) return;
             IsAlive = false;
             _invaderDeath.Play();
+            ExplosionHelper.SpawnInvaderExplosion(Entity.Scene, Entity.Transform.Position, Type);
+            ScorePopup.Spawn(Entity.Scene, Entity.Transform.Position, Points, Color.White);
 
             var renderer = Entity.GetComponent<SpriteRenderer>();
             if (renderer != null)

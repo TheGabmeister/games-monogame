@@ -12,8 +12,8 @@ Invaders animate between their two sprite frames in sync with the formation's ma
 
 - Replace static sprite rendering on invaders with animated sprite rendering using both frames per type
 - Animation auto-plays on a looping timer via SpriteAnimator, with playback speed tied to the same speed curve as formation movement (baseSpeed * totalInvaders / aliveCount)
+- FormationController owns updating animator speed — it already has the grid, alive count, and speed curve. On each update it sets the SpriteAnimator.Speed on all alive invaders to match the current formation speed multiplier.
 - As invaders are destroyed, animation FPS increases alongside movement speed — the visual rhythm and movement rhythm accelerate together naturally
-- All invaders animate independently but at the same rate, so they appear synchronized
 
 ### Assets
 
@@ -25,15 +25,15 @@ All assets already exist — squid_01/02, crab_01/02, octopus_01/02 PNGs in Cont
 
 Introduce a scene-wide event bus using Nez's built-in Emitter, replacing direct event subscriptions between components. This decouples producers (PlayerController, UFOController, InvaderData) from consumers (GameplayScene, camera shake, particles, score popups) and provides the communication backbone for all remaining phases.
 
-- Define a GameEvents enum covering game-significant moments: PlayerDied, InvaderKilled, UfoDestroyed, ShieldHit, WaveCleared
+- Define a GameEvents enum covering game-significant moments: PlayerDied, UfoDestroyed, WaveCleared
+- Use Nez's Emitter<GameEvents> (no data variant) — events are signals, not data carriers. Consumers that need context (position, score) get it from the scene or spawn effects themselves.
 - Create the Emitter as a SceneComponent so any component can access it via Scene.GetSceneComponent
 - Migrate GameplayScene's player death handling: instead of subscribing directly to PlayerController.Died, subscribe to the PlayerDied event on the bus. GameplayScene no longer needs a reference to PlayerController for death handling.
 - Components emit events at the appropriate moments:
   - PlayerController emits PlayerDied on death
-  - InvaderData emits InvaderKilled on kill (with position and point value data for later use by score popups and particles)
-  - UFOController emits UfoDestroyed on hit (with position and score)
-  - ShieldChunk emits ShieldHit on destruction (with position)
+  - UFOController emits UfoDestroyed on hit
   - WaveManager emits WaveCleared when the last invader dies
+- Particles and score popups are NOT routed through the bus. The dying component (InvaderData, PlayerController, UFOController, ShieldChunk) spawns its own effects directly — it already knows its position, type, and score. This keeps the bus lean and avoids a data model problem.
 - Existing direct C# events on GameState (ScoreChanged, LivesChanged, etc.) remain unchanged — those are UI data bindings, not gameplay events. The bus is for gameplay moments that multiple unrelated systems need to react to.
 
 ### Assets
@@ -50,7 +50,7 @@ Screen shake accents key destruction moments. No shake during normal gameplay �
 - **UFO destroyed:** Medium shake (intensity ~8)
 - Invader destruction and shield chunk hits: no shake
 - CameraShake component is added to the scene's camera entity (Scene.Camera.Entity)
-- A listener subscribes to PlayerDied and UfoDestroyed on the event bus and calls Shake with the appropriate intensity
+- A small companion component on the same camera entity subscribes to PlayerDied and UfoDestroyed on the event bus and calls Shake on its sibling CameraShake with the appropriate intensity per event
 - Shake stacks correctly — if a new shake is triggered while one is active, only the stronger intensity applies (built-in behavior)
 
 ### Assets
@@ -61,14 +61,14 @@ No new assets.
 
 ## Phase 4 — Particle Effects
 
-Particle emitters for explosions and muzzle flash using the existing sprites. Extends Phase 2 — subscribes to event bus for death events to spawn particles at the right positions.
+Particle emitters for explosions and muzzle flash using the existing sprites. Each dying component spawns its own effects directly — no event bus routing needed.
 
-- **Invader death explosion:** Burst of 8-12 particles at invader position on kill. Particles spread outward, fade from invader's color (type-dependent: green for octopus, blue for crab, purple for squid) to transparent, shrink over ~0.3s lifetime. Emitter fires once and self-destructs when particles expire.
-- **Player death explosion:** Larger burst of 15-20 particles, longer lifetime (~0.5s), white/yellow color. Triggered by PlayerDied event.
-- **UFO death explosion:** Medium burst of 10-15 particles, glowing red/orange.
-- **Shield chunk hit:** Small puff of 3-5 particles, green, very short lifetime (~0.15s). Triggered by ShieldHit event.
-- **Muzzle flash:** Brief 1-2 frame flash sprite at cannon position on fire. Uses existing muzzle_flash.png.
-- Particle emitters are created at the death position as standalone entities, not attached to the dying entity (which gets destroyed). Each emitter entity auto-destroys after all particles expire.
+- **Invader death explosion:** Spawned by InvaderData.Kill(). Burst of 8-12 particles at invader position. Particles spread outward, fade from invader's color (type-dependent: green for octopus, blue for crab, purple for squid) to transparent, shrink over ~0.3s lifetime. Emitter fires once and self-destructs when particles expire.
+- **Player death explosion:** Spawned by PlayerController.Die(). Larger burst of 15-20 particles, longer lifetime (~0.5s), white/yellow color.
+- **UFO death explosion:** Spawned by UFOController.OnTriggerEnter(). Medium burst of 10-15 particles, glowing red/orange.
+- **Shield chunk hit:** Spawned by ShieldChunk on destruction. Small puff of 3-5 particles, green, very short lifetime (~0.15s).
+- **Muzzle flash:** Brief 1-2 frame flash sprite at cannon position on fire. Uses existing muzzle_flash.png. Spawned by PlayerController on fire.
+- Particle emitters are created at the death position as standalone entities, not attached to the dying entity (which may be destroyed). Each emitter entity auto-destroys after all particles expire.
 - All particles simulate in world space so they don't follow destroyed entities.
 
 ### Assets
@@ -81,7 +81,7 @@ Particle emitters for explosions and muzzle flash using the existing sprites. Ex
 
 ## Phase 5 — Tweened Wave Transition Text and Score Popups
 
-Visual feedback for wave progression and scoring through tweened text animations. Extends Phase 2 — subscribes to WaveCleared, InvaderKilled, and UfoDestroyed events on the bus.
+Visual feedback for wave progression and scoring through tweened text animations. Wave transition subscribes to WaveCleared on the event bus (extends Phase 2). Score popups are spawned directly by the dying component — no bus routing needed.
 
 **Wave transition text:**
 - When all invaders are cleared, a large "WAVE N" text entity appears at screen center
@@ -92,10 +92,10 @@ Visual feedback for wave progression and scoring through tweened text animations
 - wave_start.wav plays when the text appears (already wired)
 
 **Score popups:**
-- When an invader is killed, a small text showing the point value ("+10", "+20", "+30") spawns at the invader's position
+- When an invader is killed, InvaderData.Kill() spawns a small text showing the point value ("+10", "+20", "+30") at the invader's position
 - Text tweens upward ~40px over ~0.8s while fading from full opacity to transparent
 - Entity self-destructs after the tween completes
-- UFO score popup uses the same pattern but with the random score value and a larger/brighter style
+- UFO score popup spawned by UFOController — same pattern but with the random score value and a larger/brighter style
 - Popups are standalone entities, not parented to the dying invader
 
 ### Assets

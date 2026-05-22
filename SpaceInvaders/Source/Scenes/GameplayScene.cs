@@ -11,11 +11,11 @@ namespace SpaceInvaders
         GameState _gameState;
         WaveManager _waveManager;
         HudController _hud;
-        PlayerController _playerController;
+        EventBus _eventBus;
         bool _paused;
         ITimer _playerRespawnTimer;
+        ITimer _gameOverTimer;
         VirtualButton _pauseInput;
-        VirtualButton _restartInput;
 
         public override void Initialize()
         {
@@ -23,18 +23,21 @@ namespace SpaceInvaders
             SetDesignResolution(Constants.ScreenWidth, Constants.ScreenHeight, SceneResolutionPolicy.ShowAll);
             ClearColor = Color.Black;
 
+            _eventBus = AddSceneComponent<EventBus>();
             _gameState = AddSceneComponent<GameState>();
             _waveManager = AddSceneComponent<WaveManager>();
             _hud = AddSceneComponent<HudController>();
             AddSceneComponent<BassRhythm>();
 
+            _eventBus.Emitter.AddObserver(GameEvents.PlayerDied, OnPlayerDied);
+            _gameState.GameOver += OnGameOver;
+
             _pauseInput = new VirtualButton();
             _pauseInput.AddKeyboardKey(Keys.Escape);
             _pauseInput.AddGamePadButton(0, Buttons.Start);
 
-            _restartInput = new VirtualButton();
-            _restartInput.AddKeyboardKey(Keys.Enter);
-            _restartInput.AddGamePadButton(0, Buttons.A);
+            Camera.Entity.AddComponent<CameraShake>();
+            Camera.Entity.AddComponent<ShakeListener>();
 
             CreatePlayer();
             CreateShields();
@@ -44,11 +47,15 @@ namespace SpaceInvaders
 
         public override void Unload()
         {
+            _eventBus.Emitter.RemoveObserver(GameEvents.PlayerDied, OnPlayerDied);
+            _gameState.GameOver -= OnGameOver;
+
             _playerRespawnTimer?.Stop();
             _playerRespawnTimer = null;
+            _gameOverTimer?.Stop();
+            _gameOverTimer = null;
 
             _pauseInput?.Deregister();
-            _restartInput?.Deregister();
         }
 
         void CreatePlayer(bool startInvulnerable = false)
@@ -64,15 +71,11 @@ namespace SpaceInvaders
             collider.CollidesWithLayers = 0;
 
             player.AddComponent(new Blinker()).Enabled = false;
-
-            _playerController = player.AddComponent(new PlayerController(startInvulnerable));
-            _playerController.Died += OnPlayerDied;
-
+            player.AddComponent(new PlayerController(startInvulnerable));
         }
 
         void OnPlayerDied()
         {
-            _playerController.Died -= OnPlayerDied;
             _gameState.LoseLife();
 
             if (_gameState.IsGameOver)
@@ -126,23 +129,14 @@ namespace SpaceInvaders
 
         public override void Update()
         {
-            if (_pauseInput.IsPressed)
-                HandlePausePressed();
-
-            if (_gameState.IsGameOver && _restartInput.IsPressed)
-                RestartGame();
+            if (!_gameState.IsGameOver && _pauseInput.IsPressed)
+                TogglePause();
 
             base.Update();
         }
 
-        void HandlePausePressed()
+        void TogglePause()
         {
-            if (_gameState.IsGameOver)
-            {
-                Core.StartSceneTransition(new FadeTransition(() => new MainMenuScene()));
-                return;
-            }
-
             _paused = !_paused;
             Time.TimeScale = _paused ? 0 : 1;
 
@@ -152,10 +146,15 @@ namespace SpaceInvaders
                 _hud.HidePause();
         }
 
-        void RestartGame()
+        void OnGameOver()
         {
-            Time.TimeScale = 1;
-            Core.StartSceneTransition(new FadeTransition(() => new GameplayScene()));
+            _gameOverTimer = Core.Schedule(2f, _ =>
+            {
+                Time.TimeScale = 1;
+                bool isNew = _gameState.Score >= _gameState.HighScore && _gameState.Score > 0;
+                Core.StartSceneTransition(new FadeTransition(() =>
+                    new GameOverScene(_gameState.Score, _gameState.HighScore, isNew)));
+            });
         }
     }
 }

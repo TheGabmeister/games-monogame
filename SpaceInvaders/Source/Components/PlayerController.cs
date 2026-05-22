@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
@@ -9,8 +8,6 @@ namespace SpaceInvaders
 {
     public class PlayerController : Component, IUpdatable, ITriggerListener
     {
-        public event Action Died;
-
         Entity _activeBullet;
         SoundEffect _shoot;
         SoundEffect _playerDeath;
@@ -56,7 +53,6 @@ namespace SpaceInvaders
         {
             _moveInput?.Deregister();
             _fireInput?.Deregister();
-            Died = null;
         }
 
         public void Update()
@@ -105,6 +101,7 @@ namespace SpaceInvaders
                 var bulletPos = Entity.Transform.Position + new Vector2(0, -20);
                 _activeBullet = BulletController.CreateBullet(Entity.Scene, bulletPos, isPlayerBullet: true);
                 _shoot.Play();
+                SpawnMuzzleFlash(bulletPos);
             }
         }
 
@@ -115,8 +112,18 @@ namespace SpaceInvaders
 
             _isDead = true;
             _playerDeath.Play();
-            Died?.Invoke();
+            ExplosionHelper.SpawnPlayerExplosion(Entity.Scene, Entity.Transform.Position);
+            Entity.Scene.GetSceneComponent<EventBus>().Emitter.Emit(GameEvents.PlayerDied);
             Entity.Destroy();
+        }
+
+        void SpawnMuzzleFlash(Vector2 position)
+        {
+            var texture = Entity.Scene.Content.LoadTexture(Assets.Sprites.Effects.MuzzleFlash, true);
+            var flash = Entity.Scene.CreateEntity("muzzle-flash", position);
+            flash.AddComponent(new Nez.Sprites.SpriteRenderer(texture));
+            flash.Transform.SetScale(0.3f);
+            Core.Schedule(0.05f, _ => { if (!flash.IsDestroyed) flash.Destroy(); });
         }
 
         void StartInvulnerability()

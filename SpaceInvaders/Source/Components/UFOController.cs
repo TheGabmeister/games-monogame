@@ -51,6 +51,9 @@ namespace SpaceInvaders
                 var gameState = Entity.Scene.GetSceneComponent<GameState>();
                 gameState?.AddScore(score);
                 _ufoScore.Play();
+                ExplosionHelper.SpawnUfoExplosion(Entity.Scene, Entity.Transform.Position);
+                ScorePopup.Spawn(Entity.Scene, Entity.Transform.Position, score, Color.Yellow, 3f);
+                Entity.Scene.GetSceneComponent<EventBus>().Emitter.Emit(GameEvents.UfoDestroyed);
                 Entity.Destroy();
             }
         }

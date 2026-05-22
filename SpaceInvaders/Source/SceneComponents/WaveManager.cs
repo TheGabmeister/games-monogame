@@ -1,8 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
 using Nez;
 using Nez.Sprites;
+using Nez.Systems;
+using Nez.Textures;
+using Nez.Tweens;
 
 namespace SpaceInvaders
 {
@@ -37,6 +39,8 @@ namespace SpaceInvaders
             {
                 _transitioning = true;
                 _waveTransitionTimer = Constants.WaveTransitionDelay;
+                Scene.GetSceneComponent<EventBus>().Emitter.Emit(GameEvents.WaveCleared);
+                ShowWaveText(_gameState.Wave + 1);
             }
         }
 
@@ -115,7 +119,7 @@ namespace SpaceInvaders
             for (int row = 0; row < Constants.FormationRows; row++)
             {
                 var type = Constants.InvaderTypeForRow(row);
-                var texture = InvaderTexture(type);
+                var frames = InvaderFrames(type);
 
                 for (int col = 0; col < Constants.FormationColumns; col++)
                 {
@@ -124,7 +128,9 @@ namespace SpaceInvaders
                     invader.Transform.SetParent(formationEntity.Transform);
                     invader.Transform.LocalPosition = localPos;
 
-                    invader.AddComponent(new SpriteRenderer(texture));
+                    var animator = invader.AddComponent<SpriteAnimator>();
+                    animator.AddAnimation("idle", Constants.InvaderBaseAnimFps, frames[0], frames[1]);
+                    animator.Play("idle");
                     invader.Transform.SetScale(Constants.InvaderScale);
 
                     var collider = invader.AddComponent(new BoxCollider(50, 40));
@@ -139,15 +145,41 @@ namespace SpaceInvaders
             _formation = controller;
         }
 
-        Texture2D InvaderTexture(InvaderType type)
+        void ShowWaveText(int wave)
         {
-            var path = type switch
+            var font = Graphics.Instance.BitmapFont;
+            var center = new Vector2(Constants.ScreenWidth / 2f, Constants.ScreenHeight / 2f);
+            var entity = Scene.CreateEntity("wave-text", center);
+            var text = entity.AddComponent(new TextComponent(font, $"WAVE {wave}", Vector2.Zero, Color.LightGreen));
+            text.SetHorizontalAlign(HorizontalAlign.Center);
+            text.SetVerticalAlign(VerticalAlign.Center);
+            entity.Transform.SetScale(0.01f);
+
+            entity.TweenScaleTo(5f, 0.5f)
+                .SetEaseType(EaseType.BackOut)
+                .SetCompletionHandler(_ =>
+                {
+                    text.TweenColorTo(Color.Transparent, 0.3f)
+                        .SetDelay(1.0f)
+                        .SetCompletionHandler(__ => { if (!entity.IsDestroyed) entity.Destroy(); })
+                        .Start();
+                })
+                .Start();
+        }
+
+        Sprite[] InvaderFrames(InvaderType type)
+        {
+            var (path1, path2) = type switch
             {
-                InvaderType.Squid => Assets.Sprites.Invaders.Squid01,
-                InvaderType.Crab => Assets.Sprites.Invaders.Crab01,
-                _ => Assets.Sprites.Invaders.Octopus01
+                InvaderType.Squid => (Assets.Sprites.Invaders.Squid01, Assets.Sprites.Invaders.Squid02),
+                InvaderType.Crab => (Assets.Sprites.Invaders.Crab01, Assets.Sprites.Invaders.Crab02),
+                _ => (Assets.Sprites.Invaders.Octopus01, Assets.Sprites.Invaders.Octopus02)
             };
-            return Scene.Content.LoadTexture(path, true);
+            return new[]
+            {
+                new Sprite(Scene.Content.LoadTexture(path1, true)),
+                new Sprite(Scene.Content.LoadTexture(path2, true))
+            };
         }
     }
 }

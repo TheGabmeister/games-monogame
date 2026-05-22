@@ -71,6 +71,8 @@ namespace SpaceInvaders
         public const float UfoMaxSpawnTime = 30f;
         public static readonly int[] UfoScores = { 50, 100, 150, 200, 300 };
 
+        public const float InvaderBaseAnimFps = 2f;
+
         public const float WaveTransitionDelay = 2.0f;
         public const float WaveSpeedMultiplier = 1.10f;
 

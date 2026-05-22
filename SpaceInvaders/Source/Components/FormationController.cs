@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Nez;
+using Nez.Sprites;
 
 namespace SpaceInvaders
 {
@@ -46,6 +47,7 @@ namespace SpaceInvaders
                 return;
 
             MoveFormation();
+            UpdateAnimationSpeed();
             CheckInvasion();
             CheckShieldOverlaps();
             UpdateFiring();
@@ -67,6 +69,23 @@ namespace SpaceInvaders
                 pos = Entity.Transform.Position;
                 pos.Y += Constants.FormationDropDistance;
                 Entity.Transform.Position = pos;
+            }
+        }
+
+        void UpdateAnimationSpeed()
+        {
+            float speedMultiplier = (float)Constants.TotalInvaders / MathHelper.Max(_aliveCount, 1);
+            for (int col = 0; col < Constants.FormationColumns; col++)
+            {
+                for (int row = 0; row < Constants.FormationRows; row++)
+                {
+                    var inv = _grid[col, row];
+                    if (inv == null || !inv.IsAlive) continue;
+
+                    var animator = inv.Entity.GetComponent<SpriteAnimator>();
+                    if (animator != null)
+                        animator.Speed = speedMultiplier;
+                }
             }
         }
 

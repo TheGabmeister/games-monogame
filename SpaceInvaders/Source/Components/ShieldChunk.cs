@@ -16,6 +16,7 @@ namespace SpaceInvaders
         public void OnTriggerEnter(Collider other, Collider local)
         {
             _shieldHit.Play();
+            ExplosionHelper.SpawnShieldPuff(Entity.Scene, Entity.Transform.Position);
             Entity.Destroy();
         }
 
