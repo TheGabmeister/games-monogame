@@ -125,7 +125,9 @@ namespace SpaceInvaders
                     float worldY = formationY + row * Constants.InvaderSpacingY;
                     var invBounds = new RectangleF(worldX - 25, worldY - 20, 50, 40);
 
-                    var hits = Physics.BoxcastBroadphase(invBounds, 1 << PhysicsLayers.Shield);
+                    int shieldMask = 0;
+                    Flags.SetFlag(ref shieldMask, PhysicsLayers.Shield);
+                    var hits = Physics.BoxcastBroadphase(invBounds, shieldMask);
                     foreach (var hit in hits)
                     {
                         if (hit.Entity != null && !hit.Entity.IsDestroyed)

@@ -60,7 +60,7 @@ namespace SpaceInvaders
             player.Transform.SetScale(0.5f);
 
             var collider = player.AddComponent(new BoxCollider(60, 36));
-            collider.PhysicsLayer = 1 << PhysicsLayers.Player;
+            Flags.SetFlagExclusive(ref collider.PhysicsLayer, PhysicsLayers.Player);
             collider.CollidesWithLayers = 0;
 
             player.AddComponent(new Blinker()).Enabled = false;
@@ -114,7 +114,7 @@ namespace SpaceInvaders
                         chunk.Transform.SetScale(Constants.ShieldScale);
 
                         var collider = chunk.AddComponent(new BoxCollider(chunkW, chunkH));
-                        collider.PhysicsLayer = 1 << PhysicsLayers.Shield;
+                        Flags.SetFlagExclusive(ref collider.PhysicsLayer, PhysicsLayers.Shield);
                         collider.CollidesWithLayers = 0;
                         collider.IsTrigger = true;
 

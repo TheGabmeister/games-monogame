@@ -4,15 +4,6 @@ namespace Template
     {
         public const int Player = 0;
         public const int Enemy = 1;
-
-        // convenience helper. Combines multiple layer indices into a single bitmask. 
-        public static int Mask(params int[] layers)
-        {
-            int mask = 0;
-            foreach (var layer in layers)
-                mask |= 1 << layer;
-            return mask;
-        }
     }
 
     public static class Tags

@@ -50,7 +50,7 @@ namespace SpaceInvaders
 
         public void OnTriggerEnter(Collider other, Collider local)
         {
-            if (other.PhysicsLayer == (1 << PhysicsLayers.PlayerBullet))
+            if (other.PhysicsLayer.IsUnshiftedFlagSet(PhysicsLayers.PlayerBullet))
                 Kill();
         }
 

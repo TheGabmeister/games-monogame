@@ -8,13 +8,6 @@ namespace SpaceInvaders
         public const int EnemyBullet = 3;
         public const int Shield = 4;
 
-        public static int Mask(params int[] layers)
-        {
-            int mask = 0;
-            foreach (var layer in layers)
-                mask |= 1 << layer;
-            return mask;
-        }
     }
 
     public static class Tags

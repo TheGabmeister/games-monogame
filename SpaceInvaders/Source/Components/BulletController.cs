@@ -53,13 +53,15 @@ namespace SpaceInvaders
             var collider = bullet.AddComponent(new BoxCollider(6, 16));
             if (isPlayerBullet)
             {
-                collider.PhysicsLayer = 1 << PhysicsLayers.PlayerBullet;
-                collider.CollidesWithLayers = PhysicsLayers.Mask(PhysicsLayers.Invader, PhysicsLayers.Shield);
+                Flags.SetFlagExclusive(ref collider.PhysicsLayer, PhysicsLayers.PlayerBullet);
+                Flags.SetFlag(ref collider.CollidesWithLayers, PhysicsLayers.Invader);
+                Flags.SetFlag(ref collider.CollidesWithLayers, PhysicsLayers.Shield);
             }
             else
             {
-                collider.PhysicsLayer = 1 << PhysicsLayers.EnemyBullet;
-                collider.CollidesWithLayers = PhysicsLayers.Mask(PhysicsLayers.Player, PhysicsLayers.Shield);
+                Flags.SetFlagExclusive(ref collider.PhysicsLayer, PhysicsLayers.EnemyBullet);
+                Flags.SetFlag(ref collider.CollidesWithLayers, PhysicsLayers.Player);
+                Flags.SetFlag(ref collider.CollidesWithLayers, PhysicsLayers.Shield);
                 bullet.Tag = Tags.EnemyBullet;
             }
 

@@ -86,7 +86,7 @@ namespace SpaceInvaders
             ufo.Transform.SetScale(0.5f);
 
             var collider = ufo.AddComponent(new BoxCollider(48, 20));
-            collider.PhysicsLayer = 1 << PhysicsLayers.Invader;
+            Flags.SetFlagExclusive(ref collider.PhysicsLayer, PhysicsLayers.Invader);
             collider.CollidesWithLayers = 0;
 
             ufo.AddComponent(new UFOController(_ufoDirection));
@@ -128,7 +128,7 @@ namespace SpaceInvaders
                     invader.Transform.SetScale(Constants.InvaderScale);
 
                     var collider = invader.AddComponent(new BoxCollider(50, 40));
-                    collider.PhysicsLayer = 1 << PhysicsLayers.Invader;
+                    Flags.SetFlagExclusive(ref collider.PhysicsLayer, PhysicsLayers.Invader);
                     collider.CollidesWithLayers = 0;
 
                     var data = invader.AddComponent(new InvaderData(type, col, row));
