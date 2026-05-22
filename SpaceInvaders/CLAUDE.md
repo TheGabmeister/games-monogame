@@ -24,26 +24,37 @@ dotnet tool restore
 Nez component-based: Scenes contain Entities, Entities contain Components. Custom behavior lives in Components and SceneComponents. No ECS — components hold both data and behavior (like Unity MonoBehaviour).
 
 - **Source/** — All C# game code. Entry point is `Program.cs`, main game class is `Game1.cs` (namespace `SpaceInvaders`).
-- **Source/Scenes/** — Nez Scene subclasses (MainMenuScene, GameplayScene, GameOverScene).
+- **Source/Scenes/** — Nez Scene subclasses (MainMenuScene, GameplayScene).
 - **Source/Components/** — Custom Nez Components attached to entities (FormationController, PlayerController, BulletController, etc.).
-- **Source/SceneComponents/** — Scene-level managers (WaveManager, BassRhythm, GameState).
-- **Content/** — MonoGame content pipeline assets (configured in `Content.mgcb`, platform DesktopGL, profile Reach).
-- **Assets/** — App-level build resources (icons, manifest) and editable source assets (SVGs) under `Assets/source/`.
+- **Source/SceneComponents/** — Scene-level managers (WaveManager, BassRhythm, GameState). SceneComponents update before entities each frame.
+- **Source/Assets.cs** — Centralized static asset loader. All textures and sounds are loaded once via `Assets.Load(content)` and accessed as static properties (e.g., `Assets.Cannon`, `Assets.Shoot`). Never scatter `LoadTexture`/`LoadSoundEffect` calls in other files.
+- **Source/Constants.cs** — All tuning values, physics layer definitions, tag constants, and enums.
+- **Content/** — Runtime assets (PNGs, WAVs, compiled effects). Copied to output via .csproj globs.
+- **Assets/** — App-level build resources (icons, manifest) and editable source SVGs under `Assets/source/`.
 
 ## Nez Framework
 
 Nez source is at `D:\Nez`. It is referenced as a project dependency, not a NuGet package. Key patterns:
 
-- Collision uses `BoxCollider` + physics layers + `ProjectileMover` + `ITriggerListener` callbacks.
-- `SpriteRenderer` / `SpriteAnimator` for all drawing and animation.
-- `CameraShake` component for screen shake.
-- `ParticleEmitter` for particle effects.
-- `SceneResolutionPolicy.ShowAll` for 960x720 virtual resolution with letterboxing.
-- Scene transitions (fade) for moving between scenes.
+- Collision uses `BoxCollider` + physics layers (bitmasks) + `ProjectileMover` + `ITriggerListener` callbacks.
+- Manual overlap checks via `Physics.BoxcastBroadphase(bounds, layerMask)`.
+- `SpriteRenderer` (in `Nez.Sprites` namespace) for drawing. `SpriteAnimator` for frame animation.
+- `NezContentManager` (in `Nez.Systems` namespace) for loading textures/sounds.
+- `SceneResolutionPolicy.ShowAll` for 960×720 virtual resolution with letterboxing.
+- Scene transitions via `Core.StartSceneTransition(new FadeTransition(...))`.
+- Formation hierarchy uses `Transform.SetParent` — moving the parent entity moves all child invaders.
+
+## Gotchas
+
+- Use `System.Random`, not `Nez.Random` (ambiguous namespace conflict).
+- Use `(float)System.Math.Pow()` — `MathF.Pow` may not resolve in all target configs.
+- Sprites are exported at 3× size from SVG for detail, then scaled down at runtime via `Entity.Transform.SetScale()`. Don't change PNG dimensions without adjusting scale constants.
+- `LoadTexture` requires `premultiplyAlpha: true` for correct rendering.
+- `LoadSoundEffect` loads WAV files directly (no content pipeline processing needed).
 
 ## Dependencies
 
 - `MonoGame.Framework.DesktopGL` 3.8.x
 - `MonoGame.Content.Builder.Task` 3.8.x
-- Nez framework (project reference from `D:\Nez`)
+- Nez framework (project reference from `D:\Nez\Nez.Portable\Nez.MG38.csproj`)
 - MGCB tools 3.8.4.1 (local dotnet tools)

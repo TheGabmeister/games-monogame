@@ -18,8 +18,6 @@ namespace SpaceInvaders
             base.Initialize();
             SetDesignResolution(GameConstants.ScreenWidth, GameConstants.ScreenHeight, SceneResolutionPolicy.ShowAll);
             ClearColor = Color.Black;
-            Assets.Load(Content);
-
             var font = Graphics.Instance.BitmapFont;
 
             var titleEntity = CreateEntity("title", new Vector2(GameConstants.ScreenWidth / 2f, 200));

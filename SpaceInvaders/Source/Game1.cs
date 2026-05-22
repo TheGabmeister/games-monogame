@@ -14,6 +14,8 @@ namespace SpaceInvaders
         protected override void Initialize()
         {
             base.Initialize();
+            Core.DebugRenderEnabled = true;
+            Assets.Load(Content);
             Scene = new MainMenuScene();
         }
     }

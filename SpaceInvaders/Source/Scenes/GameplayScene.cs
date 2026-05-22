@@ -24,8 +24,6 @@ namespace SpaceInvaders
             SetDesignResolution(GameConstants.ScreenWidth, GameConstants.ScreenHeight, SceneResolutionPolicy.ShowAll);
             ClearColor = Color.Black;
 
-            Assets.Load(Content);
-
             _gameState = AddSceneComponent<GameState>();
             _waveManager = AddSceneComponent<WaveManager>();
             AddSceneComponent<BassRhythm>();
