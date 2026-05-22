@@ -40,7 +40,7 @@ namespace SpaceInvaders
             _timer -= Time.DeltaTime;
             if (_timer > 0) return;
 
-            float ratio = (float)_waveManager.AliveCount / GameConstants.TotalInvaders;
+            float ratio = (float)_waveManager.AliveCount / Constants.TotalInvaders;
             float interval = MinInterval + (MaxInterval - MinInterval) * ratio;
             _timer = interval;
 

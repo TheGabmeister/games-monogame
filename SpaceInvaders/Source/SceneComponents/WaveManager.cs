@@ -37,7 +37,7 @@ namespace SpaceInvaders
             if (_formation != null && _formation.AliveCount <= 0 && !_transitioning)
             {
                 _transitioning = true;
-                _waveTransitionTimer = GameConstants.WaveTransitionDelay;
+                _waveTransitionTimer = Constants.WaveTransitionDelay;
             }
         }
 
@@ -72,14 +72,14 @@ namespace SpaceInvaders
 
         void ResetUfoTimer()
         {
-            _ufoTimer = GameConstants.UfoMinSpawnTime +
-                (float)_rng.NextDouble() * (GameConstants.UfoMaxSpawnTime - GameConstants.UfoMinSpawnTime);
+            _ufoTimer = Constants.UfoMinSpawnTime +
+                (float)_rng.NextDouble() * (Constants.UfoMaxSpawnTime - Constants.UfoMinSpawnTime);
         }
 
         void SpawnUfo()
         {
             _ufoDirection *= -1;
-            float startX = _ufoDirection > 0 ? -48 : GameConstants.ScreenWidth + 48;
+            float startX = _ufoDirection > 0 ? -48 : Constants.ScreenWidth + 48;
             var ufo = Scene.CreateEntity("ufo", new Vector2(startX, 40));
 
             var ufoTex = Scene.Content.LoadTexture(Assets.Sprites.Invaders.Ufo, true);
@@ -103,32 +103,32 @@ namespace SpaceInvaders
             }
 
             int wave = _gameState.Wave;
-            float startY = GameConstants.FormationStartY + (wave - 1) * GameConstants.FormationDropDistance;
-            startY = MathHelper.Min(startY, GameConstants.ShieldY - GameConstants.FormationRows * GameConstants.InvaderSpacingY - 40);
+            float startY = Constants.FormationStartY + (wave - 1) * Constants.FormationDropDistance;
+            startY = MathHelper.Min(startY, Constants.ShieldY - Constants.FormationRows * Constants.InvaderSpacingY - 40);
 
-            float formationWidth = (GameConstants.FormationColumns - 1) * GameConstants.InvaderSpacingX;
-            float startX = (GameConstants.ScreenWidth - formationWidth) / 2f;
+            float formationWidth = (Constants.FormationColumns - 1) * Constants.InvaderSpacingX;
+            float startX = (Constants.ScreenWidth - formationWidth) / 2f;
 
             var formationEntity = Scene.CreateEntity("formation", new Vector2(startX, startY));
             formationEntity.Tag = Tags.Formation;
             var controller = formationEntity.AddComponent<FormationController>();
             controller.SetWave(wave);
 
-            for (int row = 0; row < GameConstants.FormationRows; row++)
+            for (int row = 0; row < Constants.FormationRows; row++)
             {
-                var type = GameConstants.InvaderTypeForRow(row);
+                var type = Constants.InvaderTypeForRow(row);
                 var texture = InvaderTexture(type);
 
-                for (int col = 0; col < GameConstants.FormationColumns; col++)
+                for (int col = 0; col < Constants.FormationColumns; col++)
                 {
-                    var localPos = new Vector2(col * GameConstants.InvaderSpacingX, row * GameConstants.InvaderSpacingY);
+                    var localPos = new Vector2(col * Constants.InvaderSpacingX, row * Constants.InvaderSpacingY);
                     var invader = Scene.CreateEntity($"invader_{col}_{row}");
                     invader.Transform.SetParent(formationEntity.Transform);
                     invader.Transform.LocalPosition = localPos;
                     invader.Tag = Tags.Invader;
 
                     invader.AddComponent(new SpriteRenderer(texture));
-                    invader.Transform.SetScale(GameConstants.InvaderScale);
+                    invader.Transform.SetScale(Constants.InvaderScale);
 
                     var collider = invader.AddComponent(new BoxCollider(50, 40));
                     collider.PhysicsLayer = 1 << PhysicsLayers.Invader;

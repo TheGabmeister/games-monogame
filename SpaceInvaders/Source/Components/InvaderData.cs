@@ -17,7 +17,7 @@ namespace SpaceInvaders
         public InvaderData(InvaderType type, int col, int row)
         {
             Type = type;
-            Points = GameConstants.PointsForInvader(type);
+            Points = Constants.PointsForInvader(type);
             Column = col;
             Row = row;
         }

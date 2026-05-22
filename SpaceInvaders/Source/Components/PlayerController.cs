@@ -76,8 +76,8 @@ namespace SpaceInvaders
             if (moveDir != 0)
             {
                 var pos = Entity.Transform.Position;
-                pos.X += moveDir * GameConstants.PlayerSpeed * Time.DeltaTime;
-                pos.X = MathHelper.Clamp(pos.X, GameConstants.PlayerMarginX, GameConstants.ScreenWidth - GameConstants.PlayerMarginX);
+                pos.X += moveDir * Constants.PlayerSpeed * Time.DeltaTime;
+                pos.X = MathHelper.Clamp(pos.X, Constants.PlayerMarginX, Constants.ScreenWidth - Constants.PlayerMarginX);
                 Entity.Transform.Position = pos;
             }
         }
@@ -101,7 +101,7 @@ namespace SpaceInvaders
                 return;
 
             _isDead = true;
-            _deathTimer = GameConstants.DeathDelay;
+            _deathTimer = Constants.DeathDelay;
             _renderer.Enabled = false;
             _playerDeath.Play();
             if (_collider != null)
@@ -115,9 +115,9 @@ namespace SpaceInvaders
             _renderer.Enabled = true;
             if (_collider != null)
                 _collider.Enabled = true;
-            Entity.Transform.Position = new Vector2(GameConstants.ScreenWidth / 2f, GameConstants.PlayerY);
+            Entity.Transform.Position = new Vector2(Constants.ScreenWidth / 2f, Constants.PlayerY);
             _invulnerable = true;
-            _invulnerabilityTimer = GameConstants.RespawnInvulnerability;
+            _invulnerabilityTimer = Constants.RespawnInvulnerability;
         }
 
         public void OnTriggerEnter(Collider other, Collider local)

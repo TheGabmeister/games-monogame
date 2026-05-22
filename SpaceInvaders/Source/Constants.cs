@@ -34,7 +34,7 @@ namespace SpaceInvaders
         Squid
     }
 
-    public static class GameConstants
+    public static class Constants
     {
         public const int ScreenWidth = 960;
         public const int ScreenHeight = 720;

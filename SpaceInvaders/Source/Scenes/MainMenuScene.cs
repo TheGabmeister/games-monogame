@@ -20,7 +20,7 @@ namespace SpaceInvaders
         public override void Initialize()
         {
             base.Initialize();
-            SetDesignResolution(GameConstants.ScreenWidth, GameConstants.ScreenHeight, SceneResolutionPolicy.ShowAll);
+            SetDesignResolution(Constants.ScreenWidth, Constants.ScreenHeight, SceneResolutionPolicy.ShowAll);
             ClearColor = Color.Black;
 
             _menuMove = Content.LoadSoundEffect(Assets.Audio.Sfx.MenuMove);
@@ -38,7 +38,7 @@ namespace SpaceInvaders
 
             var font = Graphics.Instance.BitmapFont;
 
-            var titleEntity = CreateEntity("title", new Vector2(GameConstants.ScreenWidth / 2f, 200));
+            var titleEntity = CreateEntity("title", new Vector2(Constants.ScreenWidth / 2f, 200));
             _titleText = titleEntity.AddComponent(new TextComponent(font, "SPACE INVADERS", Vector2.Zero, Color.Green));
             _titleText.SetHorizontalAlign(HorizontalAlign.Center);
             titleEntity.Transform.SetScale(3f);
@@ -46,7 +46,7 @@ namespace SpaceInvaders
             _optionTexts = new TextComponent[_options.Length];
             for (int i = 0; i < _options.Length; i++)
             {
-                var entity = CreateEntity($"option_{i}", new Vector2(GameConstants.ScreenWidth / 2f, 360 + i * 50));
+                var entity = CreateEntity($"option_{i}", new Vector2(Constants.ScreenWidth / 2f, 360 + i * 50));
                 _optionTexts[i] = entity.AddComponent(new TextComponent(font, _options[i], Vector2.Zero, Color.Gray));
                 _optionTexts[i].SetHorizontalAlign(HorizontalAlign.Center);
                 entity.Transform.SetScale(3f);

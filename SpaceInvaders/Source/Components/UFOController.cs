@@ -36,10 +36,10 @@ namespace SpaceInvaders
         public void Update()
         {
             var pos = Entity.Transform.Position;
-            pos.X += _direction * GameConstants.UfoSpeed * Time.DeltaTime;
+            pos.X += _direction * Constants.UfoSpeed * Time.DeltaTime;
             Entity.Transform.Position = pos;
 
-            if (pos.X < -60 || pos.X > GameConstants.ScreenWidth + 60)
+            if (pos.X < -60 || pos.X > Constants.ScreenWidth + 60)
                 Entity.Destroy();
         }
 
@@ -47,7 +47,7 @@ namespace SpaceInvaders
         {
             if (other.PhysicsLayer == (1 << PhysicsLayers.PlayerBullet))
             {
-                int score = GameConstants.UfoScores[_rng.Next(GameConstants.UfoScores.Length)];
+                int score = Constants.UfoScores[_rng.Next(Constants.UfoScores.Length)];
                 var gameState = Entity.Scene.GetSceneComponent<GameState>();
                 gameState?.AddScore(score);
                 _ufoScore.Play();

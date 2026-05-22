@@ -14,7 +14,7 @@ namespace SpaceInvaders
         public BulletController(bool isPlayerBullet)
         {
             _isPlayerBullet = isPlayerBullet;
-            _speed = isPlayerBullet ? GameConstants.PlayerBulletSpeed : GameConstants.EnemyBulletSpeed;
+            _speed = isPlayerBullet ? Constants.PlayerBulletSpeed : Constants.EnemyBulletSpeed;
         }
 
         public override void OnAddedToEntity()
@@ -29,7 +29,7 @@ namespace SpaceInvaders
             _mover.Move(motion);
 
             var y = Entity.Transform.Position.Y;
-            if (y < -20 || y > GameConstants.ScreenHeight + 20)
+            if (y < -20 || y > Constants.ScreenHeight + 20)
                 Entity.Destroy();
         }
 

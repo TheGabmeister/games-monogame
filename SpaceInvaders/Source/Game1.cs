@@ -4,7 +4,7 @@ namespace SpaceInvaders
 {
     public class Game1 : Core
     {
-        public Game1() : base(GameConstants.ScreenWidth, GameConstants.ScreenHeight)
+        public Game1() : base(Constants.ScreenWidth, Constants.ScreenHeight)
         {
             Window.Title = "Space Invaders";
             IsMouseVisible = false;

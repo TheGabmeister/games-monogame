@@ -5,8 +5,8 @@ namespace SpaceInvaders
 {
     public class FormationController : Component, IUpdatable
     {
-        readonly InvaderData[,] _grid = new InvaderData[GameConstants.FormationColumns, GameConstants.FormationRows];
-        int _aliveCount = GameConstants.TotalInvaders;
+        readonly InvaderData[,] _grid = new InvaderData[Constants.FormationColumns, Constants.FormationRows];
+        int _aliveCount = Constants.TotalInvaders;
         int _direction = 1;
         float _fireTimer;
         float _fireInterval;
@@ -24,9 +24,9 @@ namespace SpaceInvaders
         public void SetWave(int wave)
         {
             _waveNumber = wave;
-            _fireInterval = GameConstants.BaseFireInterval *
-                (float)System.Math.Pow(GameConstants.FireIntervalWaveMultiplier, wave - 1);
-            _fireTimer = _fireInterval + (float)_rng.NextDouble() * GameConstants.FireIntervalVariance;
+            _fireInterval = Constants.BaseFireInterval *
+                (float)System.Math.Pow(Constants.FireIntervalWaveMultiplier, wave - 1);
+            _fireTimer = _fireInterval + (float)_rng.NextDouble() * Constants.FireIntervalVariance;
         }
 
         public override void OnAddedToEntity()
@@ -53,9 +53,9 @@ namespace SpaceInvaders
 
         void MoveFormation()
         {
-            float speedMultiplier = (float)GameConstants.TotalInvaders / MathHelper.Max(_aliveCount, 1);
-            float baseSpeed = GameConstants.BaseFormationSpeed * (float)System.Math.Pow(GameConstants.WaveSpeedMultiplier, _waveNumber - 1);
-            float speed = MathHelper.Min(baseSpeed * speedMultiplier, GameConstants.MaxFormationSpeed);
+            float speedMultiplier = (float)Constants.TotalInvaders / MathHelper.Max(_aliveCount, 1);
+            float baseSpeed = Constants.BaseFormationSpeed * (float)System.Math.Pow(Constants.WaveSpeedMultiplier, _waveNumber - 1);
+            float speed = MathHelper.Min(baseSpeed * speedMultiplier, Constants.MaxFormationSpeed);
 
             var pos = Entity.Transform.Position;
             pos.X += _direction * speed * Time.DeltaTime;
@@ -65,7 +65,7 @@ namespace SpaceInvaders
             {
                 _direction *= -1;
                 pos = Entity.Transform.Position;
-                pos.Y += GameConstants.FormationDropDistance;
+                pos.Y += Constants.FormationDropDistance;
                 Entity.Transform.Position = pos;
             }
         }
@@ -74,15 +74,15 @@ namespace SpaceInvaders
         {
             float formationX = Entity.Transform.Position.X;
 
-            for (int col = 0; col < GameConstants.FormationColumns; col++)
+            for (int col = 0; col < Constants.FormationColumns; col++)
             {
-                for (int row = 0; row < GameConstants.FormationRows; row++)
+                for (int row = 0; row < Constants.FormationRows; row++)
                 {
                     var inv = _grid[col, row];
                     if (inv == null || !inv.IsAlive) continue;
 
-                    float worldX = formationX + col * GameConstants.InvaderSpacingX;
-                    if (worldX < GameConstants.FormationMarginX || worldX > GameConstants.ScreenWidth - GameConstants.FormationMarginX)
+                    float worldX = formationX + col * Constants.InvaderSpacingX;
+                    if (worldX < Constants.FormationMarginX || worldX > Constants.ScreenWidth - Constants.FormationMarginX)
                         return true;
                 }
             }
@@ -92,15 +92,15 @@ namespace SpaceInvaders
         void CheckInvasion()
         {
             float formationY = Entity.Transform.Position.Y;
-            for (int row = 0; row < GameConstants.FormationRows; row++)
+            for (int row = 0; row < Constants.FormationRows; row++)
             {
-                for (int col = 0; col < GameConstants.FormationColumns; col++)
+                for (int col = 0; col < Constants.FormationColumns; col++)
                 {
                     var inv = _grid[col, row];
                     if (inv == null || !inv.IsAlive) continue;
 
-                    float worldY = formationY + row * GameConstants.InvaderSpacingY;
-                    if (worldY >= GameConstants.InvasionLineY)
+                    float worldY = formationY + row * Constants.InvaderSpacingY;
+                    if (worldY >= Constants.InvasionLineY)
                     {
                         _gameState.TriggerGameOver();
                         return;
@@ -114,15 +114,15 @@ namespace SpaceInvaders
             float formationX = Entity.Transform.Position.X;
             float formationY = Entity.Transform.Position.Y;
 
-            for (int col = 0; col < GameConstants.FormationColumns; col++)
+            for (int col = 0; col < Constants.FormationColumns; col++)
             {
-                for (int row = 0; row < GameConstants.FormationRows; row++)
+                for (int row = 0; row < Constants.FormationRows; row++)
                 {
                     var inv = _grid[col, row];
                     if (inv == null || !inv.IsAlive) continue;
 
-                    float worldX = formationX + col * GameConstants.InvaderSpacingX;
-                    float worldY = formationY + row * GameConstants.InvaderSpacingY;
+                    float worldX = formationX + col * Constants.InvaderSpacingX;
+                    float worldY = formationY + row * Constants.InvaderSpacingY;
                     var invBounds = new RectangleF(worldX - 25, worldY - 20, 50, 40);
 
                     var hits = Physics.BoxcastBroadphase(invBounds, 1 << PhysicsLayers.Shield);
@@ -140,10 +140,10 @@ namespace SpaceInvaders
             _fireTimer -= Time.DeltaTime;
             if (_fireTimer > 0) return;
 
-            _fireTimer = _fireInterval + ((float)_rng.NextDouble() - 0.5f) * GameConstants.FireIntervalVariance * 2;
+            _fireTimer = _fireInterval + ((float)_rng.NextDouble() - 0.5f) * Constants.FireIntervalVariance * 2;
 
             var enemyBullets = Entity.Scene.FindEntitiesWithTag(Tags.EnemyBullet);
-            if (enemyBullets.Count >= GameConstants.MaxEnemyBullets)
+            if (enemyBullets.Count >= Constants.MaxEnemyBullets)
                 return;
 
             int col = PickFiringColumn();
@@ -155,8 +155,8 @@ namespace SpaceInvaders
             float formationX = Entity.Transform.Position.X;
             float formationY = Entity.Transform.Position.Y;
             var bulletPos = new Vector2(
-                formationX + bottomInvader.Column * GameConstants.InvaderSpacingX,
-                formationY + bottomInvader.Row * GameConstants.InvaderSpacingY + 20
+                formationX + bottomInvader.Column * Constants.InvaderSpacingX,
+                formationY + bottomInvader.Row * Constants.InvaderSpacingY + 20
             );
 
             BulletController.CreateBullet(Entity.Scene, bulletPos, isPlayerBullet: false);
@@ -167,7 +167,7 @@ namespace SpaceInvaders
             int attempts = 20;
             while (attempts-- > 0)
             {
-                int col = _rng.Next(GameConstants.FormationColumns);
+                int col = _rng.Next(Constants.FormationColumns);
                 if (GetBottomAliveInColumn(col) != null)
                     return col;
             }
@@ -176,7 +176,7 @@ namespace SpaceInvaders
 
         InvaderData GetBottomAliveInColumn(int col)
         {
-            for (int row = 0; row < GameConstants.FormationRows; row++)
+            for (int row = 0; row < Constants.FormationRows; row++)
             {
                 var inv = _grid[col, row];
                 if (inv != null && inv.IsAlive)

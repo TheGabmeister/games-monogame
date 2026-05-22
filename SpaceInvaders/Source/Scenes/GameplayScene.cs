@@ -23,7 +23,7 @@ namespace SpaceInvaders
         public override void Initialize()
         {
             base.Initialize();
-            SetDesignResolution(GameConstants.ScreenWidth, GameConstants.ScreenHeight, SceneResolutionPolicy.ShowAll);
+            SetDesignResolution(Constants.ScreenWidth, Constants.ScreenHeight, SceneResolutionPolicy.ShowAll);
             ClearColor = Color.Black;
 
             _gameState = AddSceneComponent<GameState>();
@@ -47,7 +47,7 @@ namespace SpaceInvaders
 
         void CreatePlayer()
         {
-            var player = CreateEntity("player", new Vector2(GameConstants.ScreenWidth / 2f, GameConstants.PlayerY));
+            var player = CreateEntity("player", new Vector2(Constants.ScreenWidth / 2f, Constants.PlayerY));
 
             var cannon = Content.LoadTexture(Assets.Sprites.Player.Cannon, true);
             player.AddComponent(new SpriteRenderer(cannon));
@@ -64,20 +64,20 @@ namespace SpaceInvaders
         void CreateShields()
         {
             var texture = Content.LoadTexture(Assets.Sprites.Shields.ShieldChunk, true);
-            int count = GameConstants.ShieldCount;
-            int cols = GameConstants.ShieldChunksX;
-            int rows = GameConstants.ShieldChunksY;
-            float chunkW = GameConstants.ShieldChunkW;
-            float chunkH = GameConstants.ShieldChunkH;
+            int count = Constants.ShieldCount;
+            int cols = Constants.ShieldChunksX;
+            int rows = Constants.ShieldChunksY;
+            float chunkW = Constants.ShieldChunkW;
+            float chunkH = Constants.ShieldChunkH;
 
             float totalWidth = (count - 1) * 180f;
-            float startX = (GameConstants.ScreenWidth - totalWidth) / 2f;
+            float startX = (Constants.ScreenWidth - totalWidth) / 2f;
 
             for (int s = 0; s < count; s++)
             {
                 float shieldCenterX = startX + s * 180f;
                 float shieldLeft = shieldCenterX - (cols * chunkW) / 2f;
-                float shieldTop = GameConstants.ShieldY;
+                float shieldTop = Constants.ShieldY;
 
                 for (int cx = 0; cx < cols; cx++)
                 {
@@ -89,7 +89,7 @@ namespace SpaceInvaders
                         var chunk = CreateEntity($"shield_{s}_{cx}_{cy}", new Vector2(x, y));
                         chunk.Tag = Tags.Shield;
                         chunk.AddComponent(new SpriteRenderer(texture));
-                        chunk.Transform.SetScale(GameConstants.ShieldScale);
+                        chunk.Transform.SetScale(Constants.ShieldScale);
 
                         var collider = chunk.AddComponent(new BoxCollider(chunkW, chunkH));
                         collider.PhysicsLayer = 1 << PhysicsLayers.Shield;
@@ -110,21 +110,21 @@ namespace SpaceInvaders
             _scoreText = scoreEntity.AddComponent(new TextComponent(font, "SCORE: 0", Vector2.Zero, Color.White));
             scoreEntity.Transform.SetScale(3f);
 
-            var highEntity = CreateEntity("hud-highscore", new Vector2(GameConstants.ScreenWidth / 2f, 10));
+            var highEntity = CreateEntity("hud-highscore", new Vector2(Constants.ScreenWidth / 2f, 10));
             _highScoreText = highEntity.AddComponent(new TextComponent(font, "HI: 0", Vector2.Zero, Color.LightGray));
             _highScoreText.SetHorizontalAlign(HorizontalAlign.Center);
             highEntity.Transform.SetScale(3f);
 
-            var waveEntity = CreateEntity("hud-wave", new Vector2(GameConstants.ScreenWidth - 20, 10));
+            var waveEntity = CreateEntity("hud-wave", new Vector2(Constants.ScreenWidth - 20, 10));
             _waveText = waveEntity.AddComponent(new TextComponent(font, "WAVE 1", Vector2.Zero, Color.LightGreen));
             _waveText.SetHorizontalAlign(HorizontalAlign.Right);
             waveEntity.Transform.SetScale(3f);
 
-            var livesEntity = CreateEntity("hud-lives", new Vector2(20, GameConstants.ScreenHeight - 30));
+            var livesEntity = CreateEntity("hud-lives", new Vector2(20, Constants.ScreenHeight - 30));
             _livesText = livesEntity.AddComponent(new TextComponent(font, "LIVES: 3", Vector2.Zero, Color.Green));
             livesEntity.Transform.SetScale(3f);
 
-            var gameOverEntity = CreateEntity("hud-gameover", new Vector2(GameConstants.ScreenWidth / 2f, GameConstants.ScreenHeight / 2f));
+            var gameOverEntity = CreateEntity("hud-gameover", new Vector2(Constants.ScreenWidth / 2f, Constants.ScreenHeight / 2f));
             _gameOverText = gameOverEntity.AddComponent(new TextComponent(font, "", Vector2.Zero, Color.Red));
             _gameOverText.SetHorizontalAlign(HorizontalAlign.Center);
             _gameOverText.SetVerticalAlign(VerticalAlign.Center);

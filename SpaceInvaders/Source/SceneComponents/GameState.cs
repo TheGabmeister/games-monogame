@@ -16,7 +16,7 @@ namespace SpaceInvaders
 
         public GameState()
         {
-            Lives = GameConstants.StartingLives;
+            Lives = Constants.StartingLives;
             Wave = 1;
         }
 
@@ -31,7 +31,7 @@ namespace SpaceInvaders
             if (Score > HighScore)
                 HighScore = Score;
 
-            if (!ExtraLifeAwarded && Score >= GameConstants.ExtraLifeScore)
+            if (!ExtraLifeAwarded && Score >= Constants.ExtraLifeScore)
             {
                 ExtraLifeAwarded = true;
                 Lives++;
@@ -54,7 +54,7 @@ namespace SpaceInvaders
         public void Reset()
         {
             Score = 0;
-            Lives = GameConstants.StartingLives;
+            Lives = Constants.StartingLives;
             Wave = 1;
             IsGameOver = false;
             ExtraLifeAwarded = false;
