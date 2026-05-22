@@ -1,9 +1,18 @@
 namespace SuperMario
 {
+    public enum PlayerState
+    {
+        Small,
+        Big,
+        Fire
+    }
+
     public static class PhysicsLayers
     {
         public const int Player = 0;
         public const int Enemy = 1;
+        public const int Item = 2;
+        public const int Environment = 3;
     }
 
     public static class Tags
