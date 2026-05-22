@@ -71,17 +71,12 @@ namespace SuperMario
                 if (result.Normal.Y > 0 && _velocity.Y < 0)
                     _velocity.Y = 0;
             }
-
-            if (Entity.Position.Y > Constants.ScreenHeight + 100)
-                OnDied?.Invoke();
         }
 
-        public void Reset(Vector2 position)
+        public void KillPlayer()
         {
-            Entity.Position = position;
-            _velocity = Vector2.Zero;
-            _state = PlayerState.Small;
-            ApplyStateVisuals();
+            OnDied?.Invoke();
+            Entity.Destroy();
         }
 
         public void GrowPlayer()

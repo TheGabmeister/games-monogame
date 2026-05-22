@@ -115,12 +115,12 @@ namespace SuperMario
             collider.PhysicsLayer = 1 << PhysicsLayers.Item;
             collider.CollidesWithLayers = itemCollidesWith;
             collider.IsTrigger = true;
-            mushroom.AddComponent(new Mushroom(_playerController));
+            mushroom.AddComponent(new Mushroom());
         }
 
         void OnPlayerDied()
         {
-            _playerController.Reset(_playerSpawn);
+            CreatePlayer(_playerSpawn);
         }
     }
 }
