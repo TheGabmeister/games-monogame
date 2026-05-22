@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Read(//c/dev/games-monogame/**)",
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "Read(//d/Nez/Nez.Portable/**)"
     ]
   }
 }
