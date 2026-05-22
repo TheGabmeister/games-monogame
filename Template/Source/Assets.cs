@@ -29,5 +29,6 @@ namespace Template
 			// public const string Desertpalacetiles2x = @"Content/DestructableMap/desert-palace-tiles2x.png";
 			// public const string Destructablemap = @"Content/DestructableMap/destructable-map.tmx";
 		}
+    }
 }
 

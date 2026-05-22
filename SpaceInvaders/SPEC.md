@@ -248,7 +248,7 @@ The game works with placeholder shapes. Nez project setup with `SceneResolutionP
 
 ### Milestone 2: Presentation and Flow
 
-Generated neon-vector sprites and SFX replace placeholders. `SpriteAnimator` for invader two-frame animation. `BassRhythm` SceneComponent for adaptive heartbeat. MainMenuScene and GameOverScene with scene transitions. `PauseOverlay` on GameplayScene. `HudRenderer` for score, high score, lives, wave. `CameraShake` on kills and death. `ParticleEmitter` for explosions and bullet trails. Tweened wave transition text and score popups.
+Generated neon-vector sprites and SFX replace placeholders. `SpriteAnimator` for invader two-frame animation. `BassRhythm` SceneComponent for adaptive heartbeat. MainMenuScene and GameOverScene with scene transitions. `PauseOverlay` on GameplayScene. `CameraShake` on death. `ParticleEmitter` for explosions and bullet trails. Tweened wave transition text and score popups.
 
 ### Milestone 3: Polish and Extras
 

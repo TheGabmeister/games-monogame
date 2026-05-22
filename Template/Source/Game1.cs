@@ -1,12 +1,12 @@
-using Microsoft.Xna.Framework;
 using Nez;
+using Template.Scenes;
 
 namespace Template
 {
     public class Game1 : Core
     {
         public Game1()
-            : base(width: 1280, height: 720, isFullScreen: false, windowTitle: "Template")
+            : base(Constants.ScreenWidth, Constants.ScreenHeight, false, "Template")
         {
             IsMouseVisible = true;
         }
@@ -15,14 +15,7 @@ namespace Template
         {
             base.Initialize();
 
-            var scene = Scene.CreateWithDefaultRenderer(Color.CornflowerBlue);
-            scene.SetDesignResolution(1280, 720, Scene.SceneResolutionPolicy.ShowAllPixelPerfect);
-
-            var box = scene.CreateEntity("box", new Vector2(640, 360));
-            box.AddComponent(new PrototypeSpriteRenderer(96, 96))
-                .SetColor(Color.White);
-
-            Scene = scene;
+            Scene = new MainScene();
         }
     }
 }
