@@ -50,7 +50,7 @@ namespace SpaceInvaders
                 if (_waveTransitionTimer <= 0)
                 {
                     _transitioning = false;
-                    _gameState.Wave++;
+                    _gameState.AdvanceWave();
                     _waveStart.Play();
                     SpawnFormation();
                 }

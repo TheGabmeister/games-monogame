@@ -43,6 +43,8 @@ namespace SpaceInvaders
             CreatePlayer();
             CreateShields();
             CreateHud();
+            HookGameStateEvents();
+            RefreshHud();
 
             _waveManager.SpawnFormation();
         }
@@ -52,6 +54,7 @@ namespace SpaceInvaders
             _playerRespawnTimer?.Stop();
             _playerRespawnTimer = null;
 
+            UnhookGameStateEvents();
             _pauseInput?.Deregister();
             _restartInput?.Deregister();
         }
@@ -82,10 +85,7 @@ namespace SpaceInvaders
             _gameState.LoseLife();
 
             if (_gameState.IsGameOver)
-            {
-                OnGameOver();
                 return;
-            }
 
             _playerRespawnTimer = Core.Schedule(Constants.DeathDelay, timer =>
             {
@@ -97,6 +97,55 @@ namespace SpaceInvaders
         {
             _gameOverText.SetText("GAME OVER\nPress ENTER to restart");
             _gameOverText.Enabled = true;
+        }
+
+        void HookGameStateEvents()
+        {
+            _gameState.ScoreChanged += OnScoreChanged;
+            _gameState.HighScoreChanged += OnHighScoreChanged;
+            _gameState.LivesChanged += OnLivesChanged;
+            _gameState.WaveChanged += OnWaveChanged;
+            _gameState.GameOver += OnGameOver;
+        }
+
+        void UnhookGameStateEvents()
+        {
+            if (_gameState == null)
+                return;
+
+            _gameState.ScoreChanged -= OnScoreChanged;
+            _gameState.HighScoreChanged -= OnHighScoreChanged;
+            _gameState.LivesChanged -= OnLivesChanged;
+            _gameState.WaveChanged -= OnWaveChanged;
+            _gameState.GameOver -= OnGameOver;
+        }
+
+        void RefreshHud()
+        {
+            OnScoreChanged(_gameState.Score);
+            OnHighScoreChanged(_gameState.HighScore);
+            OnLivesChanged(_gameState.Lives);
+            OnWaveChanged(_gameState.Wave);
+        }
+
+        void OnScoreChanged(int score)
+        {
+            _scoreText.SetText($"SCORE: {score}");
+        }
+
+        void OnHighScoreChanged(int highScore)
+        {
+            _highScoreText.SetText($"HI: {highScore}");
+        }
+
+        void OnLivesChanged(int lives)
+        {
+            _livesText.SetText($"LIVES: {lives}");
+        }
+
+        void OnWaveChanged(int wave)
+        {
+            _waveText.SetText($"WAVE {wave}");
         }
 
         void CreateShields()
@@ -172,41 +221,41 @@ namespace SpaceInvaders
         public override void Update()
         {
             if (_pauseInput.IsPressed)
-            {
-                if (_gameState.IsGameOver)
-                {
-                    Core.StartSceneTransition(new FadeTransition(() => new MainMenuScene()));
-                }
-                else
-                {
-                    _paused = !_paused;
-                    Time.TimeScale = _paused ? 0 : 1;
-                }
-            }
+                HandlePausePressed();
 
             if (_gameState.IsGameOver && _restartInput.IsPressed)
+                RestartGame();
+
+            base.Update();
+        }
+
+        void HandlePausePressed()
+        {
+            if (_gameState.IsGameOver)
             {
-                Time.TimeScale = 1;
-                Core.StartSceneTransition(new FadeTransition(() => new GameplayScene()));
+                Core.StartSceneTransition(new FadeTransition(() => new MainMenuScene()));
+                return;
             }
 
-            _scoreText.SetText($"SCORE: {_gameState.Score}");
-            _highScoreText.SetText($"HI: {_gameState.HighScore}");
-            _livesText.SetText($"LIVES: {_gameState.Lives}");
-            _waveText.SetText($"WAVE {_gameState.Wave}");
+            _paused = !_paused;
+            Time.TimeScale = _paused ? 0 : 1;
 
             if (_paused)
             {
                 _gameOverText.SetText("PAUSED\nPress ESC to resume");
                 _gameOverText.Enabled = true;
             }
-            else if (!_gameState.IsGameOver)
+            else
             {
                 _gameOverText.SetText("");
                 _gameOverText.Enabled = false;
             }
+        }
 
-            base.Update();
+        void RestartGame()
+        {
+            Time.TimeScale = 1;
+            Core.StartSceneTransition(new FadeTransition(() => new GameplayScene()));
         }
     }
 }
