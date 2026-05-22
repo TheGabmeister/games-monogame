@@ -10,11 +10,9 @@ namespace SuperMario
     {
         readonly Dictionary<string, Action<Scene, TmxObject>> _factories = new();
 
-        public PlayerController Player { get; private set; }
-        public Vector2 PlayerSpawn { get; private set; }
-
         public EntityFactory()
         {
+            Register("PlayerStart", CreatePlayerStart);
             Register("Platform", CreatePlatform);
             Register("Mushroom", CreateMushroom);
             Register("KillVolume", CreateKillVolume);
@@ -25,41 +23,20 @@ namespace SuperMario
             _factories[type] = factory;
         }
 
-        public void Load(Scene scene, TmxObjectGroup objects)
+        public void Spawn(Scene scene, TmxObject obj)
         {
-            foreach (var obj in objects.Objects)
-            {
-                if (obj.Type == "PlayerStart")
-                {
-                    PlayerSpawn = GetCenter(obj);
-                    CreatePlayer(scene, PlayerSpawn);
-                    break;
-                }
-            }
-
-            if (Player == null)
-            {
-                PlayerSpawn = new Vector2(Constants.ScreenWidth / 2f, 300f);
-                CreatePlayer(scene, PlayerSpawn);
-            }
-
-            foreach (var obj in objects.Objects)
-            {
-                if (obj.Type == "PlayerStart")
-                    continue;
-
-                if (_factories.TryGetValue(obj.Type, out var factory))
-                    factory(scene, obj);
-            }
+            if (_factories.TryGetValue(obj.Type, out var factory))
+                factory(scene, obj);
         }
 
-        public void RespawnPlayer(Scene scene)
+        void CreatePlayerStart(Scene scene, TmxObject obj)
         {
-            Player.Entity.Destroy();
-            CreatePlayer(scene, PlayerSpawn);
+            var center = GetCenter(obj);
+            var marker = scene.CreateEntity("playerstart", center);
+            marker.Tag = Tags.PlayerStart;
         }
 
-        void CreatePlayer(Scene scene, Vector2 position)
+        public PlayerController CreatePlayer(Scene scene, Vector2 position)
         {
             var player = scene.CreateEntity("player", position);
             player.AddComponent(new PrototypeSpriteRenderer(32, 48)).SetColor(Color.Red);
@@ -69,7 +46,24 @@ namespace SuperMario
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
             collider.CollidesWithLayers = (1 << PhysicsLayers.Environment) | (1 << PhysicsLayers.Item);
 
-            Player = player.AddComponent(new PlayerController());
+            return player.AddComponent(new PlayerController());
+        }
+
+        public static Vector2 GetCenter(TmxObject obj)
+        {
+            var offset = new Vector2(obj.Width / 2f, obj.Height / 2f);
+
+            if (obj.Rotation != 0)
+            {
+                var rad = MathHelper.ToRadians(obj.Rotation);
+                var cos = Mathf.Cos(rad);
+                var sin = Mathf.Sin(rad);
+                offset = new Vector2(
+                    cos * offset.X - sin * offset.Y,
+                    sin * offset.X + cos * offset.Y);
+            }
+
+            return new Vector2(obj.X + offset.X, obj.Y + offset.Y);
         }
 
         void CreatePlatform(Scene scene, TmxObject obj)
@@ -111,23 +105,6 @@ namespace SuperMario
             collider.CollidesWithLayers = 1 << PhysicsLayers.Player;
             collider.IsTrigger = true;
             killVolume.AddComponent(new KillVolume());
-        }
-
-        static Vector2 GetCenter(TmxObject obj)
-        {
-            var offset = new Vector2(obj.Width / 2f, obj.Height / 2f);
-
-            if (obj.Rotation != 0)
-            {
-                var rad = MathHelper.ToRadians(obj.Rotation);
-                var cos = Mathf.Cos(rad);
-                var sin = Mathf.Sin(rad);
-                offset = new Vector2(
-                    cos * offset.X - sin * offset.Y,
-                    sin * offset.X + cos * offset.Y);
-            }
-
-            return new Vector2(obj.X + offset.X, obj.Y + offset.Y);
         }
     }
 }

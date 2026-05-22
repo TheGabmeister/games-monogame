@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+using System;
 using Nez;
 
 namespace SuperMario
@@ -6,10 +6,11 @@ namespace SuperMario
     public class MainScene : Scene
     {
         EntityFactory _factory;
+        PlayerController _playerController;
 
         public override void Initialize()
         {
-            ClearColor = Color.CornflowerBlue;
+            ClearColor = Microsoft.Xna.Framework.Color.CornflowerBlue;
 
             SetDesignResolution(
                 Constants.ScreenWidth,
@@ -20,16 +21,30 @@ namespace SuperMario
 
             _factory = new EntityFactory();
             var map = Content.LoadTiledMap(Assets.Maps.Debug);
-            _factory.Load(this, map.GetObjectGroup("entities"));
+            var objects = map.GetObjectGroup("entities");
 
-            _factory.Player.OnDied += OnPlayerDied;
+            foreach (var obj in objects.Objects)
+                _factory.Spawn(this, obj);
+
+            SpawnPlayer();
+        }
+
+        void SpawnPlayer()
+        {
+            var start = FindEntitiesWithTag(Tags.PlayerStart);
+            if (start.Count == 0)
+                throw new Exception("Level is missing a PlayerStart object.");
+
+            var position = start[0].Position;
+            _playerController = _factory.CreatePlayer(this, position);
+            _playerController.OnDied += OnPlayerDied;
         }
 
         void OnPlayerDied()
         {
-            _factory.Player.OnDied -= OnPlayerDied;
-            _factory.RespawnPlayer(this);
-            _factory.Player.OnDied += OnPlayerDied;
+            _playerController.OnDied -= OnPlayerDied;
+            _playerController.Entity.Destroy();
+            SpawnPlayer();
         }
     }
 }
