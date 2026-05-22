@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
@@ -9,25 +10,32 @@ namespace SpaceInvaders
 {
     public class PlayerController : Component, IUpdatable, ITriggerListener
     {
+        public event Action Died;
+
         Entity _activeBullet;
-        Collider _collider;
-        GameState _gameState;
         SoundEffect _shoot;
         SoundEffect _playerDeath;
         VirtualIntegerAxis _moveInput;
         VirtualButton _fireInput;
 
         bool _isDead;
-        float _deathTimer;
+        bool _startInvulnerable;
         bool _invulnerable;
         float _invulnerabilityTimer;
         SpriteRenderer _renderer;
 
+        public PlayerController() : this(false)
+        {
+        }
+
+        public PlayerController(bool startInvulnerable)
+        {
+            _startInvulnerable = startInvulnerable;
+        }
+
         public override void OnAddedToEntity()
         {
-            _collider = Entity.GetComponent<Collider>();
             _renderer = Entity.GetComponent<SpriteRenderer>();
-            _gameState = Entity.Scene.GetSceneComponent<GameState>();
             _shoot = Entity.Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.Shoot);
             _playerDeath = Entity.Scene.Content.LoadSoundEffect(Assets.Audio.Sfx.PlayerDeath);
 
@@ -40,20 +48,22 @@ namespace SpaceInvaders
             _fireInput = new VirtualButton();
             _fireInput.AddKeyboardKey(Keys.Space);
             _fireInput.AddGamePadButton(0, Buttons.A);
+
+            if (_startInvulnerable)
+                StartInvulnerability();
+        }
+
+        public override void OnRemovedFromEntity()
+        {
+            _moveInput?.Deregister();
+            _fireInput?.Deregister();
+            Died = null;
         }
 
         public void Update()
         {
-            if (_gameState.IsGameOver)
-                return;
-
             if (_isDead)
-            {
-                _deathTimer -= Time.DeltaTime;
-                if (_deathTimer <= 0)
-                    Respawn();
                 return;
-            }
 
             if (_invulnerable)
             {
@@ -97,25 +107,13 @@ namespace SpaceInvaders
 
         public void Die()
         {
-            if (_isDead || _invulnerable)
-                return;
-
-            _isDead = true;
-            _deathTimer = Constants.DeathDelay;
-            _renderer.Enabled = false;
-            _playerDeath.Play();
-            if (_collider != null)
-                _collider.Enabled = false;
-            _gameState.LoseLife();
+            Died?.Invoke();
+            Entity.Destroy();
         }
 
-        void Respawn()
+        void StartInvulnerability()
         {
-            _isDead = false;
             _renderer.Enabled = true;
-            if (_collider != null)
-                _collider.Enabled = true;
-            Entity.Transform.Position = new Vector2(Constants.ScreenWidth / 2f, Constants.PlayerY);
             _invulnerable = true;
             _invulnerabilityTimer = Constants.RespawnInvulnerability;
         }
@@ -123,7 +121,10 @@ namespace SpaceInvaders
         public void OnTriggerEnter(Collider other, Collider local)
         {
             if (other.PhysicsLayer == (1 << PhysicsLayers.EnemyBullet))
-                Die();
+            {
+                if (!_invulnerable)
+                    Die();
+            }  
         }
 
         public void OnTriggerExit(Collider other, Collider local) { }

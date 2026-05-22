@@ -16,7 +16,10 @@ namespace SpaceInvaders
         TextComponent _livesText;
         TextComponent _waveText;
         TextComponent _gameOverText;
+        Entity _player;
         bool _paused;
+        bool _isRespawningPlayer;
+        float _playerRespawnTimer;
         VirtualButton _pauseInput;
         VirtualButton _restartInput;
 
@@ -45,7 +48,13 @@ namespace SpaceInvaders
             _waveManager.SpawnFormation();
         }
 
-        void CreatePlayer()
+        public override void Unload()
+        {
+            _pauseInput?.Deregister();
+            _restartInput?.Deregister();
+        }
+
+        void CreatePlayer(bool startInvulnerable = false)
         {
             var player = CreateEntity("player", new Vector2(Constants.ScreenWidth / 2f, Constants.PlayerY));
 
@@ -57,7 +66,22 @@ namespace SpaceInvaders
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
             collider.CollidesWithLayers = 0;
 
-            player.AddComponent<PlayerController>();
+            var controller = player.AddComponent(new PlayerController(startInvulnerable));
+            controller.Died += OnPlayerDied;
+
+            _player = player;
+        }
+
+        void OnPlayerDied()
+        {
+            _player = null;
+            _gameState.LoseLife();
+
+            if (_gameState.IsGameOver)
+                return;
+
+            _isRespawningPlayer = true;
+            _playerRespawnTimer = Constants.DeathDelay;
         }
 
         void CreateShields()
@@ -150,6 +174,8 @@ namespace SpaceInvaders
                 Core.StartSceneTransition(new FadeTransition(() => new GameplayScene()));
             }
 
+            UpdatePlayerRespawn();
+
             _scoreText.SetText($"SCORE: {_gameState.Score}");
             _highScoreText.SetText($"HI: {_gameState.HighScore}");
             _livesText.SetText($"LIVES: {_gameState.Lives}");
@@ -163,6 +189,30 @@ namespace SpaceInvaders
                 _gameOverText.SetText("");
 
             base.Update();
+        }
+
+        void UpdatePlayerRespawn()
+        {
+            if (_gameState.IsGameOver)
+            {
+                _isRespawningPlayer = false;
+                if (_player != null && !_player.IsDestroyed)
+                {
+                    _player.Destroy();
+                    _player = null;
+                }
+                return;
+            }
+
+            if (!_isRespawningPlayer)
+                return;
+
+            _playerRespawnTimer -= Time.DeltaTime;
+            if (_playerRespawnTimer > 0)
+                return;
+
+            _isRespawningPlayer = false;
+            CreatePlayer(startInvulnerable: true);
         }
     }
 }
