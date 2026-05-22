@@ -34,7 +34,7 @@ Do not add Nez source under this template unless explicitly asked.
 ## Layout
 
 - `Source/Game1.cs` boots Nez and assigns the first scene.
-- `Source/Scenes/MainScene.cs` contains the starter scene.
+- `Source/Scenes/GameplayScene.cs` contains the starter scene.
 - `Source/Constants.cs` holds shared template constants such as window size and title.
 - `Source/Assets.cs` is intended to hold generated or curated content path constants.
 - `Content/Content.mgcb` is the MonoGame content pipeline file.

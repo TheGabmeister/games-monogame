@@ -3,7 +3,7 @@ using Nez;
 
 namespace SuperMario
 {
-    public class MainScene : Scene
+    public class GameplayScene : Scene
     {
         EntityFactory _factory;
         PlayerController _playerController;

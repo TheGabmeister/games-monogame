@@ -15,7 +15,7 @@ namespace SuperMario
             base.Initialize();
             DebugRenderEnabled = true;
 
-            Scene = new MainScene();
+            Scene = new GameplayScene();
         }
     }
 }
