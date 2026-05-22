@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Nez;
 
-namespace SuperMario.Components
+namespace SuperMario
 {
     public class PlayerController : Component, IUpdatable
     {
@@ -18,7 +18,6 @@ namespace SuperMario.Components
         VirtualIntegerAxis _moveAxis;
         VirtualButton _jumpButton;
         Mover _mover;
-        Collider _collider;
         Vector2 _velocity;
         bool _grounded;
         PlayerState _state = PlayerState.Small;
@@ -26,7 +25,6 @@ namespace SuperMario.Components
         public override void OnAddedToEntity()
         {
             _mover = Entity.GetComponent<Mover>();
-            _collider = Entity.GetComponent<Collider>();
 
             _moveAxis = new VirtualIntegerAxis();
             _moveAxis.AddKeyboardKeys(VirtualInput.OverlapBehavior.TakeNewer, Keys.Left, Keys.Right);
@@ -72,31 +70,9 @@ namespace SuperMario.Components
                     _velocity.Y = 0;
             }
 
-            CheckItemPickup();
         }
 
-        void CheckItemPickup()
-        {
-            var neighbors = Physics.BoxcastBroadphaseExcludingSelf(
-                _collider, 1 << PhysicsLayers.Item);
-
-            foreach (var neighbor in neighbors)
-            {
-                if (_collider.Overlaps(neighbor))
-                {
-                    var mushroom = neighbor.Entity.GetComponent<Mushroom>();
-                    if (mushroom != null)
-                    {
-                        Grow();
-                        var entity = neighbor.Entity;
-                        entity.SetEnabled(false);
-                        Core.Schedule(0, _ => entity.Destroy());
-                    }
-                }
-            }
-        }
-
-        void Grow()
+        public void GrowPlayer()
         {
             if (_state == PlayerState.Fire)
                 return;
@@ -132,15 +108,10 @@ namespace SuperMario.Components
             Entity.RemoveComponent<PrototypeSpriteRenderer>();
             Entity.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(color);
 
-            Entity.RemoveComponent<BoxCollider>();
-            Entity.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
-            _collider = Entity.GetComponent<Collider>();
+            var box = Entity.GetComponent<BoxCollider>();
+            box.SetSize(w, h);
+            box.SetLocalOffset(new Vector2(0, 0));
 
-            var playerLayers = (1 << PhysicsLayers.Environment) | (1 << PhysicsLayers.Item);
-            _collider.PhysicsLayer = 1 << PhysicsLayers.Player;
-            _collider.CollidesWithLayers = playerLayers;
-
-            // shift up so feet stay on the ground
             if (_state != PlayerState.Small)
                 Entity.Position += new Vector2(0, -(BigHeight - SmallHeight) / 2f);
         }

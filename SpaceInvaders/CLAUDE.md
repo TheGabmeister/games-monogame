@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SpaceInvaders is a modernized Space Invaders-style game built with MonoGame and the Nez framework. Nez provides the scene/entity/component model, collision helpers, sprite rendering, virtual input, timers, and scene transitions. See `SPEC.md` for the full game design and `PHASES.md` for the Milestone 2 development roadmap.
+SpaceInvaders is a modernized Space Invaders-style game built with MonoGame and the Nez framework. Nez provides the scene/entity/component model, collision helpers, sprite rendering, virtual input, timers, and scene transitions.
 
 The project targets `net9.0`, uses MonoGame DesktopGL 3.8.x, and references Nez from local source at `D:\Nez\Nez.Portable\Nez.MG38.csproj`. Nez sample projects are available at `D:\Nez-Samples\Nez.Samples` for reference.
 
@@ -26,7 +26,8 @@ dotnet tool restore
 Nez is component-based: scenes contain entities, and entities contain components. Custom behavior lives in Nez `Component` and `SceneComponent` classes. This is not data-oriented ECS; components hold both data and behavior, similar to Unity `MonoBehaviour`.
 
 - `Source/` - all C# game code. Entry point is `Program.cs`; main game class is `Game1.cs`.
-- `Source/Scenes/` - Nez `Scene` subclasses: `MainMenuScene`, `GameplayScene`, and `GameOverScene`.
+- `Source/Settings.cs` - singleton for persisted user settings (high score, volume, fullscreen, screen shake). JSON file in `%LocalAppData%\SpaceInvaders\settings.json`.
+- `Source/Scenes/` - Nez `Scene` subclasses: `MainMenuScene`, `OptionsScene`, `GameplayScene`, and `GameOverScene`.
 - `Source/Components/` - entity components such as `PlayerController`, `FormationController`, `BulletController`, `InvaderData`, `ShieldChunk`, `UFOController`, `Blinker`, and `ShakeListener`. Also static helpers: `ExplosionHelper` and `ScorePopup`.
 - `Source/SceneComponents/` - scene-level managers: `GameState`, `HudController`, `WaveManager`, `BassRhythm`, and `EventBus`.
 - `Source/Assets.cs` - nested `const string` paths for runtime content. Update this when adding, renaming, or removing content.
@@ -71,6 +72,17 @@ Avoid putting HUD refresh logic or repeated state checks in `GameplayScene.Updat
 Use `GameState.AddScore()`, `LoseLife()`, `AdvanceWave()`, and `TriggerGameOver()` instead of mutating state fields directly. `HighScore` and `Wave` have private setters by design.
 
 `HudController` owns HUD creation and display updates. It creates the HUD text entities, subscribes to `GameState` events, refreshes labels only when state changes, and exposes `ShowPause()` / `HidePause()` for `GameplayScene`.
+
+## Settings Persistence
+
+`Settings` is a singleton (`Settings.Instance`) that persists high score, volume, fullscreen, and screen shake to JSON in `%LocalAppData%\SpaceInvaders\settings.json`. It loads lazily on first access and saves explicitly via `Save()`.
+
+- `GameState` reads `Settings.Instance.HighScore` on construction and writes it back on new high score.
+- `Game1.Initialize()` applies volume (`SoundEffect.MasterVolume`) and fullscreen (`Screen.IsFullscreen`) from saved settings.
+- `OptionsScene` modifies settings in-memory and calls `Save()` when the user exits.
+- `ShakeListener` checks `Settings.Instance.ScreenShake` before triggering camera shake.
+
+Fullscreen uses borderless mode (`Screen.HardwareModeSwitch = false`). `SceneResolutionPolicy.ShowAll` handles scaling in both windowed and fullscreen.
 
 ## Scene Event Bus
 

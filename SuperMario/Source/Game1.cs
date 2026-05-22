@@ -1,5 +1,4 @@
 using Nez;
-using SuperMario.Scenes;
 
 namespace SuperMario
 {

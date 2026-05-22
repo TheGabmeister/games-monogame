@@ -1,11 +1,13 @@
 using Microsoft.Xna.Framework;
 using Nez;
-using SuperMario.Components;
 
-namespace SuperMario.Scenes
+
+namespace SuperMario
 {
     public class MainScene : Scene
     {
+        PlayerController _playerController;
+
         public override void Initialize()
         {
             ClearColor = Color.CornflowerBlue;
@@ -24,15 +26,15 @@ namespace SuperMario.Scenes
 
         private void CreatePlayer()
         {
-            var playerLayers = (1 << PhysicsLayers.Environment) | (1 << PhysicsLayers.Item);
-
             var player = CreateEntity("player", new Vector2(Constants.ScreenWidth / 2f, 500f));
             player.AddComponent(new PrototypeSpriteRenderer(32, 48)).SetColor(Color.Red);
+            player.AddComponent(new Mover());
+
             var collider = player.AddComponent(new BoxCollider(-16, -24, 32, 48));
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
-            collider.CollidesWithLayers = playerLayers;
-            player.AddComponent(new Mover());
-            player.AddComponent(new PlayerController());
+            collider.CollidesWithLayers = (1 << PhysicsLayers.Environment) | (1 << PhysicsLayers.Item);
+            
+            _playerController = player.AddComponent(new PlayerController());
         }
 
         private void CreateLevel()
@@ -74,7 +76,7 @@ namespace SuperMario.Scenes
             collider.PhysicsLayer = 1 << PhysicsLayers.Item;
             collider.CollidesWithLayers = itemCollidesWith;
             collider.IsTrigger = true;
-            mushroom.AddComponent(new Mushroom());
+            mushroom.AddComponent(new Mushroom(_playerController));
         }
     }
 }
