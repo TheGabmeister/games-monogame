@@ -58,29 +58,35 @@ namespace SpaceInvaders
 
         void CreateShields()
         {
-            var shieldChunkTex = Content.LoadTexture(Assets.Sprites.Shields.ShieldChunk, true);
-            float totalWidth = (GameConstants.ShieldCount - 1) * 180f;
+            var texture = Content.LoadTexture(Assets.Sprites.Shields.ShieldChunk, true);
+            int count = GameConstants.ShieldCount;
+            int cols = GameConstants.ShieldChunksX;
+            int rows = GameConstants.ShieldChunksY;
+            float chunkW = GameConstants.ShieldChunkW;
+            float chunkH = GameConstants.ShieldChunkH;
+
+            float totalWidth = (count - 1) * 180f;
             float startX = (GameConstants.ScreenWidth - totalWidth) / 2f;
 
-            for (int s = 0; s < GameConstants.ShieldCount; s++)
+            for (int s = 0; s < count; s++)
             {
                 float shieldCenterX = startX + s * 180f;
-                float shieldLeft = shieldCenterX - (GameConstants.ShieldChunksX * GameConstants.ShieldChunkW) / 2f;
+                float shieldLeft = shieldCenterX - (cols * chunkW) / 2f;
                 float shieldTop = GameConstants.ShieldY;
 
-                for (int cx = 0; cx < GameConstants.ShieldChunksX; cx++)
+                for (int cx = 0; cx < cols; cx++)
                 {
-                    for (int cy = 0; cy < GameConstants.ShieldChunksY; cy++)
+                    for (int cy = 0; cy < rows; cy++)
                     {
-                        float x = shieldLeft + cx * GameConstants.ShieldChunkW + GameConstants.ShieldChunkW / 2f;
-                        float y = shieldTop + cy * GameConstants.ShieldChunkH + GameConstants.ShieldChunkH / 2f;
+                        float x = shieldLeft + cx * chunkW + chunkW / 2f;
+                        float y = shieldTop + cy * chunkH + chunkH / 2f;
 
                         var chunk = CreateEntity($"shield_{s}_{cx}_{cy}", new Vector2(x, y));
                         chunk.Tag = Tags.Shield;
-                        chunk.AddComponent(new SpriteRenderer(shieldChunkTex));
+                        chunk.AddComponent(new SpriteRenderer(texture));
                         chunk.Transform.SetScale(GameConstants.ShieldScale);
 
-                        var collider = chunk.AddComponent(new BoxCollider(GameConstants.ShieldChunkW, GameConstants.ShieldChunkH));
+                        var collider = chunk.AddComponent(new BoxCollider(chunkW, chunkH));
                         collider.PhysicsLayer = 1 << PhysicsLayers.Shield;
                         collider.CollidesWithLayers = 0;
                         collider.IsTrigger = true;
