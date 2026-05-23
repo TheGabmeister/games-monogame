@@ -79,6 +79,7 @@ namespace SuperMario
 
         public void KillPlayer()
         {
+            Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PlayerDie);
             OnDied?.Invoke();
             Entity.Destroy();
         }

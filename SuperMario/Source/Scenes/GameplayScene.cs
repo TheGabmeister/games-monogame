@@ -90,7 +90,6 @@ namespace SuperMario
         {
             // TODO:
             // Pause music
-            // Play death sound
             // pause the game for a few seconds
             PlayerDied?.Invoke();
         }

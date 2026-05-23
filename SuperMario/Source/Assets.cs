@@ -25,13 +25,14 @@ namespace SuperMario
 
 		public static class Sfx
 		{
-			public const string PlayerJump = @"Content/Sfx/player_jump.ogg";
-			public const string PlayerHit = @"Content/Sfx/player_hit.ogg";
-			public const string PlayerFire = @"Content/Sfx/player_fire.ogg";
-			public const string PickupCoin = @"Content/Sfx/pickup_coin.ogg";
-			public const string PickupMushroom = @"Content/Sfx/pickup_mushroom.ogg";
-			public const string PickupOneUp = @"Content/Sfx/pickup_one_up.ogg";
-			public const string EnemyHit = @"Content/Sfx/enemy_hit.ogg";
+			public const string PlayerJump = @"Content/Sfx/player_jump.wav";
+			public const string PlayerHit = @"Content/Sfx/player_hit.wav";
+			public const string PlayerDie = @"Content/Sfx/player_die.wav";
+			public const string PlayerFire = @"Content/Sfx/player_fire.wav";
+			public const string PickupCoin = @"Content/Sfx/pickup_coin.wav";
+			public const string PickupMushroom = @"Content/Sfx/pickup_mushroom.wav";
+			public const string PickupOneUp = @"Content/Sfx/pickup_one_up.wav";
+			public const string EnemyHit = @"Content/Sfx/enemy_hit.wav";
 		}
 
 		public static class Music
