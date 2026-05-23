@@ -66,6 +66,7 @@ namespace SuperMario
             var position = start.Entity.Position;
             _playerController = _factory.CreatePlayer(this, position);
             _playerController.SetGameState(_gameState);
+            _playerController.SetFactory(_factory);
             _playerController.OnDied += OnPlayerDied;
         }
 

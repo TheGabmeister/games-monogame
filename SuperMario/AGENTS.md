@@ -42,9 +42,11 @@ Do not add Nez source under this template unless explicitly asked.
 - `Source/EntityFactory.cs` maps Tiled object Class strings to Nez entity spawn methods.
 - `Source/Components/` contains gameplay components such as `PlayerController`, `GravityBody`, `Mushroom`, `FireFlower`, `OneUp`, `GoalTrigger`, `KillVolume`, `HudController`, and `PlayerStart`.
 - `Source/Constants.cs` holds shared constants, physics layer bit positions, render layers, tags, and player state enum.
-- `Source/Assets.cs` holds content path constants for maps and music.
+- `Source/Assets.cs` holds generated content path constants for maps, sprites, SFX, and music.
+- `Tools/generate_assets.py` regenerates `Source/Assets.cs` from files under `Content/`.
 - `Content/Levels/` contains Tiled `.tmx` level files.
 - `Content/Music/` contains generated `.ogg` music loops and regeneration sources.
+- `Content/Sfx/` contains runtime `.wav` sound effects.
 - `Content/Content.mgcb` is the MonoGame content pipeline file.
 - `Assets/` contains project icon and Windows manifest files.
 
@@ -81,11 +83,22 @@ If Nez effects or post-processors are used, add or link Nez default content:
 
 Keep content paths in sync with `Content/Content.mgcb`.
 
-Raw `.tmx` and `.ogg` files are copied by `SuperMario.csproj`:
+Raw `.tmx`, `.ogg`, and `.wav` files are copied by `SuperMario.csproj`:
 
 ```xml
 <Content Include="Content\**\*.tmx" CopyToOutputDirectory="PreserveNewest" />
 <Content Include="Content\**\*.ogg" CopyToOutputDirectory="PreserveNewest" />
+<Content Include="Content\**\*.wav" CopyToOutputDirectory="PreserveNewest" />
 ```
 
-Music paths live in `Assets.Music`; level-to-music assignment lives in `Levels.cs`.
+After adding, removing, or renaming files under `Content/Levels`, `Content/Sfx`, `Content/Music`,
+or `Content/Sprites`, regenerate `Source/Assets.cs`:
+
+```powershell
+& 'C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\python.exe' Tools\generate_assets.py
+```
+
+In VS Code, the same command is available as the `Generate Assets.cs` task.
+
+Map paths live in `Assets.Maps`, SFX paths in `Assets.Sfx`, and music paths in `Assets.Music`;
+level-to-music assignment lives in `Levels.cs`.

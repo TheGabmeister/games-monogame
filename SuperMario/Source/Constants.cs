@@ -13,6 +13,7 @@ namespace SuperMario
         public const int Enemy = 1;
         public const int Item = 2;
         public const int Environment = 3;
+        public const int Projectile = 4;
     }
 
     // In Nez, 0 is the default tag for entities. Don't use it.

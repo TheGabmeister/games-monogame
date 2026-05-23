@@ -27,59 +27,147 @@ This project uses MonoGame 3.8, so always use `Nez.MG38.csproj` (not the .NET 6 
 
 ## Architecture
 
-The flow is **`Game1` -> `GameManager` (GlobalManager) -> `GameplayScene` -> `EntityFactory`**.
+`Game1.Initialize` registers three `GlobalManager`s — `MusicManager`, `SfxManager`, `GameManager` — and does nothing else. Everything downstream flows from `GameManager`'s scene transitions.
 
-- **`Game1`** boots Nez and registers `GameManager` as a Nez `GlobalManager`. It does nothing else; game orchestration lives in `GameManager`.
-- **`GameManager`** owns the `GameState` instance and handles scene transitions. It starts with `Levels.Debug`, subscribes to `GameplayScene.LevelCompleted` / `GameOver`, and decides what to load next. It persists across scene swaps automatically because it is a `GlobalManager`.
-- **`GameState`** holds data that survives scene transitions: `Score`, `Lives`, `PowerState`. It is passed into each `GameplayScene` constructor. `PlayerController` writes back to it directly, for example on `GrowPlayer`, so progression survives the next scene load.
-- **`Levels` / `LevelDefinition`** define level metadata: `Name`, `MapPath`, `MusicPath`, and `TimerSeconds`. Level map/music paths come from `Assets`.
-- **`GameplayScene`** is constructed with a `LevelDefinition` and a `GameState`. It loads the level's `.tmx` map, iterates the `entities` object group, and asks `EntityFactory` to spawn each object. Player respawning and game-over detection live here; the actual player visual state restore is done in `PlayerController.SetGameState`. It also creates the HUD with `HudController`.
-- **`EntityFactory`** is a registry (`Dictionary<string, Action<Scene, TmxObject>>`) mapping Tiled object **Class** strings to spawn functions. Add a new entity type by writing a `CreateFoo(Scene, TmxObject)` method and calling `Register("Foo", CreateFoo)` in the constructor. **Do not add a switch statement in the scene**; the whole point of the registry is to avoid that.
+### Scene flow
 
-### Level Loading (Tiled)
+`MainMenuScene` → `GameplayScene` (looping per campaign level) → `GameOverScene` → `MainMenuScene`.
+
+- **MainMenuScene**: black background, "Press Start" text. Fires `StartPressed`. `GameManager.StartGame` resets `GameState` and loads the first campaign level.
+- **GameplayScene**: loads one level via `LevelDefinition`. Fires `LevelCompleted` (goal touched) and `PlayerDied` (player killed).
+- **GameOverScene**: "Game Over" text. Fires `Continue`, which returns to `MainMenuScene`.
+
+Scenes only *report what happened*; `GameManager` decides *what to do*. The scene never advances itself — keep this split intact.
+
+### GlobalManagers
+
+Three GlobalManagers persist across scene swaps:
+
+- **`GameManager`** owns `GameState`, the `_campaign[]` array (which levels in what order), and scene transition policy. `OnPlayerDied` decrements lives — if `Lives <= 0`, load game over; else reload the same level. `OnLevelCompleted` advances the campaign index; past the last level, load game over.
+- **`MusicManager`**: `Play(path)` loads/plays an OGG via `Song.FromUri`. **`Play` is a no-op if the requested path matches the currently-playing path** — this is what keeps music continuous across same-level reloads on player death. Per-scene music is set in each scene's `OnStart` (gameplay reads `_level.MusicPath`).
+- **`SfxManager`**: `Play(path)` loads-and-caches a `SoundEffect` by path, then plays it. **WAV-only** — see Audio § below.
+
+Anything can call `Core.GetGlobalManager<T>()`. The service-locator style is fine for cross-cutting concerns (audio, lives, score lookups). Prefer **constructor injection** for component-to-component data flow — see `OneUp(GameState)` and `Coin(GameState)`.
+
+### GameState & lives/score flow
+
+`GameState` holds `Score`, `Lives`, `PowerState`. Lifecycle:
+- Created fresh in `GameManager.StartGame`.
+- Passed into `GameplayScene` constructor → forwarded to `EntityFactory` constructor → injected into items that mutate it.
+- `Lives` is an **event-firing property** (`LivesChanged`). `HudController` subscribes in `OnAddedToEntity` and unsubscribes in `OnRemovedFromEntity`. The `-=` is required because `GameState` (publisher) outlives the scene's HUD (subscriber). See Events § below.
+
+**Two valid item-mutation patterns**:
+- *Affects player component state* (size, visuals) → go through a `PlayerController` method (e.g. Mushroom → `player.GrowPlayer()`).
+- *Affects pure `GameState` data* (lives, score) → take `GameState` via constructor and mutate directly (e.g. OneUp, Coin).
+
+### Levels / LevelDefinition
+
+`LevelDefinition` has `Name`, `MapPath`, `MusicPath`, `TimerSeconds`. Level entries live in `Source/Levels.cs`. The active campaign sequence lives in `GameManager._campaign[]` — adding a new level means adding to `Levels.cs` **and** inserting it into `_campaign[]` at the right index. Map and music paths reference constants in `Assets` (auto-generated, see below).
+
+### EntityFactory
+
+Tiled-object-Class → spawn-function registry (`Dictionary<string, Action<Scene, TmxObject>>`). Add a new entity type by writing `CreateFoo(Scene, TmxObject)` and calling `Register("Foo", CreateFoo)` in the constructor. **Do not add a switch statement in the scene** — the whole point of the registry is to avoid that.
+
+The constructor takes `GameState` and stores it; pass it into item components that mutate state.
+
+Current registrations: `PlayerStart`, `Platform`, `Mushroom`, `FireFlower`, `OneUp`, `Coin`, `Goomba`, `GoalTrigger`, `KillVolume`.
+
+### GravityBody + two-collider pattern
+
+Falling items/enemies (Mushroom, OneUp, Goomba) follow this shape:
+- `Mover` + `GravityBody` (gravity integration + collision response)
+- **Solid `BoxCollider`** on `Item`/`Enemy` layer, collides with `Environment` — so it lands on platforms
+- **Trigger `BoxCollider`** on the same layer, collides with `Player` — fires `OnTriggerEnter` for pickup/damage
+
+Order matters: `Mover.CalculateMovement` iterates `GetComponents<Collider>()` and uses the first non-trigger collider for swept collision. **Add the solid one first.**
+
+`Coin` skips the solid collider (doesn't fall) and has only the trigger.
+
+The Player's `CollidesWithLayers` is **Environment-only** — items don't physically block the player. Item triggers still fire because the item's own `Mover.ApplyMovement` runs `triggerHelper.Update` each frame.
+
+`GravityBody` exposes `Velocity`, `IsGrounded`, `LastCollision`. **Don't use it for the player** — Mario's movement is bespoke (variable jump, etc.) and shouldn't share gravity code with passive falling items.
+
+### HUD rendering
+
+HUDs render screen-locked via `ScreenSpaceRenderer`. Two renderers per gameplay scene:
+
+```csharp
+AddRenderer(new RenderLayerExcludeRenderer(0, RenderLayers.Hud));   // world
+AddRenderer(new ScreenSpaceRenderer(1, RenderLayers.Hud));          // HUD
+```
+
+**Positioning gotcha**: `ScreenSpaceRenderer`'s camera is lazily created on first `OnSceneBackBufferSizeChanged`; before then the renderer falls back to an **identity transform**. Position HUD entities in raw backbuffer pixels with `(0,0)` at the **upper-left** — not the centered (0,0)-is-screen-center convention you'd expect from a normal camera. See `GameplayScene.SpawnHud` (top-left at `(16,16)`) and `MainMenuScene` (centered at `(ScreenWidth/2, ScreenHeight/2)`).
+
+## Level Loading (Tiled)
 
 Levels are authored in **Tiled** (`.tmx` files in `Content/Levels/`). Conventions:
 
 - One object layer named `entities`. Object **Class** (PascalCase) maps to a factory registration. **Name** is optional and used for entity names.
-- The csproj has globs for raw TMX and OGG content:
+- The csproj copies content globs for raw runtime files:
 
 ```xml
 <Content Include="Content\**\*.tmx" CopyToOutputDirectory="PreserveNewest" />
 <Content Include="Content\**\*.ogg" CopyToOutputDirectory="PreserveNewest" />
+<Content Include="Content\**\*.wav" CopyToOutputDirectory="PreserveNewest" />
 ```
 
-- Add map paths in `Assets.Maps`, music paths in `Assets.Music`, and playable level metadata in `Levels.cs`.
+Adding a new content file extension requires adding to this glob list.
+
+- Map paths in `Assets.Maps`, music in `Assets.Music`, SFX in `Assets.Sfx`, level metadata in `Levels.cs`.
 - Use `Content.LoadTiledMap(_level.MapPath)`; do not hardcode paths in scenes.
-- `PlayerStart` is spawned like any other object, but it creates a marker entity with a `PlayerStart` component. `GameplayScene.SpawnPlayer` uses `FindComponentOfType<PlayerStart>()` and throws if missing. The player itself is created in code by `EntityFactory.CreatePlayer` so it can be respawned without re-parsing the map.
+- `PlayerStart` is a marker entity with a `PlayerStart` component. `GameplayScene.SpawnPlayer` uses `FindComponentOfType<PlayerStart>()` and throws if missing.
 - Tiled rotation: objects rotate around their **top-left corner**, not center. `EntityFactory.GetCenter` handles the math.
 
-Current factory Class registrations:
-
-- `PlayerStart`
-- `Platform`
-- `Mushroom`
-- `FireFlower`
-- `OneUp`
-- `GoalTrigger`
-- `KillVolume`
+## Audio
 
 ### Music
 
-Music files are raw `.ogg` assets in `Content/Music/`:
+- OGG files in `Content/Music/`: `main_menu.ogg`, `game_over.ogg`, `level_bounce.ogg`, `level_cavern.ogg`, `level_sky.ogg`.
+- Played via `Song.FromUri` — DesktopGL handles OGG natively.
+- Each scene calls `Core.GetGlobalManager<MusicManager>().Play(...)` in `OnStart`. `Play` no-ops if the requested track is already playing — this is what prevents level music restarting on player-death reload.
 
-- `level_bounce.ogg`
-- `level_cavern.ogg`
-- `level_sky.ogg`
+### SFX
 
-They are referenced by `Assets.Music` and assigned per level in `Levels.cs`. `generate_level_music.ps1` and the `.mid`/`.wav` sources are regeneration artifacts; keep them beside the exported OGGs.
+- WAV files in `Content/Sfx/`, all mono 16-bit 44.1kHz.
+- Played via `SoundEffect.FromStream` (cached in `SfxManager` after first load).
 
-### Physics Layers
+**Critical pitfall — OGG vs WAV asymmetry**: MonoGame DesktopGL 3.8's `SoundEffect.FromStream` is **WAV-only**. OGG SFX cannot be loaded at runtime; the first `Play` would crash with `ArgumentException: Specified stream is not a wave file.` The repo keeps source OGGs alongside the converted WAVs for reference. When adding a new SFX:
+
+1. Drop the OGG in `Content/Sfx/`.
+2. Convert with ffmpeg: `ffmpeg -i input.ogg -ar 44100 -ac 1 -sample_fmt s16 output.wav -y`
+3. Regenerate `Assets.cs` with `Tools/generate_assets.py`.
+4. Reference `Assets.Sfx.X` in code.
+
+Music uses OGG directly because `Song` *does* support OGG. The asymmetry is annoying but real.
+
+## `Assets.cs` is auto-generated
+
+`Tools/generate_assets.py` is the source of truth — it scans selected `Content/` folders and emits `Source/Assets.cs`. **Manual edits to `Assets.cs` will be overwritten** the next time the generator runs.
+
+Generated sections:
+
+- `Content/Levels/*.tmx` → `Assets.Maps`
+- `Content/Sfx/*.wav` → `Assets.Sfx`
+- `Content/Music/*.ogg` → `Assets.Music`
+- `Content/Sprites/*.png|*.jpg|*.jpeg` → `Assets.Sprites`
+
+To add a new asset constant: drop the file in the correct `Content/<subdir>/`, then run:
+
+```powershell
+& 'C:\Users\Admin\AppData\Local\Python\pythoncore-3.14-64\python.exe' Tools\generate_assets.py
+```
+
+In VS Code, use `Terminal > Run Task > Generate Assets.cs`.
+
+## Physics Layers
 
 Defined in `Constants.cs` as bit positions (`Player`, `Enemy`, `Item`, `Environment`). Set on every collider: `PhysicsLayer = 1 << PhysicsLayers.X`, `CollidesWithLayers = (1 << ...) | (1 << ...)`. Triggers use the same layer system; they also need `collider.IsTrigger = true`.
 
-### Render Layers
+Player's `CollidesWithLayers` is **Environment-only** — items/enemies don't block the player, they overlap and trigger.
 
-`RenderLayers.World` and `RenderLayers.Hud` are defined in `Constants.cs`. `GameplayScene` uses `RenderLayerExcludeRenderer` for world rendering and `ScreenSpaceRenderer` for HUD.
+## Render Layers
+
+`RenderLayers.World` (0) and `RenderLayers.Hud` (1) defined in `Constants.cs`. `GameplayScene` uses `RenderLayerExcludeRenderer` for world rendering and `ScreenSpaceRenderer` for HUD. See HUD rendering § for the positioning gotcha.
 
 ## Critical Nez Patterns
 
@@ -91,31 +179,45 @@ Defined in `Constants.cs` as bit positions (`Player`, `Enemy`, `Item`, `Environm
 
 ## Events vs Direct References
 
-The codebase mixes two patterns intentionally:
+Two patterns coexist intentionally:
 
-- **Nez `Emitter<T>`** (`Events.Emitter` with `GameEvents` enum) for cross-cutting game-wide events that anything can subscribe to. Currently unused; the enum is empty. Reach for it only when no direct reference exists.
-- **C# `event Action`** on a specific component, for example `PlayerController.OnDied`, when one specific subscriber owns the reference. Preferred when the caller naturally has a reference to the source; do not route through the global emitter just because.
+- **C# `event Action`** on a specific component or scene — `PlayerController.OnDied`, `GameState.LivesChanged`, `GameplayScene.PlayerDied`/`LevelCompleted`, `MainMenuScene.StartPressed`, `GameOverScene.Continue`. Preferred when one specific subscriber owns a reference to the source.
+- **Nez `Emitter<T>`** (`Events.Emitter` with `GameEvents` enum) for game-wide events that anything could subscribe to. Currently unused; the enum is empty. Reach for it only when no direct reference exists.
+
+**Event-leak rule** (subtle, important): a leak happens when **publisher outlives subscriber**.
+- `GameState` outlives the scene's `HudController` → `HudController` **must** `-=` in `OnRemovedFromEntity`. Same for any scene component subscribing to a GlobalManager event.
+- `PlayerController` dies before/with the scene that subscribed to its `OnDied` → no `-=` needed.
 
 ## Layout
 
-- `Source/Game1.cs` - boots Nez, registers `GameManager`.
-- `Source/GameManager.cs` - `GlobalManager` owning `GameState` and scene transitions.
-- `Source/GameState.cs` - persistent data across scenes.
-- `Source/Levels.cs` - `LevelDefinition` metadata and level list.
-- `Source/Scenes/GameplayScene.cs` - gameplay scene; loads a level, spawns entities, creates HUD, handles respawn/completion.
-- `Source/EntityFactory.cs` - Tiled-object -> entity spawn registry.
-- `Source/Components/` - Nez components (`PlayerController`, `GravityBody`, pickups, triggers, HUD, marker components).
-- `Source/Constants.cs` - `PhysicsLayers`, `RenderLayers`, `Tags`, `Constants`, `PlayerState` enum.
-- `Source/Assets.cs` - content path constants (`Maps`, `Sprites`, `Sfx`, `Music`).
-- `Source/Events.cs` - `GameEvents` enum + global `Emitter`.
-- `Content/Levels/` - `.tmx` map files.
-- `Content/Music/` - generated `.ogg` loops plus regeneration sources.
-- `Content/Content.mgcb` - MonoGame content pipeline file.
-- `Assets/` - app icon and Windows manifest.
-- `NezGuide.md` - Nez usage notes; consult before reinventing patterns.
+- `Source/Game1.cs` — boots Nez, registers GlobalManagers.
+- `Source/GameManager.cs` — campaign progression, scene transitions, owns `GameState`.
+- `Source/MusicManager.cs`, `Source/SfxManager.cs` — audio GlobalManagers.
+- `Source/GameState.cs` — persistent data across scenes; `Lives` fires `LivesChanged`.
+- `Source/Levels.cs` — `LevelDefinition` and the `Levels` static registry.
+- `Source/Scenes/MainMenuScene.cs`, `GameplayScene.cs`, `GameOverScene.cs` — the three scenes.
+- `Source/EntityFactory.cs` — Tiled-object → entity spawn registry.
+- `Source/Components/` — Nez components: `PlayerController`, `GravityBody`, pickups (`Mushroom`, `OneUp`, `Coin`, `FireFlower`), enemies (`Goomba`), triggers (`KillVolume`, `GoalTrigger`), HUD (`HudController`), menu input (`MainMenuController`, `GameOverController`), marker components (`PlayerStart`).
+- `Source/Constants.cs` — `PhysicsLayers`, `RenderLayers`, `Tags`, `Constants`, `PlayerState` enum.
+- `Source/Assets.cs` — content path constants. **Auto-generated — see `Assets.cs` § above.**
+- `Tools/generate_assets.py` — Python generator that updates `Source/Assets.cs` from `Content/`.
+- `.vscode/tasks.json` — includes the `Generate Assets.cs` VS Code task.
+- `Source/Events.cs` — `GameEvents` enum + global `Emitter` (currently unused).
+- `Content/Levels/` — `.tmx` map files.
+- `Content/Music/` — OGG music tracks.
+- `Content/Sfx/` — WAV sound effects (with OGG sources kept alongside).
+- `Content/Content.mgcb` — MonoGame content pipeline file (currently unused; raw-file content copy is used instead).
+- `Assets/` — app icon and Windows manifest.
+- `NezGuide.md` — Nez usage notes; consult before reinventing patterns.
+- `SPEC.md` — gameplay-systems spec for the original Super Mario Bros. (1985). Source-of-truth for original-game mechanics when implementing new features.
 
 ## Common Pitfalls
 
-- Object order in a Tiled map is **not guaranteed** to match what you would expect. Do not rely on iteration order for dependency wiring.
+- Object order in a Tiled map is **not guaranteed** to match what you'd expect. Do not rely on iteration order for dependency wiring.
 - Generic `Content.LoadTiledMap` does not go through the MGCB pipeline; it reads the raw `.tmx` from the output directory, which is why the csproj has the explicit `Content\**\*.tmx` copy glob.
 - `BoxCollider(x, y, w, h)` takes a top-left offset and stores it as a center offset internally. To match a sprite drawn from the entity center, pass `(-w/2, -h/2, w, h)`.
+- New audio file extension → add to csproj content globs.
+- New SFX must be WAV (see Audio § above).
+- New entry in `Levels.cs` is invisible until added to `GameManager._campaign[]`.
+- Editing `Assets.cs` directly is futile — regenerate with `Tools/generate_assets.py`.
+- Player-death reload re-parses the `.tmx` and re-spawns the HUD; intentional clean-slate. `MusicManager`'s idempotent `Play` is what keeps the music from restarting on each death.

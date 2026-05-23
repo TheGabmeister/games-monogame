@@ -17,12 +17,18 @@ namespace SuperMario
         const int BigWidth = 32;
         const int BigHeight = 64;
 
+        const int MaxFireballs = 2;
+
         VirtualIntegerAxis _moveAxis;
         VirtualButton _jumpButton;
+        VirtualButton _fireButton;
         Mover _mover;
         GameState _gameState;
+        EntityFactory _factory;
         Vector2 _velocity;
         bool _grounded;
+        int _facing = 1;
+        int _activeFireballs;
         PlayerState _state = PlayerState.Small;
 
         public override void OnAddedToEntity()
@@ -37,22 +43,36 @@ namespace SuperMario
             _jumpButton.AddKeyboardKey(Keys.Space);
             _jumpButton.AddKeyboardKey(Keys.Up);
             _jumpButton.AddKeyboardKey(Keys.W);
+
+            _fireButton = new VirtualButton();
+            _fireButton.AddKeyboardKey(Keys.X);
         }
 
         public override void OnRemovedFromEntity()
         {
             _moveAxis.Deregister();
             _jumpButton.Deregister();
+            _fireButton.Deregister();
         }
 
         public void Update()
         {
             _velocity.X = _moveAxis.Value * Constants.PlayerSpeed;
 
+            if (_moveAxis.Value != 0)
+                _facing = _moveAxis.Value;
+
             if (_grounded && _jumpButton.IsPressed)
             {
                 _velocity.Y = JumpForce;
                 Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PlayerJump);
+            }
+
+            if (_fireButton.IsPressed && _state == PlayerState.Fire && _activeFireballs < MaxFireballs && _factory != null)
+            {
+                _factory.CreateFireball(Entity.Scene, Entity.Position, _facing, this);
+                _activeFireballs++;
+                Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PlayerFire);
             }
 
             _velocity.Y += Gravity * Time.DeltaTime;
@@ -90,6 +110,17 @@ namespace SuperMario
             _state = gameState.PowerState;
             if (_state != PlayerState.Small)
                 ApplyStateVisuals();
+        }
+
+        public void SetFactory(EntityFactory factory)
+        {
+            _factory = factory;
+        }
+
+        public void NotifyFireballDestroyed()
+        {
+            if (_activeFireballs > 0)
+                _activeFireballs--;
         }
 
         public void GrowPlayer()

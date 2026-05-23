@@ -28,17 +28,6 @@
     <Content Include="Content\**\*.wav" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Source\Assets.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Assets.cs</LastGenOutput>
-    </None>
-    <Compile Update="Source\Assets.cs">
-      <DependentUpon>Assets.tt</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*" />
   </ItemGroup>

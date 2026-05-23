@@ -56,6 +56,21 @@ namespace SuperMario
             return player.AddComponent(new PlayerController());
         }
 
+        public void CreateFireball(Scene scene, Vector2 position, int facing, PlayerController owner)
+        {
+            const int size = 16;
+
+            var fireball = scene.CreateEntity("fireball", position);
+            fireball.AddComponent(new PrototypeSpriteRenderer(size, size)).SetColor(Color.OrangeRed);
+            fireball.AddComponent(new Mover());
+
+            var collider = fireball.AddComponent(new BoxCollider(-size / 2f, -size / 2f, size, size));
+            collider.PhysicsLayer = 1 << PhysicsLayers.Projectile;
+            collider.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            fireball.AddComponent(new Fireball(owner, facing));
+        }
+
         public static Vector2 GetCenter(TmxObject obj)
         {
             var offset = new Vector2(obj.Width / 2f, obj.Height / 2f);
