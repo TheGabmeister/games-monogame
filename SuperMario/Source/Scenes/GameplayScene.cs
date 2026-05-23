@@ -33,7 +33,7 @@ namespace SuperMario
 
         public override void OnStart()
         {
-            _factory = new EntityFactory();
+            _factory = new EntityFactory(_gameState);
             var map = Content.LoadTiledMap(_levelPath);
             var objects = map.GetObjectGroup("entities");
 
@@ -45,11 +45,11 @@ namespace SuperMario
 
         void SpawnPlayer()
         {
-            var start = FindEntitiesWithTag(Tags.PlayerStart);
-            if (start.Count == 0)
+            var start = FindComponentOfType<PlayerStart>();
+            if (start == null)
                 throw new Exception("Level is missing a PlayerStart object.");
 
-            var position = start[0].Position;
+            var position = start.Entity.Position;
             _playerController = _factory.CreatePlayer(this, position);
             _playerController.SetGameState(_gameState);
             _playerController.OnDied += OnPlayerDied;

@@ -107,6 +107,16 @@ Object iteration order in the `.tmx` is the order they were created in Tiled. **
 1. Spawn everything as marker entities first, then resolve dependencies in a second pass (use `Scene.FindEntitiesWithTag`), or
 2. Look up the reference lazily at use-time (`Entity.Scene.FindEntity("player").GetComponent<PlayerController>()`).
 
+### Queued entities and tag lookup
+
+Entities created during `Scene.OnStart()` are queued first. Nez moves them into the live entity list and tag dictionary when `Scene.Update()` calls `Entities.UpdateLists()`.
+
+This means `Scene.FindEntitiesWithTag(tag)` will not find an entity that was just created earlier in the same `OnStart()` call. The tag dictionary has not caught up yet.
+
+For startup markers like `PlayerStart`, prefer a marker component and `Scene.FindComponentOfType<PlayerStart>()`. Nez's component lookup checks both live entities and queued entities, so it works during `OnStart()`.
+
+Avoid using tag `0` for meaningful tags. Nez entities default to `Tag == 0`, so project tags should start at `1`.
+
 ## Input
 
 ```csharp

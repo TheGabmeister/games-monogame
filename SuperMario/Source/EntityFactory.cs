@@ -9,12 +9,15 @@ namespace SuperMario
     public class EntityFactory
     {
         readonly Dictionary<string, Action<Scene, TmxObject>> _factories = new();
+        readonly GameState _gameState;
 
-        public EntityFactory()
+        public EntityFactory(GameState gameState)
         {
+            _gameState = gameState;
             Register("PlayerStart", CreatePlayerStart);
             Register("Platform", CreatePlatform);
             Register("Mushroom", CreateMushroom);
+            Register("OneUp", CreateOneUp);
             Register("KillVolume", CreateKillVolume);
         }
 
@@ -32,8 +35,8 @@ namespace SuperMario
         void CreatePlayerStart(Scene scene, TmxObject obj)
         {
             var center = GetCenter(obj);
-            var marker = scene.CreateEntity("playerstart", center);
-            marker.Tag = Tags.PlayerStart;
+            scene.CreateEntity("playerstart", center)
+                .AddComponent(new PlayerStart());
         }
 
         public PlayerController CreatePlayer(Scene scene, Vector2 position)
@@ -103,6 +106,29 @@ namespace SuperMario
             pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
             mushroom.AddComponent(new Mushroom());
+        }
+
+        void CreateOneUp(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var oneUp = scene.CreateEntity("oneup", center);
+            oneUp.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Green);
+            oneUp.AddComponent(new Mover());
+            oneUp.AddComponent(new GravityBody());
+
+            var body = oneUp.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Item;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var pickup = oneUp.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            pickup.IsTrigger = true;
+            pickup.PhysicsLayer = 1 << PhysicsLayers.Item;
+            pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            oneUp.AddComponent(new OneUp(_gameState));
         }
 
         void CreateKillVolume(Scene scene, TmxObject obj)
