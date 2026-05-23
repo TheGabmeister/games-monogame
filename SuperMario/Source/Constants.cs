@@ -56,6 +56,9 @@ namespace SuperMario
         public const float BulletBillSpeed = 180f;
         public const float BulletBillLifetime = 5f;
         public const float BulletBillCannonFireInterval = 4f;
+        public const float PodobooJumpSpeed = 520f;
+        public const float PodobooGravity = 1200f;
+        public const float PodobooRestDuration = 1f;
         public const int StartingLives = 3;
     }
 }

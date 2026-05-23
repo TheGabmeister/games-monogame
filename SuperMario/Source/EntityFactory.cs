@@ -30,6 +30,7 @@ namespace SuperMario
             Register("HammerBro", CreateHammerBro);
             Register("Blooper", CreateBlooper);
             Register("BulletBillCannon", CreateBulletBillCannon);
+            Register("Podoboo", CreatePodoboo);
             Register("GoalTrigger", CreateGoalTrigger);
             Register("KillVolume", CreateKillVolume);
         }
@@ -466,6 +467,25 @@ namespace SuperMario
             body.CollidesWithLayers = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Item);
 
             cannon.AddComponent(new BulletBillCannon(this));
+        }
+
+        void CreatePodoboo(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var podoboo = scene.CreateEntity("podoboo", center);
+            podoboo.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.OrangeRed);
+            podoboo.AddComponent(new Mover());
+
+            var hit = podoboo.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            podoboo.AddComponent(new DamagePlayerTrigger());
+            podoboo.AddComponent(new Podoboo());
         }
 
         void CreateGoalTrigger(Scene scene, TmxObject obj)
