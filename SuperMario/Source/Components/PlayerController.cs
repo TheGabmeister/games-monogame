@@ -50,7 +50,10 @@ namespace SuperMario
             _velocity.X = _moveAxis.Value * Constants.PlayerSpeed;
 
             if (_grounded && _jumpButton.IsPressed)
+            {
                 _velocity.Y = JumpForce;
+                Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PlayerJump);
+            }
 
             _velocity.Y += Gravity * Time.DeltaTime;
             if (_velocity.Y > MaxFallSpeed)

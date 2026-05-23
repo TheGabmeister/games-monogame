@@ -20,6 +20,7 @@ namespace SuperMario
             DebugRenderEnabled = true;
 
             RegisterGlobalManager(new MusicManager());
+            RegisterGlobalManager(new SfxManager());
             RegisterGlobalManager(new GameManager());
         }
     }

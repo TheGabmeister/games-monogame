@@ -89,7 +89,8 @@ namespace SuperMario
         void OnPlayerDied()
         {
             // TODO:
-            // Play death music
+            // Pause music
+            // Play death sound
             // pause the game for a few seconds
             PlayerDied?.Invoke();
         }

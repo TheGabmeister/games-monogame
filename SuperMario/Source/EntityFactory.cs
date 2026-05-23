@@ -19,6 +19,8 @@ namespace SuperMario
             Register("Mushroom", CreateMushroom);
             Register("FireFlower", CreateFireFlower);
             Register("OneUp", CreateOneUp);
+            Register("Coin", CreateCoin);
+            Register("Goomba", CreateGoomba);
             Register("GoalTrigger", CreateGoalTrigger);
             Register("KillVolume", CreateKillVolume);
         }
@@ -154,6 +156,46 @@ namespace SuperMario
             pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
             oneUp.AddComponent(new OneUp(_gameState));
+        }
+
+        void CreateCoin(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var coin = scene.CreateEntity("coin", center);
+            coin.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Gold);
+
+            var pickup = coin.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            pickup.IsTrigger = true;
+            pickup.PhysicsLayer = 1 << PhysicsLayers.Item;
+            pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            coin.AddComponent(new Coin(_gameState));
+        }
+
+        void CreateGoomba(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var goomba = scene.CreateEntity("goomba", center);
+            goomba.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Brown);
+            goomba.AddComponent(new Mover());
+            goomba.AddComponent(new GravityBody());
+
+            var body = goomba.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = goomba.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            goomba.AddComponent(new Goomba());
         }
 
         void CreateGoalTrigger(Scene scene, TmxObject obj)
