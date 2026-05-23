@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="30" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="10">
+ <objectgroup id="2" name="entities">
+  <object id="1" name="Platform" type="Platform" x="43.2162" y="541.668" width="423.464" height="52.7654"/>
+  <object id="4" name="Platform" type="Platform" x="36.2623" y="35.9747" width="388.112" height="44.6893"/>
+  <object id="5" name="PlayerStart" type="PlayerStart" x="108.892" y="453.12" width="60.571" height="51.4854"/>
+  <object id="7" name="KillVolume" type="KillVolume" x="42.3997" y="629.938" width="895.441" height="36.3426"/>
+  <object id="8" name="GoalTrigger" type="GoalTrigger" x="397.827" y="484.168" width="28.2665" height="26.2474"/>
+  <object id="9" name="Platform" type="Platform" x="511.277" y="36.322" width="388.112" height="44.6893"/>
+ </objectgroup>
+</map>
