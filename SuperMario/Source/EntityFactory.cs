@@ -23,6 +23,8 @@ namespace SuperMario
             Register("Goomba", CreateGoomba);
             Register("GreenKoopaTroopa", CreateGreenKoopaTroopa);
             Register("RedKoopaTroopa", CreateRedKoopaTroopa);
+            Register("GreenKoopaParatroopa", CreateGreenKoopaParatroopa);
+            Register("RedKoopaParatroopa", CreateRedKoopaParatroopa);
             Register("BuzzyBeetle", CreateBuzzyBeetle);
             Register("PiranhaPlant", CreatePiranhaPlant);
             Register("GoalTrigger", CreateGoalTrigger);
@@ -203,54 +205,152 @@ namespace SuperMario
 
         void CreateGoomba(Scene scene, TmxObject obj)
         {
-            var goomba = CreateWalkingEnemy(scene, obj, "goomba", Color.Brown, Constants.GoombaWalkSpeed);
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var goomba = scene.CreateEntity("goomba", center);
+            goomba.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Brown);
+            var mover = goomba.AddComponent(new Mover());
+            goomba.AddComponent(new GravityBody());
+
+            var body = goomba.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = goomba.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
             goomba.AddComponent(new Hitbox());
             goomba.AddComponent(new Goomba());
+            goomba.AddComponent(new EnemyWalker(mover, Constants.GoombaWalkSpeed));
         }
 
         void CreateGreenKoopaTroopa(Scene scene, TmxObject obj)
         {
-            var koopa = CreateWalkingEnemy(scene, obj, "greenkoopatroopa", Color.Green, Constants.GreenKoopaTroopaWalkSpeed);
-            koopa.AddComponent(new Hitbox());
-            koopa.AddComponent(new GreenKoopaTroopa());
+            CreateGreenKoopaTroopa(scene, GetCenter(obj), obj.Width, obj.Height);
         }
 
         void CreateRedKoopaTroopa(Scene scene, TmxObject obj)
         {
-            var koopa = CreateWalkingEnemy(scene, obj, "redkoopatroopa", Color.Red, Constants.RedKoopaTroopaWalkSpeed);
+            CreateRedKoopaTroopa(scene, GetCenter(obj), obj.Width, obj.Height);
+        }
+
+        public Entity CreateGreenKoopaTroopa(Scene scene, Vector2 position, float width, float height)
+        {
+            var koopa = scene.CreateEntity("greenkoopatroopa", position);
+            koopa.AddComponent(new PrototypeSpriteRenderer(width, height)).SetColor(Color.Green);
+            var mover = koopa.AddComponent(new Mover());
+            koopa.AddComponent(new GravityBody());
+
+            var body = koopa.AddComponent(new BoxCollider(-width / 2f, -height / 2f, width, height));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = koopa.AddComponent(new BoxCollider(-width / 2f, -height / 2f, width, height));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            koopa.AddComponent(new Hitbox());
+            koopa.AddComponent(new GreenKoopaTroopa());
+            koopa.AddComponent(new EnemyWalker(mover, Constants.GreenKoopaTroopaWalkSpeed));
+            return koopa;
+        }
+
+        public Entity CreateRedKoopaTroopa(Scene scene, Vector2 position, float width, float height)
+        {
+            var koopa = scene.CreateEntity("redkoopatroopa", position);
+            koopa.AddComponent(new PrototypeSpriteRenderer(width, height)).SetColor(Color.Red);
+            var mover = koopa.AddComponent(new Mover());
+            koopa.AddComponent(new GravityBody());
+
+            var body = koopa.AddComponent(new BoxCollider(-width / 2f, -height / 2f, width, height));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = koopa.AddComponent(new BoxCollider(-width / 2f, -height / 2f, width, height));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
             koopa.AddComponent(new Hitbox());
             koopa.AddComponent(new RedKoopaTroopa());
+            koopa.AddComponent(new EnemyWalker(mover, Constants.RedKoopaTroopaWalkSpeed));
+            return koopa;
         }
 
-        void CreateBuzzyBeetle(Scene scene, TmxObject obj)
-        {
-            var buzzy = CreateWalkingEnemy(scene, obj, "buzzybeetle", Color.DarkSlateBlue, Constants.BuzzyBeetleWalkSpeed);
-            buzzy.AddComponent(new Hitbox());
-            buzzy.AddComponent(new BuzzyBeetle());
-        }
-
-        Entity CreateWalkingEnemy(Scene scene, TmxObject obj, string name, Color color, float walkSpeed)
+        void CreateGreenKoopaParatroopa(Scene scene, TmxObject obj)
         {
             var center = GetCenter(obj);
             var w = obj.Width;
             var h = obj.Height;
 
-            var enemy = scene.CreateEntity(name, center);
-            enemy.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(color);
-            var mover = enemy.AddComponent(new Mover());
-            enemy.AddComponent(new GravityBody());
+            var para = scene.CreateEntity("greenkoopaparatroopa", center);
+            para.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.LightGreen);
+            var mover = para.AddComponent(new Mover());
 
-            var body = enemy.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            var body = para.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
             body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
 
-            var hit = enemy.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            var hit = para.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
             hit.IsTrigger = true;
             hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            enemy.AddComponent(new EnemyWalker(mover, walkSpeed));
-            return enemy;
+            para.AddComponent(new Hitbox());
+            para.AddComponent(new GreenKoopaParatroopa(this, mover, w, h, Constants.GreenKoopaParatroopaFlySpeed));
+        }
+
+        void CreateRedKoopaParatroopa(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var para = scene.CreateEntity("redkoopaparatroopa", center);
+            para.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.IndianRed);
+            var mover = para.AddComponent(new Mover());
+
+            var body = para.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = para.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            para.AddComponent(new Hitbox());
+            para.AddComponent(new RedKoopaParatroopa(this, mover, w, h, Constants.RedKoopaParatroopaFlySpeed));
+        }
+
+        void CreateBuzzyBeetle(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var buzzy = scene.CreateEntity("buzzybeetle", center);
+            buzzy.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.DarkSlateBlue);
+            var mover = buzzy.AddComponent(new Mover());
+            buzzy.AddComponent(new GravityBody());
+
+            var body = buzzy.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = buzzy.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            buzzy.AddComponent(new Hitbox());
+            buzzy.AddComponent(new BuzzyBeetle());
+            buzzy.AddComponent(new EnemyWalker(mover, Constants.BuzzyBeetleWalkSpeed));
         }
 
         void CreatePiranhaPlant(Scene scene, TmxObject obj)

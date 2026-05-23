@@ -57,8 +57,24 @@ Anything can call `Core.GetGlobalManager<T>()`. The service-locator style is fin
 - `Lives` is an **event-firing property** (`LivesChanged`). `HudController` subscribes in `OnAddedToEntity` and unsubscribes in `OnRemovedFromEntity`. The `-=` is required because `GameState` (publisher) outlives the scene's HUD (subscriber). See Events § below.
 
 **Two valid item-mutation patterns**:
-- *Affects player component state* (size, visuals) → go through a `PlayerController` method (e.g. Mushroom → `player.GrowPlayer()`).
+- *Affects player component state* (size, visuals) → go through a `PlayerController` method (e.g. Mushroom → `player.ApplyMushroom()`, Fire Flower → `player.ApplyFireFlower()`). The two are distinct: only Fire Flower can reach `Fire` state — a second Mushroom on Big Mario is a no-op. There is no generic "grow" entry point.
 - *Affects pure `GameState` data* (lives, score) → take `GameState` via constructor and mutate directly (e.g. OneUp, Coin).
+
+### Damage model & combat
+
+Two distinct ways the player can be hurt — keep them separate:
+
+- **`Hitbox`** (`Source/Components/Hitbox.cs`) — trigger-listener that calls `PlayerController.TakeHit()`. Big/Fire → revert to Small with a ~2s invulnerability window; Small → die. Used by enemies (attached via the walking-enemy helper).
+- **`KillVolume`** (`Source/Components/KillVolume.cs`) — trigger-listener that calls `PlayerController.KillPlayer()` directly. Instant death regardless of power state. Used for pits, lava — anything always-lethal per SPEC §4.3.
+
+**Invulnerability window**: when `TakeHit` reduces state to Small, `PlayerController` sets `_invulnTimer` and calls `_blinker.Blink(InvulnDuration)`. Subsequent `TakeHit` calls no-op until the timer expires. `Blinker` is a generic renderer-toggler (`Source/Components/Blinker.cs`) — constructor-injected with the `RenderableComponent` it should flicker. Both `_renderer` and `_blinker` are constructor-injected into `PlayerController` by the factory — no `GetComponent` lookups on the hot path.
+
+**Fireballs use centralized dispatch via `IFireballHittable`**. `Fireball` owns the trigger collider on the `Projectile` layer that collides with `Enemy`. On overlap, it looks up `IFireballHittable` on the other entity and dispatches based on the returned `FireballReaction`:
+
+- `Defeated` — enemy handled its own destruction; fireball pops with hit-enemy SFX.
+- `Blocked` — enemy unaffected; fireball pops with hit-block SFX (Buzzy Beetle / Bullet Bill territory).
+
+Add the interface to a new enemy type to make it fireball-reactive. The enemy decides what happens to *itself*; the Fireball decides what happens to *itself* based on the returned reaction. Don't put fireball-pop logic inside the enemy.
 
 ### Levels / LevelDefinition
 
@@ -70,7 +86,11 @@ Tiled-object-Class → spawn-function registry (`Dictionary<string, Action<Scene
 
 The constructor takes `GameState` and stores it; pass it into item components that mutate state.
 
-Current registrations: `PlayerStart`, `Platform`, `Mushroom`, `FireFlower`, `OneUp`, `Coin`, `Goomba`, `GoalTrigger`, `KillVolume`.
+Current Tiled-mapped registrations: `PlayerStart`, `Platform`, `Mushroom`, `FireFlower`, `OneUp`, `Coin`, `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `PiranhaPlant`, `GoalTrigger`, `KillVolume`.
+
+`Fireball` is **runtime-spawned**, not registered with Tiled. `EntityFactory.CreateFireball(scene, position, facing, owner)` is called by `PlayerController` when X is pressed in Fire state. Same shape as `CreatePlayer` — public method, not via the registry.
+
+Walking ground enemies (Goomba, Koopa Troopa variants, Buzzy Beetle) share a `CreateWalkingEnemy(scene, obj, name, color, walkSpeed)` helper that wires up sprite + `Mover` + `GravityBody` + the standard solid/trigger collider pair + `EnemyWalker`. Per-enemy factory methods just call the helper, then attach the species-specific component and a `Hitbox`.
 
 ### GravityBody + two-collider pattern
 
@@ -161,7 +181,7 @@ In VS Code, use `Terminal > Run Task > Generate Assets.cs`.
 
 ## Physics Layers
 
-Defined in `Constants.cs` as bit positions (`Player`, `Enemy`, `Item`, `Environment`). Set on every collider: `PhysicsLayer = 1 << PhysicsLayers.X`, `CollidesWithLayers = (1 << ...) | (1 << ...)`. Triggers use the same layer system; they also need `collider.IsTrigger = true`.
+Defined in `Constants.cs` as bit positions (`Player`, `Enemy`, `Item`, `Environment`, `Projectile`). Set on every collider: `PhysicsLayer = 1 << PhysicsLayers.X`, `CollidesWithLayers = (1 << ...) | (1 << ...)`. Triggers use the same layer system; they also need `collider.IsTrigger = true`.
 
 Player's `CollidesWithLayers` is **Environment-only** — items/enemies don't block the player, they overlap and trigger.
 
@@ -197,7 +217,14 @@ Two patterns coexist intentionally:
 - `Source/Levels.cs` — `LevelDefinition` and the `Levels` static registry.
 - `Source/Scenes/MainMenuScene.cs`, `GameplayScene.cs`, `GameOverScene.cs` — the three scenes.
 - `Source/EntityFactory.cs` — Tiled-object → entity spawn registry.
-- `Source/Components/` — Nez components: `PlayerController`, `GravityBody`, pickups (`Mushroom`, `OneUp`, `Coin`, `FireFlower`), enemies (`Goomba`), triggers (`KillVolume`, `GoalTrigger`), HUD (`HudController`), menu input (`MainMenuController`, `GameOverController`), marker components (`PlayerStart`).
+- `Source/Components/` — Nez components, grouped roughly by role:
+  - **Player & combat**: `PlayerController`, `Fireball`, `IFireballHittable` (interface + `FireballReaction` enum), `Hitbox` (damage), `KillVolume` (instant kill), `Blinker` (renderer flicker — used for invuln window, reusable).
+  - **Pickups**: `Mushroom`, `FireFlower`, `OneUp`, `Coin`.
+  - **Enemies**: `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `PiranhaPlant`. Ground-walking enemies share `EnemyWalker` for the patrol behavior.
+  - **Triggers / level objects**: `GoalTrigger`.
+  - **Physics base**: `GravityBody`.
+  - **HUD & UI**: `HudController`, `MainMenuController`, `GameOverController`.
+  - **Markers**: `PlayerStart`.
 - `Source/Constants.cs` — `PhysicsLayers`, `RenderLayers`, `Tags`, `Constants`, `PlayerState` enum.
 - `Source/Assets.cs` — content path constants. **Auto-generated — see `Assets.cs` § above.**
 - `Tools/generate_assets.py` — Python generator that updates `Source/Assets.cs` from `Content/`.

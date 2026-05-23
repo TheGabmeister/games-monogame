@@ -36,6 +36,8 @@ namespace SuperMario
         public const float GoombaWalkSpeed = 80f;
         public const float GreenKoopaTroopaWalkSpeed = 80f;
         public const float RedKoopaTroopaWalkSpeed = 80f;
+        public const float GreenKoopaParatroopaFlySpeed = 100f;
+        public const float RedKoopaParatroopaFlySpeed = 100f;
         public const float BuzzyBeetleWalkSpeed = 80f;
         public const int StartingLives = 3;
     }
