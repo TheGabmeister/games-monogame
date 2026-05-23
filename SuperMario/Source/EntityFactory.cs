@@ -27,6 +27,7 @@ namespace SuperMario
             Register("RedKoopaParatroopa", CreateRedKoopaParatroopa);
             Register("BuzzyBeetle", CreateBuzzyBeetle);
             Register("PiranhaPlant", CreatePiranhaPlant);
+            Register("HammerBro", CreateHammerBro);
             Register("GoalTrigger", CreateGoalTrigger);
             Register("KillVolume", CreateKillVolume);
         }
@@ -82,6 +83,24 @@ namespace SuperMario
             hit.CollidesWithLayers = 1 << PhysicsLayers.Enemy;
 
             fireball.AddComponent(new Fireball(owner, facing));
+            fireball.AddComponent(new Lifetime(3f));
+        }
+
+        public void CreateHammer(Scene scene, Vector2 position, int facing)
+        {
+            const int size = 16;
+
+            var hammer = scene.CreateEntity("hammer", position);
+            hammer.AddComponent(new PrototypeSpriteRenderer(size, size)).SetColor(Color.Gray);
+            hammer.AddComponent(new Mover());
+
+            var hit = hammer.AddComponent(new BoxCollider(-size / 2f, -size / 2f, size, size));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.EnemyProjectile;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            hammer.AddComponent(new Hammer(facing));
+            hammer.AddComponent(new Lifetime(Constants.HammerLifetime));
         }
 
         public static Vector2 GetCenter(TmxObject obj)
@@ -363,6 +382,31 @@ namespace SuperMario
 
             plant.AddComponent(new DamagePlayerTrigger());
             plant.AddComponent(new PiranhaPlant(exposedCenter));
+        }
+
+        void CreateHammerBro(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var bro = scene.CreateEntity("hammerbro", center);
+            var renderer = bro.AddComponent(new PrototypeSpriteRenderer(w, h));
+            renderer.SetColor(Color.DarkOliveGreen);
+            bro.AddComponent(new Mover());
+            bro.AddComponent(new GravityBody());
+
+            var body = bro.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = bro.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            bro.AddComponent(new DamagePlayerTrigger());
+            bro.AddComponent(new HammerBro(this, renderer));
         }
 
         void CreateGoalTrigger(Scene scene, TmxObject obj)

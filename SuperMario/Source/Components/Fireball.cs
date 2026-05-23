@@ -9,12 +9,10 @@ namespace SuperMario
         const float Gravity = 1400f;
         const float BounceForce = -500f;
         const float MaxFallSpeed = 700f;
-        const float Lifetime = 3f;
 
         readonly PlayerController _owner;
         Mover _mover;
         Vector2 _velocity;
-        float _age;
         bool _destroyed;
 
         public Fireball(PlayerController owner, int facing)
@@ -30,13 +28,6 @@ namespace SuperMario
 
         public void Update()
         {
-            _age += Time.DeltaTime;
-            if (_age >= Lifetime)
-            {
-                Destroy(false);
-                return;
-            }
-
             _velocity.Y += Gravity * Time.DeltaTime;
             if (_velocity.Y > MaxFallSpeed)
                 _velocity.Y = MaxFallSpeed;
