@@ -33,6 +33,7 @@ namespace SuperMario
         public const int ScreenWidth = 960;
         public const int ScreenHeight = 720;
         public const float PlayerSpeed = 280f;
+        public const float GoombaWalkSpeed = 80f;
         public const int StartingLives = 3;
     }
 }

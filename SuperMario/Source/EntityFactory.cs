@@ -203,7 +203,7 @@ namespace SuperMario
 
             var goomba = scene.CreateEntity("goomba", center);
             goomba.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Brown);
-            goomba.AddComponent(new Mover());
+            var mover = goomba.AddComponent(new Mover());
             goomba.AddComponent(new GravityBody());
 
             var body = goomba.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
@@ -216,6 +216,7 @@ namespace SuperMario
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
             goomba.AddComponent(new Goomba());
+            goomba.AddComponent(new EnemyWalker(mover, Constants.GoombaWalkSpeed));
         }
 
         void CreateGoalTrigger(Scene scene, TmxObject obj)
