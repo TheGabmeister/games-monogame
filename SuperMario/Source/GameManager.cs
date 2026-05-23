@@ -30,7 +30,7 @@ namespace SuperMario
         {
             var scene = new GameplayScene(level, _gameState);
             scene.LevelCompleted += () => OnLevelCompleted(level);
-            scene.GameOver += OnGameOver;
+            scene.PlayerDied += () => OnPlayerDied(level);
             Core.Scene = scene;
         }
 
@@ -40,9 +40,18 @@ namespace SuperMario
             // LoadLevel(Levels.World1_2);
         }
 
-        void OnGameOver()
+        void OnPlayerDied(LevelDefinition level)
         {
-            StartGame();
+            _gameState.PowerState = PlayerState.Small;
+            _gameState.Lives--;
+
+            if (_gameState.Lives <= 0)
+            {
+                StartGame();
+                return;
+            }
+
+            LoadLevel(level);
         }
     }
 }

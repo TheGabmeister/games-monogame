@@ -13,7 +13,7 @@ namespace SuperMario
         bool _levelCompleted;
 
         public event Action LevelCompleted;
-        public event Action GameOver;
+        public event Action PlayerDied;
 
         public GameplayScene(LevelDefinition level, GameState gameState)
         {
@@ -87,18 +87,11 @@ namespace SuperMario
         void OnPlayerDied()
         {
             _playerController.OnDied -= OnPlayerDied;
-
-            _gameState.PowerState = PlayerState.Small;
-            _gameState.Lives--;
-
-            if (_gameState.Lives <= 0)
-            {
-                GameOver?.Invoke();
-                return;
-            }
-
-            _playerController.Entity.Destroy();
-            SpawnPlayer();
+            
+            // TODO:
+            // Play death music
+            // pause the game for a few seconds
+            PlayerDied?.Invoke();
         }
     }
 }
