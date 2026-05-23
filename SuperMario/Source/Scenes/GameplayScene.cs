@@ -49,11 +49,8 @@ namespace SuperMario
 
         void SpawnHud()
         {
-            var topLeft = new Vector2(
-                -Constants.ScreenWidth / 2f + 16,
-                -Constants.ScreenHeight / 2f + 16);
-
-            var hud = CreateEntity("hud", topLeft);
+            var hud = CreateEntity("hud", new Vector2(16, 16));
+            hud.Scale = new Vector2(2);
             hud.AddComponent(new TextComponent()).SetRenderLayer(RenderLayers.Hud);
             hud.AddComponent(new HudController(_gameState, _level));
         }

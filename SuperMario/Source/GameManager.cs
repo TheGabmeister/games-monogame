@@ -10,13 +10,20 @@ namespace SuperMario
 
         public override void OnEnabled()
         {
-            StartGame();
+            LoadMainMenu();
+        }
+
+        public void LoadMainMenu()
+        {
+            var menu = new MainMenuScene();
+            menu.StartPressed += StartGame;
+            Core.Scene = menu;
         }
 
         public void StartGame()
         {
             _gameState = new GameState();
-            LoadLevel(Levels.Debug);
+            LoadLevel(Levels.World1_1);
         }
 
         public void LoadLevel(LevelDefinition level)
