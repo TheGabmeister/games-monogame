@@ -25,6 +25,15 @@ namespace SuperMario
             Core.GetGlobalManager<MusicManager>().Play(Assets.Music.MainMenu);
 
             var center = new Vector2(Constants.ScreenWidth / 2f, Constants.ScreenHeight / 2f);
+            var titleEntity = CreateEntity("title", new Vector2(center.X, center.Y - 96));
+            titleEntity.Scale = new Vector2(5);
+
+            var title = titleEntity.AddComponent(new TextComponent());
+            title.SetText("Super Mario Bros");
+            title.SetHorizontalAlign(HorizontalAlign.Center);
+            title.SetVerticalAlign(VerticalAlign.Center);
+            title.SetRenderLayer(RenderLayers.Hud);
+
             var entity = CreateEntity("press-start", center);
             entity.Scale = new Vector2(5);
 

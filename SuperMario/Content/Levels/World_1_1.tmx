@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="30" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="9">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="30" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="10">
  <objectgroup id="2" name="entities">
-  <object id="1" name="Platform" type="Platform" x="41.8829" y="554.668" width="390.131" height="52.7654"/>
+  <object id="1" name="Platform" type="Platform" x="41.8829" y="554.668" width="400.131" height="52.7654"/>
   <object id="2" name="Mushroom" type="Mushroom" x="270.579" y="477.074" width="59.8115" height="45.8136"/>
   <object id="3" name="Mushroom" type="Mushroom" x="848.91" y="376.082" width="57.6357" height="40.8285"/>
   <object id="4" name="Platform" type="Platform" x="546.929" y="577.308" width="388.112" height="44.6893"/>
   <object id="5" name="PlayerStart" type="PlayerStart" x="81.225" y="462.787" width="60.571" height="51.4854"/>
   <object id="7" name="KillVolume" type="KillVolume" x="42.3997" y="629.938" width="895.441" height="36.3426"/>
-  <object id="8" name="GoalTrigger" type="GoalTrigger" x="574.16" y="490.835" width="28.2665" height="26.2474"/>
+  <object id="8" name="GoalTrigger" type="GoalTrigger" x="828.16" y="518.835" width="28.2665" height="26.2474"/>
+  <object id="9" name="Goomba" type="Goomba" x="640.867" y="528.876" width="28.2665" height="26.2474"/>
  </objectgroup>
 </map>

@@ -32,7 +32,9 @@ namespace SuperMario
 			public const string PickupCoin = @"Content/Sfx/pickup_coin.wav";
 			public const string PickupMushroom = @"Content/Sfx/pickup_mushroom.wav";
 			public const string PickupOneUp = @"Content/Sfx/pickup_one_up.wav";
-			public const string EnemyHit = @"Content/Sfx/enemy_hit.wav";
+			public const string GoalReached = @"Content/Sfx/goal_reached.wav";
+			public const string PlayerFireHitBlock = @"Content/Sfx/player_fire_hit_block.wav";
+			public const string PlayerFireHitEnemy = @"Content/Sfx/player_fire_hit_enemy.wav";
 		}
 
 		public static class Music

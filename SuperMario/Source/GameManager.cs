@@ -4,7 +4,15 @@ namespace SuperMario
 {
     public class GameManager : GlobalManager
     {
+        readonly LevelDefinition[] _campaign =
+        {
+            Levels.World1_1,
+            Levels.World1_2,
+            Levels.World1_3,
+        };
+
         GameState _gameState;
+        int _currentLevelIndex;
 
         public GameState State => _gameState;
 
@@ -23,7 +31,8 @@ namespace SuperMario
         public void StartGame()
         {
             _gameState = new GameState();
-            LoadLevel(Levels.World1_1);
+            _currentLevelIndex = 0;
+            LoadLevel(_campaign[_currentLevelIndex]);
         }
 
         public void LoadLevel(LevelDefinition level)
@@ -36,8 +45,15 @@ namespace SuperMario
 
         void OnLevelCompleted(LevelDefinition currentLevel)
         {
-            // TODO: determine next level and load it
-            // LoadLevel(Levels.World1_2);
+            _currentLevelIndex++;
+
+            if (_currentLevelIndex >= _campaign.Length)
+            {
+                LoadGameOver();
+                return;
+            }
+
+            LoadLevel(_campaign[_currentLevelIndex]);
         }
 
         void OnPlayerDied(LevelDefinition level)
