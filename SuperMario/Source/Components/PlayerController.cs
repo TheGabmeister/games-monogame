@@ -123,12 +123,25 @@ namespace SuperMario
                 _activeFireballs--;
         }
 
-        public void GrowPlayer()
+        public void ApplyMushroom()
+        {
+            if (_state != PlayerState.Small)
+                return;
+
+            SetState(PlayerState.Big);
+        }
+
+        public void ApplyFireFlower()
         {
             if (_state == PlayerState.Fire)
                 return;
 
-            _state = _state == PlayerState.Small ? PlayerState.Big : PlayerState.Fire;
+            SetState(_state == PlayerState.Small ? PlayerState.Big : PlayerState.Fire);
+        }
+
+        void SetState(PlayerState state)
+        {
+            _state = state;
             if (_gameState != null)
                 _gameState.PowerState = _state;
             ApplyStateVisuals();
