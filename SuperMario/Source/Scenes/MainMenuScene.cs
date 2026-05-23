@@ -22,6 +22,8 @@ namespace SuperMario
 
         public override void OnStart()
         {
+            Core.GetGlobalManager<MusicManager>().Play(Assets.Music.MainMenu);
+
             var center = new Vector2(Constants.ScreenWidth / 2f, Constants.ScreenHeight / 2f);
             var entity = CreateEntity("press-start", center);
             entity.Scale = new Vector2(5);

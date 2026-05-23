@@ -19,6 +19,7 @@ namespace SuperMario
             base.Initialize();
             DebugRenderEnabled = true;
 
+            RegisterGlobalManager(new MusicManager());
             RegisterGlobalManager(new GameManager());
         }
     }

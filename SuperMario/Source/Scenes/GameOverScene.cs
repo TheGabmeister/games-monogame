@@ -22,6 +22,8 @@ namespace SuperMario
 
         public override void OnStart()
         {
+            Core.GetGlobalManager<MusicManager>().Play(Assets.Music.GameOver);
+
             var center = new Vector2(Constants.ScreenWidth / 2f, Constants.ScreenHeight / 2f);
             var entity = CreateEntity("game-over", center);
             entity.Scale = new Vector2(5);
