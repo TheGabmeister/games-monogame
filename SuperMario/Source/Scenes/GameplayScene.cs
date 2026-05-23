@@ -74,8 +74,16 @@ namespace SuperMario
         {
             if (_levelCompleted)
                 return;
+            
+            // TODO:
+            // Play level complete sound
+            // Do an animation
+            // Spawn particle effects
 
             _levelCompleted = true;
+
+
+
             LevelCompleted?.Invoke();
         }
 
