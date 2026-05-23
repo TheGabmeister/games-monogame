@@ -86,8 +86,6 @@ namespace SuperMario
 
         void OnPlayerDied()
         {
-            _playerController.OnDied -= OnPlayerDied;
-            
             // TODO:
             // Play death music
             // pause the game for a few seconds

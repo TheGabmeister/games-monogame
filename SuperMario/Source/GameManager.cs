@@ -47,11 +47,18 @@ namespace SuperMario
 
             if (_gameState.Lives <= 0)
             {
-                StartGame();
+                LoadGameOver();
                 return;
             }
 
             LoadLevel(level);
+        }
+
+        void LoadGameOver()
+        {
+            var gameOver = new GameOverScene();
+            gameOver.Continue += LoadMainMenu;
+            Core.Scene = gameOver;
         }
     }
 }
