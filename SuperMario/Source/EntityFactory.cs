@@ -18,6 +18,7 @@ namespace SuperMario
             Register("Platform", CreatePlatform);
             Register("Mushroom", CreateMushroom);
             Register("OneUp", CreateOneUp);
+            Register("GoalTrigger", CreateGoalTrigger);
             Register("KillVolume", CreateKillVolume);
         }
 
@@ -129,6 +130,20 @@ namespace SuperMario
             pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
             oneUp.AddComponent(new OneUp(_gameState));
+        }
+
+        void CreateGoalTrigger(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var goal = scene.CreateEntity("goaltrigger", center);
+            goal.AddComponent(new PrototypeSpriteRenderer(obj.Width, obj.Height)).SetColor(Color.Gold);
+
+            var collider = goal.AddComponent(new BoxCollider(-obj.Width / 2f, -obj.Height / 2f, obj.Width, obj.Height));
+            collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
+            collider.CollidesWithLayers = 1 << PhysicsLayers.Player;
+            collider.IsTrigger = true;
+
+            goal.AddComponent(new GoalTrigger());
         }
 
         void CreateKillVolume(Scene scene, TmxObject obj)

@@ -21,6 +21,12 @@ namespace SuperMario
         public const int PlayerStart = 1;
     }
 
+    public static class RenderLayers
+    {
+        public const int World = 0;
+        public const int Hud = 1;
+    }
+
     public static class Constants
     {
         public const int ScreenWidth = 960;

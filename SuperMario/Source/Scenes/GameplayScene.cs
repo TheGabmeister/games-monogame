@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Xna.Framework;
 using Nez;
 
 namespace SuperMario
@@ -9,6 +10,7 @@ namespace SuperMario
         readonly GameState _gameState;
         EntityFactory _factory;
         PlayerController _playerController;
+        bool _levelCompleted;
 
         public event Action LevelCompleted;
         public event Action GameOver;
@@ -21,14 +23,15 @@ namespace SuperMario
 
         public override void Initialize()
         {
-            ClearColor = Microsoft.Xna.Framework.Color.CornflowerBlue;
+            ClearColor = Color.CornflowerBlue;
 
             SetDesignResolution(
                 Constants.ScreenWidth,
                 Constants.ScreenHeight,
                 SceneResolutionPolicy.ShowAllPixelPerfect);
 
-            AddRenderer(new DefaultRenderer());
+            AddRenderer(new RenderLayerExcludeRenderer(0, RenderLayers.Hud));
+            AddRenderer(new ScreenSpaceRenderer(1, RenderLayers.Hud));
         }
 
         public override void OnStart()
@@ -41,6 +44,18 @@ namespace SuperMario
                 _factory.Spawn(this, obj);
 
             SpawnPlayer();
+            SpawnHud();
+        }
+
+        void SpawnHud()
+        {
+            var topLeft = new Vector2(
+                -Constants.ScreenWidth / 2f + 16,
+                -Constants.ScreenHeight / 2f + 16);
+
+            var hud = CreateEntity("hud", topLeft);
+            hud.AddComponent(new TextComponent()).SetRenderLayer(RenderLayers.Hud);
+            hud.AddComponent(new HudController(_gameState));
         }
 
         void SpawnPlayer()
@@ -57,6 +72,10 @@ namespace SuperMario
 
         public void CompleteLevel()
         {
+            if (_levelCompleted)
+                return;
+
+            _levelCompleted = true;
             LevelCompleted?.Invoke();
         }
 
