@@ -34,6 +34,8 @@ namespace SuperMario
         public const int ScreenWidth = 960;
         public const int ScreenHeight = 720;
         public const float PlayerSpeed = 280f;
+        public const float StompBounceForce = -420f;
+        public const float StompTopTolerance = 16f;
         public const float GoombaWalkSpeed = 80f;
         public const float GreenKoopaTroopaWalkSpeed = 80f;
         public const float RedKoopaTroopaWalkSpeed = 80f;

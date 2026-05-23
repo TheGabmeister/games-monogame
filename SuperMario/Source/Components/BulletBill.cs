@@ -3,7 +3,7 @@ using Nez;
 
 namespace SuperMario
 {
-    public class BulletBill : Component, IUpdatable, IFireballHittable
+    public class BulletBill : Component, IUpdatable, IFireballHittable, IStompable
     {
         Mover _mover;
         Vector2 _velocity;
@@ -27,6 +27,11 @@ namespace SuperMario
         public FireballReaction OnHitByFireball()
         {
             return FireballReaction.Blocked;
+        }
+
+        public void OnStomped(PlayerController player)
+        {
+            Entity.Destroy();
         }
     }
 }

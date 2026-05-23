@@ -136,6 +136,23 @@ namespace SuperMario
             _blinker.Blink(InvulnDuration);
         }
 
+        public bool TryStomp(Collider target, IStompable stompable)
+        {
+            if (_velocity.Y <= 0f)
+                return false;
+
+            var playerBounds = Entity.GetComponent<Collider>().Bounds;
+            var targetBounds = target.Bounds;
+            if (playerBounds.Center.Y >= targetBounds.Center.Y ||
+                playerBounds.Bottom > targetBounds.Top + Constants.StompTopTolerance)
+                return false;
+
+            _velocity.Y = Constants.StompBounceForce;
+            _grounded = false;
+            stompable.OnStomped(this);
+            return true;
+        }
+
         public void SetGameState(GameState gameState)
         {
             _gameState = gameState;

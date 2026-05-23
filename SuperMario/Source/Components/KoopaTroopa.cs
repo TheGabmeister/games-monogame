@@ -2,7 +2,7 @@ using Nez;
 
 namespace SuperMario
 {
-    public class KoopaTroopa : Component, IFireballHittable
+    public class KoopaTroopa : Component, IFireballHittable, IStompable
     {
         public KoopaTroopa(KoopaColor color)
         {
@@ -10,6 +10,11 @@ namespace SuperMario
         }
 
         public KoopaColor Color { get; }
+
+        public void OnStomped(PlayerController player)
+        {
+            Entity.Destroy();
+        }
 
         public FireballReaction OnHitByFireball()
         {

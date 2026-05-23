@@ -4,7 +4,7 @@ using Nez.Sprites;
 
 namespace SuperMario
 {
-    public class HammerBro : Component, IUpdatable, IFireballHittable
+    public class HammerBro : Component, IUpdatable, IFireballHittable, IStompable
     {
         readonly EntityFactory _factory;
         readonly SpriteRenderer _renderer;
@@ -69,6 +69,11 @@ namespace SuperMario
         {
             Entity.Destroy();
             return FireballReaction.Defeated;
+        }
+
+        public void OnStomped(PlayerController player)
+        {
+            Entity.Destroy();
         }
     }
 }

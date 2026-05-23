@@ -10,6 +10,10 @@ namespace SuperMario
             if (player == null)
                 return;
 
+            var stompable = Entity.GetComponent<IStompable>();
+            if (stompable != null && player.TryStomp(local, stompable))
+                return;
+
             player.TakeDamage();
         }
 

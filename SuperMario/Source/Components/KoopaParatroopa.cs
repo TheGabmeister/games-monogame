@@ -3,7 +3,7 @@ using Nez;
 
 namespace SuperMario
 {
-    public class KoopaParatroopa : Component, IUpdatable, IFireballHittable
+    public class KoopaParatroopa : Component, IUpdatable, IFireballHittable, IStompable
     {
         readonly EntityFactory _factory;
         readonly Mover _mover;
@@ -39,9 +39,8 @@ namespace SuperMario
                 _direction *= -1;
         }
 
-        public void OnStomped()
+        public void OnStomped(PlayerController player)
         {
-            _factory.CreateKoopaTroopa(Entity.Scene, Entity.Position, _width, _height, _color);
             Entity.Destroy();
         }
 
