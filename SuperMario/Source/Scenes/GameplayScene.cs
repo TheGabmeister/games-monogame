@@ -36,7 +36,7 @@ namespace SuperMario
 
         public override void OnStart()
         {
-            Core.GetGlobalManager<MusicManager>().Play(_level.MusicPath);
+            Audio.PlayMusic(_level.MusicPath);
 
             _factory = new EntityFactory(_gameState);
             var map = Content.LoadTiledMap(_level.MapPath);

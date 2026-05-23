@@ -22,7 +22,7 @@ namespace SuperMario
 
         public override void OnStart()
         {
-            Core.GetGlobalManager<MusicManager>().Play(Assets.Music.MainMenu);
+            Audio.PlayMusic(Assets.Music.MainMenu);
 
             var center = new Vector2(Constants.ScreenWidth / 2f, Constants.ScreenHeight / 2f);
             var titleEntity = CreateEntity("title", new Vector2(center.X, center.Y - 96));

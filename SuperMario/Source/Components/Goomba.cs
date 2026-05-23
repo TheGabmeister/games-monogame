@@ -9,7 +9,7 @@ namespace SuperMario
             var player = other.Entity.GetComponent<PlayerController>();
             if (player != null)
             {
-                Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PlayerHit);
+                Audio.PlaySfx(Assets.Sfx.PlayerHit);
                 player.KillPlayer();
             }
         }

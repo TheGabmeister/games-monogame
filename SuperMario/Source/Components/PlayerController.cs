@@ -65,14 +65,14 @@ namespace SuperMario
             if (_grounded && _jumpButton.IsPressed)
             {
                 _velocity.Y = JumpForce;
-                Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PlayerJump);
+                Audio.PlaySfx(Assets.Sfx.PlayerJump);
             }
 
             if (_fireButton.IsPressed && _state == PlayerState.Fire && _activeFireballs < MaxFireballs && _factory != null)
             {
                 _factory.CreateFireball(Entity.Scene, Entity.Position, _facing, this);
                 _activeFireballs++;
-                Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PlayerFire);
+                Audio.PlaySfx(Assets.Sfx.PlayerFire);
             }
 
             _velocity.Y += Gravity * Time.DeltaTime;
@@ -99,7 +99,7 @@ namespace SuperMario
 
         public void KillPlayer()
         {
-            Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PlayerDie);
+            Audio.PlaySfx(Assets.Sfx.PlayerDie);
             OnDied?.Invoke();
             Entity.Destroy();
         }

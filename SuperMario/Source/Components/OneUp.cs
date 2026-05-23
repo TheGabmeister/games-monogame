@@ -19,7 +19,7 @@ namespace SuperMario
 
             _collected = true;
             _gameState.Lives++;
-            Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PickupOneUp);
+            Audio.PlaySfx(Assets.Sfx.PickupOneUp);
             Entity.Destroy();
         }
 

@@ -26,7 +26,7 @@ namespace SuperMario
             _collected = true;
             _gameState.AddScore(PickupValue);
             ScorePopup.Spawn(Entity.Scene, Entity.Position, PickupValue);
-            Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PickupMushroom);
+            Audio.PlaySfx(Assets.Sfx.PickupMushroom);
             player.ApplyFireFlower();
             Entity.Destroy();
         }

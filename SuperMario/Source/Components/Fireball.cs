@@ -64,7 +64,7 @@ namespace SuperMario
             _destroyed = true;
 
             if (playHitSfx)
-                Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PlayerFireHitBlock);
+                Audio.PlaySfx(Assets.Sfx.PlayerFireHitBlock);
 
             _owner?.NotifyFireballDestroyed();
             Entity.Destroy();

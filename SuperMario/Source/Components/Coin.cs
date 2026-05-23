@@ -22,7 +22,7 @@ namespace SuperMario
             _collected = true;
             _gameState.AddScore(CoinValue);
             ScorePopup.Spawn(Entity.Scene, Entity.Position, CoinValue);
-            Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PickupCoin);
+            Audio.PlaySfx(Assets.Sfx.PickupCoin);
             Entity.Destroy();
         }
 
