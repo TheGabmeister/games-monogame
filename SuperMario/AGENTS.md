@@ -36,11 +36,12 @@ Do not add Nez source under this template unless explicitly asked.
 
 - `Source/Game1.cs` boots Nez and registers `GameManager`.
 - `Source/GameManager.cs` owns persistent `GameState` and scene flow.
-- `Source/GameState.cs` stores score, lives, and player power state across scene reloads.
+- `Source/GameState.cs` stores score, lives, and player power state across scene reloads. Use `GameState.AddScore(...)` for score changes so `ScoreChanged` updates the HUD.
 - `Source/Levels.cs` defines `LevelDefinition` entries (`Debug`, `World1_1`, `World1_2`, `World1_3`).
-- `Source/Scenes/GameplayScene.cs` loads TMX levels, spawns entities, handles player respawn, HUD, completion, and game over.
+- `Source/Scenes/GameplayScene.cs` loads TMX levels, spawns entities, spawns the HUD and bottom-of-level cleanup volume, handles player respawn, completion, and game over.
 - `Source/EntityFactory.cs` maps Tiled object Class strings to Nez entity spawn methods.
-- `Source/Components/` contains gameplay components such as `PlayerController`, `GravityBody`, `Mushroom`, `FireFlower`, `OneUp`, `GoalTrigger`, `KillVolume`, `HudController`, and `PlayerStart`.
+- `Source/Components/` contains gameplay components such as `PlayerController`, `GravityBody`, `EnemyWalker`, `Hitbox`, `Goomba`, `KoopaTroopa`, `KoopaParatroopa`, `BuzzyBeetle`, `PiranhaPlant`, `Mushroom`, `FireFlower`, `OneUp`, `Coin`, `Fireball`, `GoalTrigger`, `KillVolume`, `CleanupVolume`, `HudController`, `ScorePopup`, and `PlayerStart`.
+- `Source/Audio.cs` is a small facade for `Audio.PlaySfx(...)` and `Audio.PlayMusic(...)`; prefer it over direct `Core.GetGlobalManager<SfxManager>()` / `MusicManager` calls.
 - `Source/Constants.cs` holds shared constants, physics layer bit positions, render layers, tags, and player state enum.
 - `Source/Assets.cs` holds generated content path constants for maps, sprites, SFX, and music.
 - `Tools/generate_assets.py` regenerates `Source/Assets.cs` from files under `Content/`.
@@ -67,8 +68,24 @@ Tiled object Class names are factory keys. Current registrations are:
 - `Mushroom`
 - `FireFlower`
 - `OneUp`
+- `Coin`
+- `Goomba`
+- `GreenKoopaTroopa`
+- `RedKoopaTroopa`
+- `GreenKoopaParatroopa`
+- `RedKoopaParatroopa`
+- `BuzzyBeetle`
+- `PiranhaPlant`
 - `GoalTrigger`
 - `KillVolume`
+
+`GreenKoopaTroopa` and `RedKoopaTroopa` both use the shared `KoopaTroopa` component with a `KoopaColor` constructor value. `GreenKoopaParatroopa` and `RedKoopaParatroopa` both use the shared `KoopaParatroopa` component. Keep the Tiled Class names explicit, but avoid duplicating behavior components unless the behavior truly diverges.
+
+`KillVolume` is a gameplay hazard for the player death flow. `GameplayScene` also spawns a wide `CleanupVolume` below the map to destroy collider entities that fall out of the level; do not model that cleanup volume in Tiled unless explicitly changing the scene cleanup design.
+
+For audio, use `Audio.PlaySfx(...)` and `Audio.PlayMusic(...)`. Keep direct global-manager lookups centralized in `Source/Audio.cs`.
+
+For scoring, use `GameState.AddScore(...)` and spawn `ScorePopup` for visible point feedback when appropriate. Do not mutate `GameState.Score` directly.
 
 Do not use `FindEntitiesWithTag` for entities created earlier in the same `Scene.OnStart()` call.
 Nez queues new entities until `Entities.UpdateLists()`. Use marker components such as `PlayerStart`

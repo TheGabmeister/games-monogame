@@ -64,10 +64,10 @@ Anything can call `Core.GetGlobalManager<T>()`. The service-locator style is fin
 
 Two distinct ways the player can be hurt — keep them separate:
 
-- **`Hitbox`** (`Source/Components/Hitbox.cs`) — trigger-listener that calls `PlayerController.TakeHit()`. Big/Fire → revert to Small with a ~2s invulnerability window; Small → die. Used by enemies (attached via the walking-enemy helper).
+- **`DamagePlayerTrigger`** (`Source/Components/DamagePlayerTrigger.cs`) — trigger-listener that calls `PlayerController.TakeDamage()`. Big/Fire → revert to Small with a ~2s invulnerability window; Small → die. Used by enemies (attached via the walking-enemy helper).
 - **`KillVolume`** (`Source/Components/KillVolume.cs`) — trigger-listener that calls `PlayerController.KillPlayer()` directly. Instant death regardless of power state. Used for pits, lava — anything always-lethal per SPEC §4.3.
 
-**Invulnerability window**: when `TakeHit` reduces state to Small, `PlayerController` sets `_invulnTimer` and calls `_blinker.Blink(InvulnDuration)`. Subsequent `TakeHit` calls no-op until the timer expires. `Blinker` is a generic renderer-toggler (`Source/Components/Blinker.cs`) — constructor-injected with the `RenderableComponent` it should flicker. Both `_renderer` and `_blinker` are constructor-injected into `PlayerController` by the factory — no `GetComponent` lookups on the hot path.
+**Invulnerability window**: when `TakeDamage` reduces state to Small, `PlayerController` sets `_invulnTimer` and calls `_blinker.Blink(InvulnDuration)`. Subsequent `TakeDamage` calls no-op until the timer expires. `Blinker` is a generic renderer-toggler (`Source/Components/Blinker.cs`) — constructor-injected with the `RenderableComponent` it should flicker. Both `_renderer` and `_blinker` are constructor-injected into `PlayerController` by the factory — no `GetComponent` lookups on the hot path.
 
 **Fireballs use centralized dispatch via `IFireballHittable`**. `Fireball` owns the trigger collider on the `Projectile` layer that collides with `Enemy`. On overlap, it looks up `IFireballHittable` on the other entity and dispatches based on the returned `FireballReaction`:
 
@@ -90,7 +90,7 @@ Current Tiled-mapped registrations: `PlayerStart`, `Platform`, `Mushroom`, `Fire
 
 `Fireball` is **runtime-spawned**, not registered with Tiled. `EntityFactory.CreateFireball(scene, position, facing, owner)` is called by `PlayerController` when X is pressed in Fire state. Same shape as `CreatePlayer` — public method, not via the registry.
 
-Walking ground enemies (Goomba, Koopa Troopa variants, Buzzy Beetle) share a `CreateWalkingEnemy(scene, obj, name, color, walkSpeed)` helper that wires up sprite + `Mover` + `GravityBody` + the standard solid/trigger collider pair + `EnemyWalker`. Per-enemy factory methods just call the helper, then attach the species-specific component and a `Hitbox`.
+Walking ground enemies (Goomba, Koopa Troopa variants, Buzzy Beetle) share a `CreateWalkingEnemy(scene, obj, name, color, walkSpeed)` helper that wires up sprite + `Mover` + `GravityBody` + the standard solid/trigger collider pair + `EnemyWalker`. Per-enemy factory methods just call the helper, then attach the species-specific component and a `DamagePlayerTrigger`.
 
 ### GravityBody + two-collider pattern
 
@@ -218,7 +218,7 @@ Two patterns coexist intentionally:
 - `Source/Scenes/MainMenuScene.cs`, `GameplayScene.cs`, `GameOverScene.cs` — the three scenes.
 - `Source/EntityFactory.cs` — Tiled-object → entity spawn registry.
 - `Source/Components/` — Nez components, grouped roughly by role:
-  - **Player & combat**: `PlayerController`, `Fireball`, `IFireballHittable` (interface + `FireballReaction` enum), `Hitbox` (damage), `KillVolume` (instant kill), `Blinker` (renderer flicker — used for invuln window, reusable).
+  - **Player & combat**: `PlayerController`, `Fireball`, `IFireballHittable` (interface + `FireballReaction` enum), `DamagePlayerTrigger` (damage), `KillVolume` (instant kill), `Blinker` (renderer flicker — used for invuln window, reusable).
   - **Pickups**: `Mushroom`, `FireFlower`, `OneUp`, `Coin`.
   - **Enemies**: `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `PiranhaPlant`. Ground-walking enemies share `EnemyWalker` for the patrol behavior.
   - **Triggers / level objects**: `GoalTrigger`.

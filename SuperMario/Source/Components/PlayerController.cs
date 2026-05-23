@@ -118,7 +118,7 @@ namespace SuperMario
             Entity.Destroy();
         }
 
-        public void TakeHit()
+        public void TakeDamage()
         {
             if (_invulnTimer > 0)
                 return;

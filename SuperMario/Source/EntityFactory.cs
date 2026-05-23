@@ -223,7 +223,7 @@ namespace SuperMario
             hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            goomba.AddComponent(new Hitbox());
+            goomba.AddComponent(new DamagePlayerTrigger());
             goomba.AddComponent(new Goomba());
             goomba.AddComponent(new EnemyWalker(mover, Constants.GoombaWalkSpeed));
         }
@@ -255,7 +255,7 @@ namespace SuperMario
             hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            koopa.AddComponent(new Hitbox());
+            koopa.AddComponent(new DamagePlayerTrigger());
             koopa.AddComponent(new KoopaTroopa(color));
             koopa.AddComponent(new EnemyWalker(
                 mover,
@@ -282,7 +282,7 @@ namespace SuperMario
             hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            para.AddComponent(new Hitbox());
+            para.AddComponent(new DamagePlayerTrigger());
             para.AddComponent(new KoopaParatroopa(
                 this,
                 mover,
@@ -311,7 +311,7 @@ namespace SuperMario
             hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            para.AddComponent(new Hitbox());
+            para.AddComponent(new DamagePlayerTrigger());
             para.AddComponent(new KoopaParatroopa(
                 this,
                 mover,
@@ -341,7 +341,7 @@ namespace SuperMario
             hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            buzzy.AddComponent(new Hitbox());
+            buzzy.AddComponent(new DamagePlayerTrigger());
             buzzy.AddComponent(new BuzzyBeetle());
             buzzy.AddComponent(new EnemyWalker(mover, Constants.BuzzyBeetleWalkSpeed));
         }
@@ -361,7 +361,7 @@ namespace SuperMario
             hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            plant.AddComponent(new Hitbox());
+            plant.AddComponent(new DamagePlayerTrigger());
             plant.AddComponent(new PiranhaPlant(exposedCenter));
         }
 

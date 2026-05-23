@@ -2,7 +2,7 @@ using Nez;
 
 namespace SuperMario
 {
-    public class Hitbox : Component, ITriggerListener
+    public class DamagePlayerTrigger : Component, ITriggerListener
     {
         public void OnTriggerEnter(Collider other, Collider local)
         {
@@ -10,7 +10,7 @@ namespace SuperMario
             if (player == null)
                 return;
 
-            player.TakeHit();
+            player.TakeDamage();
         }
 
         public void OnTriggerExit(Collider other, Collider local) { }
