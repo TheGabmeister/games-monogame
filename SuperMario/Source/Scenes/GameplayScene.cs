@@ -45,8 +45,34 @@ namespace SuperMario
             foreach (var obj in objects.Objects)
                 _factory.Spawn(this, obj);
 
+            SpawnCleanupVolume(map.WorldWidth, map.WorldHeight);
             SpawnPlayer();
             SpawnHud();
+        }
+
+        void SpawnCleanupVolume(int mapWidth, int mapHeight)
+        {
+            const float cleanupOffset = 256f;
+            const float cleanupHeight = 128f;
+
+            var cleanupWidth = mapWidth + Constants.ScreenWidth * 2f;
+            var cleanupPosition = new Vector2(mapWidth / 2f, mapHeight + cleanupOffset);
+            var cleanup = CreateEntity("cleanupvolume", cleanupPosition);
+
+            var collider = cleanup.AddComponent(new BoxCollider(
+                -cleanupWidth / 2f,
+                -cleanupHeight / 2f,
+                cleanupWidth,
+                cleanupHeight));
+            collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
+            collider.CollidesWithLayers =
+                (1 << PhysicsLayers.Player) |
+                (1 << PhysicsLayers.Enemy) |
+                (1 << PhysicsLayers.Item) |
+                (1 << PhysicsLayers.Projectile);
+            collider.IsTrigger = true;
+
+            cleanup.AddComponent(new CleanupVolume());
         }
 
         void SpawnHud()
