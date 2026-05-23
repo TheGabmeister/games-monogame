@@ -26,6 +26,7 @@ namespace SuperMario
             Register("GreenKoopaParatroopa", CreateGreenKoopaParatroopa);
             Register("RedKoopaParatroopa", CreateRedKoopaParatroopa);
             Register("BuzzyBeetle", CreateBuzzyBeetle);
+            Register("Spiny", CreateSpiny);
             Register("PiranhaPlant", CreatePiranhaPlant);
             Register("HammerBro", CreateHammerBro);
             Register("Blooper", CreateBlooper);
@@ -266,6 +267,31 @@ namespace SuperMario
             goomba.AddComponent(new DamagePlayerTrigger());
             goomba.AddComponent(new Goomba());
             goomba.AddComponent(new EnemyWalker(mover, Constants.GoombaWalkSpeed));
+        }
+
+        void CreateSpiny(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var spiny = scene.CreateEntity("spiny", center);
+            spiny.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.MediumPurple);
+            var mover = spiny.AddComponent(new Mover());
+            spiny.AddComponent(new GravityBody());
+
+            var body = spiny.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = spiny.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            spiny.AddComponent(new DamagePlayerTrigger());
+            spiny.AddComponent(new Spiny());
+            spiny.AddComponent(new EnemyWalker(mover, Constants.SpinyWalkSpeed));
         }
 
         void CreateGreenKoopaTroopa(Scene scene, TmxObject obj)

@@ -40,6 +40,7 @@ namespace SuperMario
         public const float GreenKoopaParatroopaFlySpeed = 100f;
         public const float RedKoopaParatroopaFlySpeed = 100f;
         public const float BuzzyBeetleWalkSpeed = 80f;
+        public const float SpinyWalkSpeed = 80f;
         public const float HammerBroShuffleSpeed = 40f;
         public const float HammerBroShuffleInterval = 1.2f;
         public const float HammerBroJumpForce = -520f;

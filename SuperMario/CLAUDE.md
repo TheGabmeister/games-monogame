@@ -86,7 +86,7 @@ Tiled-object-Class → spawn-function registry (`Dictionary<string, Action<Scene
 
 The constructor takes `GameState` and stores it; pass it into item components that mutate state.
 
-Current Tiled-mapped registrations: `PlayerStart`, `Platform`, `Mushroom`, `FireFlower`, `OneUp`, `Coin`, `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `PiranhaPlant`, `HammerBro`, `Blooper`, `BulletBillCannon`, `GoalTrigger`, `KillVolume`.
+Current Tiled-mapped registrations: `PlayerStart`, `Platform`, `Mushroom`, `FireFlower`, `OneUp`, `Coin`, `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `Spiny`, `PiranhaPlant`, `HammerBro`, `Blooper`, `BulletBillCannon`, `GoalTrigger`, `KillVolume`.
 
 `Fireball`, `Hammer`, and `BulletBill` are **runtime-spawned**, not registered with Tiled. `EntityFactory.CreateFireball(scene, position, facing, owner)` is called by `PlayerController` when X is pressed in Fire state. `EntityFactory.CreateHammer(scene, position, facing)` is called by `HammerBro` on its throw timer. `EntityFactory.CreateBulletBill(scene, position, facing)` is called by `BulletBillCannon` on its fire timer. Same shape as `CreatePlayer` — public method, not via the registry.
 
@@ -220,7 +220,7 @@ Two patterns coexist intentionally:
 - `Source/Components/` — Nez components, grouped roughly by role:
   - **Player & combat**: `PlayerController`, `Fireball`, `Hammer`, `BulletBill`, `IFireballHittable` (interface + `FireballReaction` enum), `DamagePlayerTrigger` (damage), `KillVolume` (instant kill), `Blinker` (renderer flicker — used for invuln window, reusable).
   - **Pickups**: `Mushroom`, `FireFlower`, `OneUp`, `Coin`.
-  - **Enemies**: `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `PiranhaPlant`, `HammerBro`, `Blooper`, `BulletBillCannon`. Ground-walking enemies share `EnemyWalker` for the patrol behavior; `HammerBro`, `Blooper`, and `BulletBillCannon` have their own bespoke logic. `BulletBillCannon` spawns `BulletBill` projectiles on a timer.
+  - **Enemies**: `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `Spiny`, `PiranhaPlant`, `HammerBro`, `Blooper`, `BulletBillCannon`. Ground-walking enemies share `EnemyWalker` for the patrol behavior; `HammerBro`, `Blooper`, and `BulletBillCannon` have their own bespoke logic. `BulletBillCannon` spawns `BulletBill` projectiles on a timer.
   - **Triggers / level objects**: `GoalTrigger`.
   - **Physics base**: `GravityBody`.
   - **Lifecycle**: `Lifetime(duration)` — attach to any entity to auto-destroy after N seconds. Used by `Fireball`, `Hammer`, and `BulletBill`; reusable for particles/effects.
