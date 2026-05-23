@@ -28,6 +28,7 @@ namespace SuperMario
             Register("BuzzyBeetle", CreateBuzzyBeetle);
             Register("PiranhaPlant", CreatePiranhaPlant);
             Register("HammerBro", CreateHammerBro);
+            Register("Blooper", CreateBlooper);
             Register("GoalTrigger", CreateGoalTrigger);
             Register("KillVolume", CreateKillVolume);
         }
@@ -407,6 +408,29 @@ namespace SuperMario
 
             bro.AddComponent(new DamagePlayerTrigger());
             bro.AddComponent(new HammerBro(this, renderer));
+        }
+
+        void CreateBlooper(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var blooper = scene.CreateEntity("blooper", center);
+            blooper.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.White);
+            var mover = blooper.AddComponent(new Mover());
+
+            var body = blooper.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = blooper.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            blooper.AddComponent(new DamagePlayerTrigger());
+            blooper.AddComponent(new Blooper(mover));
         }
 
         void CreateGoalTrigger(Scene scene, TmxObject obj)
