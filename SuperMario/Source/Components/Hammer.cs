@@ -13,6 +13,23 @@ namespace SuperMario
             _velocity = new Vector2(facing * Constants.HammerHorizontalSpeed, -Constants.HammerInitialUpSpeed);
         }
 
+        public static void Spawn(Scene scene, Vector2 position, int facing)
+        {
+            const int size = 16;
+
+            var hammer = scene.CreateEntity("hammer", position);
+            hammer.AddComponent(new PrototypeSpriteRenderer(size, size)).SetColor(Color.Gray);
+            hammer.AddComponent(new Mover());
+
+            var hit = hammer.AddComponent(new BoxCollider(-size / 2f, -size / 2f, size, size));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.EnemyProjectile;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            hammer.AddComponent(new Hammer(facing));
+            hammer.AddComponent(new Lifetime(Constants.HammerLifetime));
+        }
+
         public override void OnAddedToEntity()
         {
             _mover = Entity.GetComponent<Mover>();

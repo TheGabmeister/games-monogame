@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Nez;
+using Nez.Tiled;
 
 namespace SuperMario
 {
@@ -19,6 +20,32 @@ namespace SuperMario
             _axis = axis;
             _distance = distance;
             _speed = speed;
+        }
+
+        public static void SpawnLeftRight(Scene scene, TmxObject obj)
+        {
+            Spawn(scene, obj, MovingPlatformAxis.Horizontal);
+        }
+
+        public static void SpawnUpDown(Scene scene, TmxObject obj)
+        {
+            Spawn(scene, obj, MovingPlatformAxis.Vertical);
+        }
+
+        static void Spawn(Scene scene, TmxObject obj, MovingPlatformAxis axis)
+        {
+            var center = EntityFactory.GetCenter(obj);
+            var platform = scene.CreateEntity(obj.Name, center);
+            platform.AddComponent(new PrototypeSpriteRenderer(obj.Width, obj.Height)).SetColor(Color.SteelBlue);
+
+            var collider = platform.AddComponent(new BoxCollider(-obj.Width / 2f, -obj.Height / 2f, obj.Width, obj.Height));
+            collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
+            collider.CollidesWithLayers = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Item);
+
+            platform.AddComponent(new MovingPlatform(
+                axis,
+                Constants.MovingPlatformDistance,
+                Constants.MovingPlatformSpeed));
         }
 
         public override void OnAddedToEntity()

@@ -21,6 +21,27 @@ namespace SuperMario
             _velocity = new Vector2(Speed * facing, 0f);
         }
 
+        public static void Spawn(Scene scene, Vector2 position, int facing, PlayerController owner)
+        {
+            const int size = 16;
+
+            var fireball = scene.CreateEntity("fireball", position);
+            fireball.AddComponent(new PrototypeSpriteRenderer(size, size)).SetColor(Color.OrangeRed);
+            fireball.AddComponent(new Mover());
+
+            var collider = fireball.AddComponent(new BoxCollider(-size / 2f, -size / 2f, size, size));
+            collider.PhysicsLayer = 1 << PhysicsLayers.Projectile;
+            collider.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = fireball.AddComponent(new BoxCollider(-size / 2f, -size / 2f, size, size));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Projectile;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Enemy;
+
+            fireball.AddComponent(new Fireball(owner, facing));
+            fireball.AddComponent(new Lifetime(3f));
+        }
+
         public override void OnAddedToEntity()
         {
             _mover = Entity.GetComponent<Mover>();

@@ -28,7 +28,6 @@ namespace SuperMario
         VirtualButton _fireButton;
         Mover _mover;
         GameState _gameState;
-        EntityFactory _factory;
         Vector2 _velocity;
         bool _grounded;
         int _facing = 1;
@@ -40,6 +39,21 @@ namespace SuperMario
         {
             _renderer = renderer;
             _blinker = blinker;
+        }
+
+        public static PlayerController Spawn(Scene scene, Vector2 position)
+        {
+            var player = scene.CreateEntity("player", position);
+            var renderer = player.AddComponent(new PrototypeSpriteRenderer(32, 48));
+            renderer.SetColor(Color.Red);
+            var blinker = player.AddComponent(new Blinker(renderer));
+            player.AddComponent(new Mover());
+
+            var collider = player.AddComponent(new BoxCollider(-16, -24, 32, 48));
+            collider.PhysicsLayer = 1 << PhysicsLayers.Player;
+            collider.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            return player.AddComponent(new PlayerController(renderer, blinker));
         }
 
         public override void OnAddedToEntity()
@@ -82,9 +96,9 @@ namespace SuperMario
                 Audio.PlaySfx(Assets.Sfx.PlayerJump);
             }
 
-            if (_fireButton.IsPressed && _state == PlayerState.Fire && _activeFireballs < MaxFireballs && _factory != null)
+            if (_fireButton.IsPressed && _state == PlayerState.Fire && _activeFireballs < MaxFireballs)
             {
-                _factory.CreateFireball(Entity.Scene, Entity.Position, _facing, this);
+                Fireball.Spawn(Entity.Scene, Entity.Position, _facing, this);
                 _activeFireballs++;
                 Audio.PlaySfx(Assets.Sfx.PlayerFire);
             }
@@ -159,11 +173,6 @@ namespace SuperMario
             _state = gameState.PowerState;
             if (_state != PlayerState.Small)
                 ApplyStateVisuals();
-        }
-
-        public void SetFactory(EntityFactory factory)
-        {
-            _factory = factory;
         }
 
         public void NotifyFireballDestroyed()

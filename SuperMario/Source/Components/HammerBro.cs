@@ -1,12 +1,12 @@
 using Microsoft.Xna.Framework;
 using Nez;
 using Nez.Sprites;
+using Nez.Tiled;
 
 namespace SuperMario
 {
     public class HammerBro : Component, IUpdatable, IFireballHittable, IStompable
     {
-        readonly EntityFactory _factory;
         readonly SpriteRenderer _renderer;
         GravityBody _body;
         PlayerController _player;
@@ -16,10 +16,34 @@ namespace SuperMario
         float _jumpTimer;
         float _throwTimer;
 
-        public HammerBro(EntityFactory factory, SpriteRenderer renderer)
+        public HammerBro(SpriteRenderer renderer)
         {
-            _factory = factory;
             _renderer = renderer;
+        }
+
+        public static void Spawn(Scene scene, TmxObject obj)
+        {
+            var center = EntityFactory.GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var bro = scene.CreateEntity("hammerbro", center);
+            var renderer = bro.AddComponent(new PrototypeSpriteRenderer(w, h));
+            renderer.SetColor(Color.DarkOliveGreen);
+            bro.AddComponent(new Mover());
+            bro.AddComponent(new GravityBody());
+
+            var body = bro.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = bro.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            bro.AddComponent(new DamagePlayerTrigger());
+            bro.AddComponent(new HammerBro(renderer));
         }
 
         public override void OnAddedToEntity()
@@ -61,7 +85,7 @@ namespace SuperMario
             if (_throwTimer >= Constants.HammerBroThrowInterval)
             {
                 _throwTimer = 0f;
-                _factory.CreateHammer(Entity.Scene, Entity.Position, _facing);
+                Hammer.Spawn(Entity.Scene, Entity.Position, _facing);
             }
         }
 

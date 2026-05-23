@@ -1,4 +1,6 @@
+using Microsoft.Xna.Framework;
 using Nez;
+using Nez.Tiled;
 
 namespace SuperMario
 {
@@ -12,6 +14,23 @@ namespace SuperMario
         public Coin(GameState gameState)
         {
             _gameState = gameState;
+        }
+
+        public static void Spawn(Scene scene, TmxObject obj, GameState gameState)
+        {
+            var center = EntityFactory.GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var coin = scene.CreateEntity("coin", center);
+            coin.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Gold);
+
+            var pickup = coin.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            pickup.IsTrigger = true;
+            pickup.PhysicsLayer = 1 << PhysicsLayers.Item;
+            pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            coin.AddComponent(new Coin(gameState));
         }
 
         public void OnTriggerEnter(Collider other, Collider local)

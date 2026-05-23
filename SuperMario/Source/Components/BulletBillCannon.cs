@@ -1,16 +1,28 @@
+using Microsoft.Xna.Framework;
 using Nez;
+using Nez.Tiled;
 
 namespace SuperMario
 {
     public class BulletBillCannon : Component, IUpdatable
     {
-        readonly EntityFactory _factory;
         PlayerController _player;
         float _fireTimer;
 
-        public BulletBillCannon(EntityFactory factory)
+        public static void Spawn(Scene scene, TmxObject obj)
         {
-            _factory = factory;
+            var center = EntityFactory.GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var cannon = scene.CreateEntity("bulletbillcannon", center);
+            cannon.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.DimGray);
+
+            var body = cannon.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Environment;
+            body.CollidesWithLayers = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Item);
+
+            cannon.AddComponent(new BulletBillCannon());
         }
 
         public override void OnAddedToEntity()
@@ -29,7 +41,7 @@ namespace SuperMario
 
             _fireTimer = 0f;
             var facing = _player != null && _player.Entity.Position.X < Entity.Position.X ? -1 : 1;
-            _factory.CreateBulletBill(Entity.Scene, Entity.Position, facing);
+            BulletBill.Spawn(Entity.Scene, Entity.Position, facing);
         }
     }
 }

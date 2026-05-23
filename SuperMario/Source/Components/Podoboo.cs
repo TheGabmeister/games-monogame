@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Nez;
+using Nez.Tiled;
 
 namespace SuperMario
 {
@@ -10,6 +11,25 @@ namespace SuperMario
         Vector2 _velocity;
         float _restTimer;
         bool _resting;
+
+        public static void Spawn(Scene scene, TmxObject obj)
+        {
+            var center = EntityFactory.GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var podoboo = scene.CreateEntity("podoboo", center);
+            podoboo.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.OrangeRed);
+            podoboo.AddComponent(new Mover());
+
+            var hit = podoboo.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            podoboo.AddComponent(new DamagePlayerTrigger());
+            podoboo.AddComponent(new Podoboo());
+        }
 
         public override void OnAddedToEntity()
         {

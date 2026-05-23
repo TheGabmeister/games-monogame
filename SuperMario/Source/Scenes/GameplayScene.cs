@@ -90,9 +90,8 @@ namespace SuperMario
                 throw new Exception("Level is missing a PlayerStart object.");
 
             var position = start.Entity.Position;
-            _playerController = _factory.CreatePlayer(this, position);
+            _playerController = PlayerController.Spawn(this, position);
             _playerController.SetGameState(_gameState);
-            _playerController.SetFactory(_factory);
             _playerController.OnDied += OnPlayerDied;
         }
 

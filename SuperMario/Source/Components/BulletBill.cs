@@ -13,6 +13,24 @@ namespace SuperMario
             _velocity = new Vector2(facing * Constants.BulletBillSpeed, 0f);
         }
 
+        public static void Spawn(Scene scene, Vector2 position, int facing)
+        {
+            const int size = 24;
+
+            var bill = scene.CreateEntity("bulletbill", position);
+            bill.AddComponent(new PrototypeSpriteRenderer(size, size)).SetColor(Color.Black);
+            bill.AddComponent(new Mover());
+
+            var hit = bill.AddComponent(new BoxCollider(-size / 2f, -size / 2f, size, size));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            bill.AddComponent(new DamagePlayerTrigger());
+            bill.AddComponent(new BulletBill(facing));
+            bill.AddComponent(new Lifetime(Constants.BulletBillLifetime));
+        }
+
         public override void OnAddedToEntity()
         {
             _mover = Entity.GetComponent<Mover>();

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Nez;
+using Nez.Tiled;
 using Nez.Tweens;
 
 namespace SuperMario
@@ -14,6 +15,25 @@ namespace SuperMario
         public PiranhaPlant(Vector2 exposedPosition)
         {
             _exposedPosition = exposedPosition;
+        }
+
+        public static void Spawn(Scene scene, TmxObject obj)
+        {
+            var exposedCenter = EntityFactory.GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+            var hiddenCenter = exposedCenter + new Vector2(0, h);
+
+            var plant = scene.CreateEntity("piranhaplant", hiddenCenter);
+            plant.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Green);
+
+            var hit = plant.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            plant.AddComponent(new DamagePlayerTrigger());
+            plant.AddComponent(new PiranhaPlant(exposedCenter));
         }
 
         public override void OnAddedToEntity()

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Nez;
+using Nez.Tiled;
 
 namespace SuperMario
 {
@@ -12,6 +13,29 @@ namespace SuperMario
         public Blooper(Mover mover)
         {
             _mover = mover;
+        }
+
+        public static void Spawn(Scene scene, TmxObject obj)
+        {
+            var center = EntityFactory.GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var blooper = scene.CreateEntity("blooper", center);
+            blooper.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.White);
+            var mover = blooper.AddComponent(new Mover());
+
+            var body = blooper.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var hit = blooper.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            blooper.AddComponent(new DamagePlayerTrigger());
+            blooper.AddComponent(new Blooper(mover));
         }
 
         public void Update()

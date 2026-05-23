@@ -80,17 +80,23 @@ Add the interface to a new enemy type to make it fireball-reactive. The enemy de
 
 `LevelDefinition` has `Name`, `MapPath`, `MusicPath`, `TimerSeconds`. Level entries live in `Source/Levels.cs`. The active campaign sequence lives in `GameManager._campaign[]` — adding a new level means adding to `Levels.cs` **and** inserting it into `_campaign[]` at the right index. Map and music paths reference constants in `Assets` (auto-generated, see below).
 
-### EntityFactory
+### EntityFactory & the colocated-`Spawn` convention
 
-Tiled-object-Class → spawn-function registry (`Dictionary<string, Action<Scene, TmxObject>>`). Add a new entity type by writing `CreateFoo(Scene, TmxObject)` and calling `Register("Foo", CreateFoo)` in the constructor. **Do not add a switch statement in the scene** — the whole point of the registry is to avoid that.
+`EntityFactory` is a thin Tiled-object-Class → spawn-function registry (`Dictionary<string, Action<Scene, TmxObject>>`). Its constructor wires every Tiled Class to a **static `Spawn` method on the entity's own component** — so the bulk of creation logic lives next to the component it spawns, not in `EntityFactory`. The factory holds `GameState` and wraps it into closures for pickups that need it (Mushroom, FireFlower, OneUp, Coin).
 
-The constructor takes `GameState` and stores it; pass it into item components that mutate state.
+**To add a new entity type:**
+1. Write `public static void Spawn(Scene scene, TmxObject obj)` on the new component's file (or a static-only file like `Platform.cs` if the entity has no behavior component). For pickups that need state, take it as a parameter: `Spawn(scene, obj, gameState)`.
+2. Add one `Register("Foo", Foo.Spawn)` line in `EntityFactory`'s constructor.
 
-Current Tiled-mapped registrations: `PlayerStart`, `Platform`, `Mushroom`, `FireFlower`, `OneUp`, `Coin`, `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `Spiny`, `PiranhaPlant`, `HammerBro`, `Blooper`, `BulletBillCannon`, `GoalTrigger`, `KillVolume`.
+**Do not add a switch statement in the scene** — the whole point of the registry is to avoid that. **Do not add creation logic back into `EntityFactory`** — it stays a 70-line dispatcher.
 
-`Fireball`, `Hammer`, and `BulletBill` are **runtime-spawned**, not registered with Tiled. `EntityFactory.CreateFireball(scene, position, facing, owner)` is called by `PlayerController` when X is pressed in Fire state. `EntityFactory.CreateHammer(scene, position, facing)` is called by `HammerBro` on its throw timer. `EntityFactory.CreateBulletBill(scene, position, facing)` is called by `BulletBillCannon` on its fire timer. Same shape as `CreatePlayer` — public method, not via the registry.
+**Tiled position helper**: `EntityFactory.GetCenter(TmxObject)` is the shared utility for "object top-left → center, accounting for rotation." Call it from every Spawn method.
 
-Walking ground enemies (Goomba, Koopa Troopa variants, Buzzy Beetle) share a `CreateWalkingEnemy(scene, obj, name, color, walkSpeed)` helper that wires up sprite + `Mover` + `GravityBody` + the standard solid/trigger collider pair + `EnemyWalker`. Per-enemy factory methods just call the helper, then attach the species-specific component and a `DamagePlayerTrigger`.
+Current Tiled-mapped registrations: `PlayerStart`, `Platform`, `LeftRightLift`, `UpDownLift`, `Mushroom`, `FireFlower`, `OneUp`, `Coin`, `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `Spiny`, `PiranhaPlant`, `HammerBro`, `Blooper`, `BulletBillCannon`, `Podoboo`, `GoalTrigger`, `KillVolume`.
+
+**Runtime spawning** (not via the registry): `PlayerController.Spawn(scene, position)`, `Fireball.Spawn(scene, position, facing, owner)`, `Hammer.Spawn(scene, position, facing)`, `BulletBill.Spawn(scene, position, facing)`. Callers invoke these statics directly — no `EntityFactory` reference is plumbed through. `PlayerController` calls `Fireball.Spawn`; `HammerBro` calls `Hammer.Spawn`; `BulletBillCannon` calls `BulletBill.Spawn`.
+
+`KoopaTroopa.Spawn(scene, position, width, height, color)` is also publicly callable for runtime spawning (e.g. a future Paratroopa-loses-wings transition).
 
 ### GravityBody + two-collider pattern
 
@@ -216,8 +222,8 @@ Two patterns coexist intentionally:
 - `Source/GameState.cs` — persistent data across scenes; `Lives` fires `LivesChanged`.
 - `Source/Levels.cs` — `LevelDefinition` and the `Levels` static registry.
 - `Source/Scenes/MainMenuScene.cs`, `GameplayScene.cs`, `GameOverScene.cs` — the three scenes.
-- `Source/EntityFactory.cs` — Tiled-object → entity spawn registry.
-- `Source/Components/` — Nez components, grouped roughly by role:
+- `Source/EntityFactory.cs` — thin Tiled-Class → static-`Spawn`-method registry. ~70 lines; do not put creation logic here, it belongs on the component (see EntityFactory § above).
+- `Source/Components/` — Nez components, grouped roughly by role. Each component owns its own `static Spawn(...)` method:
   - **Player & combat**: `PlayerController`, `Fireball`, `Hammer`, `BulletBill`, `IFireballHittable` (interface + `FireballReaction` enum), `DamagePlayerTrigger` (damage), `KillVolume` (instant kill), `Blinker` (renderer flicker — used for invuln window, reusable).
   - **Pickups**: `Mushroom`, `FireFlower`, `OneUp`, `Coin`.
   - **Enemies**: `Goomba`, `GreenKoopaTroopa`, `RedKoopaTroopa`, `GreenKoopaParatroopa`, `RedKoopaParatroopa`, `BuzzyBeetle`, `Spiny`, `PiranhaPlant`, `HammerBro`, `Blooper`, `BulletBillCannon`. Ground-walking enemies share `EnemyWalker` for the patrol behavior; `HammerBro`, `Blooper`, and `BulletBillCannon` have their own bespoke logic. `BulletBillCannon` spawns `BulletBill` projectiles on a timer.
