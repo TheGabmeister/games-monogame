@@ -18,16 +18,20 @@ namespace SuperMario
         {
             _text = Entity.GetComponent<TextComponent>();
             UpdateText();
+            _gameState.ScoreChanged += OnScoreChanged;
             _gameState.LivesChanged += OnLivesChanged;
         }
 
         public override void OnRemovedFromEntity()
         {
+            _gameState.ScoreChanged -= OnScoreChanged;
             _gameState.LivesChanged -= OnLivesChanged;
         }
 
+        void OnScoreChanged(int score) => UpdateText();
+
         void OnLivesChanged(int lives) => UpdateText();
 
-        void UpdateText() => _text.SetText($"{_level.Name}    Lives: {_gameState.Lives}");
+        void UpdateText() => _text.SetText($"MARIO {_gameState.Score:000000}    WORLD {_level.Name}    LIVES {_gameState.Lives}");
     }
 }

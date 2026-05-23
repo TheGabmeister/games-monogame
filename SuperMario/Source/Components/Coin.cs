@@ -7,6 +7,7 @@ namespace SuperMario
         const int CoinValue = 200;
 
         readonly GameState _gameState;
+        bool _collected;
 
         public Coin(GameState gameState)
         {
@@ -15,7 +16,12 @@ namespace SuperMario
 
         public void OnTriggerEnter(Collider other, Collider local)
         {
-            _gameState.Score += CoinValue;
+            if (_collected || other.Entity.GetComponent<PlayerController>() == null)
+                return;
+
+            _collected = true;
+            _gameState.AddScore(CoinValue);
+            ScorePopup.Spawn(Entity.Scene, Entity.Position, CoinValue);
             Core.GetGlobalManager<SfxManager>().Play(Assets.Sfx.PickupCoin);
             Entity.Destroy();
         }

@@ -18,7 +18,9 @@ namespace SuperMario
 
         public override void OnEnabled()
         {
-            LoadMainMenu();
+            // Skip to StartGame when debugging
+            //LoadMainMenu(); 
+            StartGame();
         }
 
         public void LoadMainMenu()

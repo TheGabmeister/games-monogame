@@ -124,7 +124,7 @@ namespace SuperMario
             pickup.PhysicsLayer = 1 << PhysicsLayers.Item;
             pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            mushroom.AddComponent(new Mushroom());
+            mushroom.AddComponent(new Mushroom(_gameState));
         }
 
         void CreateFireFlower(Scene scene, TmxObject obj)
@@ -147,7 +147,7 @@ namespace SuperMario
             pickup.PhysicsLayer = 1 << PhysicsLayers.Item;
             pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            fireFlower.AddComponent(new FireFlower());
+            fireFlower.AddComponent(new FireFlower(_gameState));
         }
 
         void CreateOneUp(Scene scene, TmxObject obj)
