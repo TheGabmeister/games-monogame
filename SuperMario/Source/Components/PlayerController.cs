@@ -20,6 +20,7 @@ namespace SuperMario
         VirtualIntegerAxis _moveAxis;
         VirtualButton _jumpButton;
         Mover _mover;
+        GameState _gameState;
         Vector2 _velocity;
         bool _grounded;
         PlayerState _state = PlayerState.Small;
@@ -79,12 +80,22 @@ namespace SuperMario
             Entity.Destroy();
         }
 
+        public void SetGameState(GameState gameState)
+        {
+            _gameState = gameState;
+            _state = gameState.PowerState;
+            if (_state != PlayerState.Small)
+                ApplyStateVisuals();
+        }
+
         public void GrowPlayer()
         {
             if (_state == PlayerState.Fire)
                 return;
 
             _state = _state == PlayerState.Small ? PlayerState.Big : PlayerState.Fire;
+            if (_gameState != null)
+                _gameState.PowerState = _state;
             ApplyStateVisuals();
         }
 

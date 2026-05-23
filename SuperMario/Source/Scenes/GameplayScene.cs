@@ -5,8 +5,19 @@ namespace SuperMario
 {
     public class GameplayScene : Scene
     {
+        readonly string _levelPath;
+        readonly GameState _gameState;
         EntityFactory _factory;
         PlayerController _playerController;
+
+        public event Action LevelCompleted;
+        public event Action GameOver;
+
+        public GameplayScene(string levelPath, GameState gameState)
+        {
+            _levelPath = levelPath;
+            _gameState = gameState;
+        }
 
         public override void Initialize()
         {
@@ -20,7 +31,7 @@ namespace SuperMario
             AddRenderer(new DefaultRenderer());
 
             _factory = new EntityFactory();
-            var map = Content.LoadTiledMap(Assets.Maps.Debug);
+            var map = Content.LoadTiledMap(_levelPath);
             var objects = map.GetObjectGroup("entities");
 
             foreach (var obj in objects.Objects)
@@ -37,12 +48,23 @@ namespace SuperMario
 
             var position = start[0].Position;
             _playerController = _factory.CreatePlayer(this, position);
+            _playerController.SetGameState(_gameState);
             _playerController.OnDied += OnPlayerDied;
         }
 
         void OnPlayerDied()
         {
             _playerController.OnDied -= OnPlayerDied;
+
+            _gameState.PowerState = PlayerState.Small;
+            _gameState.Lives--;
+
+            if (_gameState.Lives <= 0)
+            {
+                GameOver?.Invoke();
+                return;
+            }
+
             _playerController.Entity.Destroy();
             SpawnPlayer();
         }
