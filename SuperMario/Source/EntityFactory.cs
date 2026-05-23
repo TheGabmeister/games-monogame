@@ -215,6 +215,7 @@ namespace SuperMario
             hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
+            goomba.AddComponent(new Hitbox());
             goomba.AddComponent(new Goomba());
             goomba.AddComponent(new EnemyWalker(mover, Constants.GoombaWalkSpeed));
         }
@@ -241,7 +242,6 @@ namespace SuperMario
             collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
             collider.CollidesWithLayers = 1 << PhysicsLayers.Player;
             collider.IsTrigger = true;
-            killVolume.AddComponent(new KillVolume());
         }
     }
 }
