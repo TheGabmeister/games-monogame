@@ -24,6 +24,7 @@ namespace SuperMario
             Register("GreenKoopaTroopa", CreateGreenKoopaTroopa);
             Register("RedKoopaTroopa", CreateRedKoopaTroopa);
             Register("BuzzyBeetle", CreateBuzzyBeetle);
+            Register("PiranhaPlant", CreatePiranhaPlant);
             Register("GoalTrigger", CreateGoalTrigger);
             Register("KillVolume", CreateKillVolume);
         }
@@ -250,6 +251,25 @@ namespace SuperMario
 
             enemy.AddComponent(new EnemyWalker(mover, walkSpeed));
             return enemy;
+        }
+
+        void CreatePiranhaPlant(Scene scene, TmxObject obj)
+        {
+            var exposedCenter = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+            var hiddenCenter = exposedCenter + new Vector2(0, h);
+
+            var plant = scene.CreateEntity("piranhaplant", hiddenCenter);
+            plant.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Green);
+
+            var hit = plant.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            plant.AddComponent(new Hitbox());
+            plant.AddComponent(new PiranhaPlant(exposedCenter));
         }
 
         void CreateGoalTrigger(Scene scene, TmxObject obj)

@@ -45,6 +45,23 @@ To match a sprite drawn from the entity center, always pass `(-w/2, -h/2, w, h)`
 
 `BoxCollider.SetSize` calls `Physics.UpdateCollider(this)` when the entity is in a scene. You don't need to manually re-register.
 
+## Renderables
+
+### Mutate `PrototypeSpriteRenderer` in place
+
+`PrototypeSpriteRenderer` exposes fluent `SetWidth(float)`, `SetHeight(float)`, plus the inherited `SetColor(Color)`. To change size or color, mutate the existing instance rather than removing and re-adding:
+
+```csharp
+var renderer = Entity.GetComponent<PrototypeSpriteRenderer>();
+renderer.SetWidth(w);
+renderer.SetHeight(h);
+renderer.SetColor(color);
+```
+
+Origin is centered (`Vector2Ext.HalfVector()`, set in `OnAddedToEntity`), so resize pivots from the entity center.
+
+Unlike colliders (which *must* be mutated in place because of `ColliderTriggerHelper`), renderers don't crash if you remove-and-re-add — but the swap loses any state on the old instance and invalidates cached references held by other components.
+
 ## Physics Layers
 
 Layers in `Constants.cs` are **bit positions** (0, 1, 2…), not bitmasks. Use them with `1 << PhysicsLayers.X`:
@@ -65,6 +82,44 @@ if (result.Normal.Y < 0 && _velocity.Y > 0) _velocity.Y = 0;
 ```
 
 `Mover.ApplyMovement` internally calls `ColliderTriggerHelper.Update`, which is where trigger enter/exit events get dispatched. This means your `Update()` is **already inside that pipeline** when triggers fire — see "Never replace a collider during a trigger callback."
+
+## Tweens
+
+### Cleanup is the caller's job
+
+Tweens registered with `TweenManager` keep ticking even after their target entity is destroyed. A tween writing to an orphaned `Transform` won't crash — Transform is a managed object that lives until GC — but it's leaked work.
+
+Stop tweens in `OnRemovedFromEntity`:
+
+```csharp
+TweenManager.StopAllTweensWithTarget(Entity.Transform);
+```
+
+The API is `StopAllTweensWithTarget(object target)` — taking the target object (typically the `Transform` for position tweens). The closely-named `AllTweensWithTargetEntity(Entity)` is a **getter** that returns the list; there is no `StopAllTweensWithTargetEntity`. Easy to misremember.
+
+### Infinite oscillation with pauses — use `LoopType.PingPong`
+
+For an emerge/pause/retract/pause loop (e.g. a Piranha Plant bobbing out of a pipe), use ping-pong with `delayBetweenLoops`. No callback chains, no `Core.Schedule`:
+
+```csharp
+Entity.Transform.TweenPositionTo(exposedPos, EmergeDuration)
+    .SetEaseType(EaseType.Linear)
+    .SetLoops(LoopType.PingPong, -1, PauseDuration)
+    .Start();
+```
+
+`SetLoops(PingPong, -1, delay)` = infinite ping-pong with the same pause on both halves. There's no API for asymmetric end-pauses; if you need them, use a state machine.
+
+`LoopType` and `EaseType` live in `Nez.Tweens`; remember `using Nez.Tweens;`.
+
+## Schedule
+
+`Core.Schedule(seconds, callback)` returns an `ITimer` that fires after the delay. Pitfalls:
+
+- **No auto-cancel** when the calling component or entity dies. The callback still fires and writes to a dead object. Save the returned `ITimer` and call `.Stop()` in `OnRemovedFromEntity` if cleanup matters.
+- **One-shot by default**; use the overload that takes `repeats: true` for periodic ticks. `ITimer` also exposes `Reset()` and `RemainingTime()` if you want to manage it.
+
+Use Schedule when the work genuinely belongs in the future and the component would have nothing else to do meanwhile (respawn delays, long despawn timers). For short one-shots inside an already-ticking component, a `float` field decremented in `Update` is usually simpler and avoids the cleanup chore.
 
 ## Rotation
 
@@ -153,6 +208,25 @@ Two systems coexist:
 ## Debug Rendering
 
 Set `Core.DebugRenderEnabled = true` from `Game1.Initialize()` (after `base.Initialize()`) to draw collider outlines, entity origins, etc. The Nez debug console (tilde `~`) is always available — `inspect <entityName>` opens the runtime inspector.
+
+## Component Dependencies
+
+Nez has no `[RequireComponent]` attribute (Unity equivalent does not exist). To enforce that a component depends on a sibling:
+
+- **Assert in `OnAddedToEntity`** — closest to `[RequireComponent]`'s intent. Fails loudly at attach time, before any frame ticks:
+
+```csharp
+public override void OnAddedToEntity()
+{
+    if (Entity.GetComponent<RenderableComponent>() == null)
+        throw new InvalidOperationException(
+            $"{nameof(MyComponent)} requires a RenderableComponent.");
+}
+```
+
+- **Inject via constructor** — stronger compile-time-ish guarantee; the caller can't construct one without supplying the dependency. Use when the reference is stable. Don't use if the dependency might be removed and re-added on the same entity (the cached reference goes stale).
+
+Neither pattern auto-adds the dependency à la Unity. The component must already exist when the dependent is attached, which usually means ordering correctly inside a factory method.
 
 ## `Component` Lifecycle
 
