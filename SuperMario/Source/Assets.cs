@@ -29,6 +29,8 @@ namespace SuperMario
 
 		public static class Music
 		{
+			public const string MainMenu = @"Content/Music/main_menu.ogg";
+			public const string GameOver = @"Content/Music/game_over.ogg";
 			public const string LevelBounce = @"Content/Music/level_bounce.ogg";
 			public const string LevelCavern = @"Content/Music/level_cavern.ogg";
 			public const string LevelSky = @"Content/Music/level_sky.ogg";

@@ -217,10 +217,122 @@ def write_sky() -> None:
     write_midi_file(OUT_DIR / "level_sky.mid", midi)
 
 
+def write_main_menu() -> None:
+    midi = new_song(120, 4, 4, 20)
+
+    add_program(midi, 0, 0, 81)
+    add_control(midi, 0, 0, 7, 88)
+    add_control(midi, 0, 0, 10, 72)
+    melody_notes = (
+        (0, 0.5, 72),
+        (0.5, 0.5, 76),
+        (1, 0.5, 79),
+        (1.5, 0.5, 84),
+        (2, 1, 83),
+        (3, 0.5, 79),
+        (3.5, 0.5, 76),
+        (4, 0.5, 74),
+        (4.5, 0.5, 77),
+        (5, 0.5, 81),
+        (5.5, 0.5, 86),
+        (6, 1, 84),
+        (7, 0.5, 81),
+        (7.5, 0.5, 77),
+        (8, 0.5, 76),
+        (8.5, 0.5, 79),
+        (9, 0.5, 84),
+        (9.5, 0.5, 88),
+        (10, 1, 86),
+        (11, 0.5, 84),
+        (11.5, 0.5, 79),
+        (12, 0.5, 77),
+        (12.5, 0.5, 81),
+        (13, 0.5, 86),
+        (13.5, 0.5, 89),
+        (14, 1, 88),
+        (15, 0.5, 84),
+        (15.5, 0.5, 81),
+        (16, 0.5, 79),
+        (16.5, 0.5, 76),
+        (17, 0.5, 72),
+        (17.5, 0.5, 76),
+        (18, 0.5, 79),
+        (18.5, 0.5, 83),
+        (19, 1, 84),
+    )
+    for start, duration, note in melody_notes:
+        add_note(midi, 0, 0, start, duration, note, 90)
+
+    add_program(midi, 1, 1, 34)
+    add_control(midi, 1, 1, 7, 86)
+    add_control(midi, 1, 1, 10, 42)
+    roots = (36, 43, 45, 41, 36)
+    for bar, root in enumerate(roots):
+        beat = bar * 4
+        add_note(midi, 1, 1, beat, 0.5, root, 84)
+        add_note(midi, 1, 1, beat + 1, 0.5, root + 12, 68)
+        add_note(midi, 1, 1, beat + 2, 0.5, root + 7, 78)
+        add_note(midi, 1, 1, beat + 3, 0.5, root + 12, 68)
+
+    beat = 0.0
+    while beat < 20:
+        add_note(midi, 2, 9, beat, 0.08, 42, 36)
+        beat += 0.5
+    beat = 0.0
+    while beat < 20:
+        add_note(midi, 2, 9, beat, 0.1, 36, 72)
+        beat += 2
+    beat = 1.0
+    while beat < 20:
+        add_note(midi, 2, 9, beat, 0.1, 38, 64)
+        beat += 2
+
+    write_midi_file(OUT_DIR / "main_menu.mid", midi)
+
+
+def write_game_over() -> None:
+    midi = new_song(60, 4, 4, 10)
+
+    add_program(midi, 0, 0, 89)
+    add_control(midi, 0, 0, 7, 78)
+    add_control(midi, 0, 0, 10, 64)
+    melody_notes = (
+        (0, 1, 72),
+        (1, 1, 71),
+        (2, 1, 67),
+        (3, 1, 64),
+        (4, 1, 62),
+        (5, 1, 59),
+        (6, 1, 55),
+        (7, 1, 52),
+        (8, 2, 48),
+    )
+    for start, duration, note in melody_notes:
+        add_note(midi, 0, 0, start, duration, note, 76)
+
+    add_program(midi, 1, 1, 48)
+    add_control(midi, 1, 1, 7, 58)
+    add_control(midi, 1, 1, 10, 48)
+    add_chord(midi, 1, 1, 0, 2, (48, 55, 60), 46)
+    add_chord(midi, 1, 1, 2, 2, (47, 52, 55), 46)
+    add_chord(midi, 1, 1, 4, 2, (43, 50, 55), 44)
+    add_chord(midi, 1, 1, 6, 2, (40, 47, 52), 44)
+    add_chord(midi, 1, 1, 8, 2, (36, 43, 48), 42)
+
+    beat = 0.0
+    while beat < 10:
+        add_note(midi, 2, 9, beat, 0.2, 41, 50)
+        beat += 2
+
+    write_midi_file(OUT_DIR / "game_over.mid", midi)
+
+
 def main() -> None:
     write_bounce()
     write_cavern()
     write_sky()
+    write_main_menu()
+    write_game_over()
 
 
 if __name__ == "__main__":
