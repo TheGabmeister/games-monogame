@@ -2,10 +2,11 @@
 
 ## Project
 
-This is a reusable MonoGame + Nez template project.
+This is a MonoGame + Nez Super Mario-style prototype built from a reusable template.
 
 The app entry point is `Source/Program.cs`, which creates `SuperMario.Game1`.
-`Game1` inherits from `Nez.Core` and sets the initial Nez scene.
+`Game1` inherits from `Nez.Core` and registers `GameManager` as a Nez `GlobalManager`.
+`GameManager` owns persistent `GameState` and loads `GameplayScene` instances from `Levels`.
 
 ## Build
 
@@ -33,10 +34,17 @@ Do not add Nez source under this template unless explicitly asked.
 
 ## Layout
 
-- `Source/Game1.cs` boots Nez and assigns the first scene.
-- `Source/Scenes/GameplayScene.cs` contains the starter scene.
-- `Source/Constants.cs` holds shared template constants such as window size and title.
-- `Source/Assets.cs` is intended to hold generated or curated content path constants.
+- `Source/Game1.cs` boots Nez and registers `GameManager`.
+- `Source/GameManager.cs` owns persistent `GameState` and scene flow.
+- `Source/GameState.cs` stores score, lives, and player power state across scene reloads.
+- `Source/Levels.cs` defines `LevelDefinition` entries (`Debug`, `World1_1`, `World1_2`, `World1_3`).
+- `Source/Scenes/GameplayScene.cs` loads TMX levels, spawns entities, handles player respawn, HUD, completion, and game over.
+- `Source/EntityFactory.cs` maps Tiled object Class strings to Nez entity spawn methods.
+- `Source/Components/` contains gameplay components such as `PlayerController`, `GravityBody`, `Mushroom`, `FireFlower`, `OneUp`, `GoalTrigger`, `KillVolume`, `HudController`, and `PlayerStart`.
+- `Source/Constants.cs` holds shared constants, physics layer bit positions, render layers, tags, and player state enum.
+- `Source/Assets.cs` holds content path constants for maps and music.
+- `Content/Levels/` contains Tiled `.tmx` level files.
+- `Content/Music/` contains generated `.ogg` music loops and regeneration sources.
 - `Content/Content.mgcb` is the MonoGame content pipeline file.
 - `Assets/` contains project icon and Windows manifest files.
 
@@ -50,6 +58,20 @@ call `Deregister()` when the component is removed.
 
 Use raw `Nez.Input` only for very small one-off sample/demo behavior.
 
+Tiled object Class names are factory keys. Current registrations are:
+
+- `PlayerStart`
+- `Platform`
+- `Mushroom`
+- `FireFlower`
+- `OneUp`
+- `GoalTrigger`
+- `KillVolume`
+
+Do not use `FindEntitiesWithTag` for entities created earlier in the same `Scene.OnStart()` call.
+Nez queues new entities until `Entities.UpdateLists()`. Use marker components such as `PlayerStart`
+with `FindComponentOfType<PlayerStart>()` when startup code must find newly spawned markers.
+
 ## Content
 
 If Nez effects or post-processors are used, add or link Nez default content:
@@ -59,3 +81,11 @@ If Nez effects or post-processors are used, add or link Nez default content:
 
 Keep content paths in sync with `Content/Content.mgcb`.
 
+Raw `.tmx` and `.ogg` files are copied by `SuperMario.csproj`:
+
+```xml
+<Content Include="Content\**\*.tmx" CopyToOutputDirectory="PreserveNewest" />
+<Content Include="Content\**\*.ogg" CopyToOutputDirectory="PreserveNewest" />
+```
+
+Music paths live in `Assets.Music`; level-to-music assignment lives in `Levels.cs`.
