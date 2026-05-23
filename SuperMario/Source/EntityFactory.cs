@@ -44,7 +44,7 @@ namespace SuperMario
 
             var collider = player.AddComponent(new BoxCollider(-16, -24, 32, 48));
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
-            collider.CollidesWithLayers = (1 << PhysicsLayers.Environment) | (1 << PhysicsLayers.Item);
+            collider.CollidesWithLayers = 1 << PhysicsLayers.Environment;
 
             return player.AddComponent(new PlayerController());
         }
@@ -85,14 +85,23 @@ namespace SuperMario
         void CreateMushroom(Scene scene, TmxObject obj)
         {
             var center = GetCenter(obj);
-            var itemCollidesWith = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Environment);
+            var w = obj.Width;
+            var h = obj.Height;
 
             var mushroom = scene.CreateEntity("mushroom", center);
-            mushroom.AddComponent(new PrototypeSpriteRenderer(obj.Width, obj.Height)).SetColor(Color.Yellow);
-            var collider = mushroom.AddComponent(new BoxCollider(-obj.Width / 2f, -obj.Height / 2f, obj.Width, obj.Height));
-            collider.PhysicsLayer = 1 << PhysicsLayers.Item;
-            collider.CollidesWithLayers = itemCollidesWith;
-            collider.IsTrigger = true;
+            mushroom.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Yellow);
+            mushroom.AddComponent(new Mover());
+            mushroom.AddComponent(new GravityBody());
+
+            var body = mushroom.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Item;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var pickup = mushroom.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            pickup.IsTrigger = true;
+            pickup.PhysicsLayer = 1 << PhysicsLayers.Item;
+            pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
             mushroom.AddComponent(new Mushroom());
         }
 

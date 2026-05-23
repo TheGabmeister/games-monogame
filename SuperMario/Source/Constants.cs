@@ -15,9 +15,10 @@ namespace SuperMario
         public const int Environment = 3;
     }
 
+    // In Nez, 0 is the default tag for entities. Don't use it.
     public static class Tags
     {
-        public const int PlayerStart = 0;
+        public const int PlayerStart = 1;
     }
 
     public static class Constants
