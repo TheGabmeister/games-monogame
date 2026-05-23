@@ -21,6 +21,9 @@ namespace SuperMario
             Register("OneUp", CreateOneUp);
             Register("Coin", CreateCoin);
             Register("Goomba", CreateGoomba);
+            Register("GreenKoopaTroopa", CreateGreenKoopaTroopa);
+            Register("RedKoopaTroopa", CreateRedKoopaTroopa);
+            Register("BuzzyBeetle", CreateBuzzyBeetle);
             Register("GoalTrigger", CreateGoalTrigger);
             Register("KillVolume", CreateKillVolume);
         }
@@ -199,27 +202,54 @@ namespace SuperMario
 
         void CreateGoomba(Scene scene, TmxObject obj)
         {
+            var goomba = CreateWalkingEnemy(scene, obj, "goomba", Color.Brown, Constants.GoombaWalkSpeed);
+            goomba.AddComponent(new Hitbox());
+            goomba.AddComponent(new Goomba());
+        }
+
+        void CreateGreenKoopaTroopa(Scene scene, TmxObject obj)
+        {
+            var koopa = CreateWalkingEnemy(scene, obj, "greenkoopatroopa", Color.Green, Constants.GreenKoopaTroopaWalkSpeed);
+            koopa.AddComponent(new Hitbox());
+            koopa.AddComponent(new GreenKoopaTroopa());
+        }
+
+        void CreateRedKoopaTroopa(Scene scene, TmxObject obj)
+        {
+            var koopa = CreateWalkingEnemy(scene, obj, "redkoopatroopa", Color.Red, Constants.RedKoopaTroopaWalkSpeed);
+            koopa.AddComponent(new Hitbox());
+            koopa.AddComponent(new RedKoopaTroopa());
+        }
+
+        void CreateBuzzyBeetle(Scene scene, TmxObject obj)
+        {
+            var buzzy = CreateWalkingEnemy(scene, obj, "buzzybeetle", Color.DarkSlateBlue, Constants.BuzzyBeetleWalkSpeed);
+            buzzy.AddComponent(new Hitbox());
+            buzzy.AddComponent(new BuzzyBeetle());
+        }
+
+        Entity CreateWalkingEnemy(Scene scene, TmxObject obj, string name, Color color, float walkSpeed)
+        {
             var center = GetCenter(obj);
             var w = obj.Width;
             var h = obj.Height;
 
-            var goomba = scene.CreateEntity("goomba", center);
-            goomba.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.Brown);
-            var mover = goomba.AddComponent(new Mover());
-            goomba.AddComponent(new GravityBody());
+            var enemy = scene.CreateEntity(name, center);
+            enemy.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(color);
+            var mover = enemy.AddComponent(new Mover());
+            enemy.AddComponent(new GravityBody());
 
-            var body = goomba.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            var body = enemy.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
             body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
 
-            var hit = goomba.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            var hit = enemy.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
             hit.IsTrigger = true;
             hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
-            goomba.AddComponent(new Hitbox());
-            goomba.AddComponent(new Goomba());
-            goomba.AddComponent(new EnemyWalker(mover, Constants.GoombaWalkSpeed));
+            enemy.AddComponent(new EnemyWalker(mover, walkSpeed));
+            return enemy;
         }
 
         void CreateGoalTrigger(Scene scene, TmxObject obj)
