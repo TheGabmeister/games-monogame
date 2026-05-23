@@ -29,7 +29,10 @@ namespace SuperMario
                 SceneResolutionPolicy.ShowAllPixelPerfect);
 
             AddRenderer(new DefaultRenderer());
+        }
 
+        public override void OnStart()
+        {
             _factory = new EntityFactory();
             var map = Content.LoadTiledMap(_levelPath);
             var objects = map.GetObjectGroup("entities");
@@ -50,6 +53,11 @@ namespace SuperMario
             _playerController = _factory.CreatePlayer(this, position);
             _playerController.SetGameState(_gameState);
             _playerController.OnDied += OnPlayerDied;
+        }
+
+        public void CompleteLevel()
+        {
+            LevelCompleted?.Invoke();
         }
 
         void OnPlayerDied()
