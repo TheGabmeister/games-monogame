@@ -31,7 +31,6 @@ namespace SuperMario
         EntityFactory _factory;
         Vector2 _velocity;
         bool _grounded;
-        Collider _groundCollider;
         int _facing = 1;
         int _activeFireballs;
         float _invulnTimer;
@@ -72,8 +71,6 @@ namespace SuperMario
             if (_invulnTimer > 0)
                 _invulnTimer -= Time.DeltaTime;
 
-            ApplyMovingPlatformCarry();
-
             _velocity.X = _moveAxis.Value * Constants.PlayerSpeed;
 
             if (_moveAxis.Value != 0)
@@ -102,12 +99,8 @@ namespace SuperMario
             _mover.ApplyMovement(movement);
 
             _grounded = false;
-            _groundCollider = null;
             if (result.Collider != null && result.Normal.Y < 0)
-            {
                 _grounded = true;
-                _groundCollider = result.Collider;
-            }
 
             if (result.Collider != null)
             {
@@ -158,16 +151,6 @@ namespace SuperMario
             _grounded = false;
             stompable.OnStomped(this);
             return true;
-        }
-
-        void ApplyMovingPlatformCarry()
-        {
-            if (!_grounded || _groundCollider == null)
-                return;
-
-            var platform = _groundCollider.Entity.GetComponent<MovingPlatform>();
-            if (platform != null)
-                Entity.Position += platform.DeltaPosition;
         }
 
         public void SetGameState(GameState gameState)
