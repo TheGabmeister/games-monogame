@@ -2,7 +2,7 @@ using Nez;
 
 namespace SuperMario
 {
-    public class Goomba : Component, ITriggerListener
+    public class Goomba : Component, ITriggerListener, IFireballHittable
     {
         public void OnTriggerEnter(Collider other, Collider local)
         {
@@ -15,5 +15,11 @@ namespace SuperMario
         }
 
         public void OnTriggerExit(Collider other, Collider local) { }
+
+        public FireballReaction OnHitByFireball()
+        {
+            Entity.Destroy();
+            return FireballReaction.Defeated;
+        }
     }
 }

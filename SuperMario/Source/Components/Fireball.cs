@@ -3,7 +3,7 @@ using Nez;
 
 namespace SuperMario
 {
-    public class Fireball : Component, IUpdatable
+    public class Fireball : Component, IUpdatable, ITriggerListener
     {
         const float Speed = 400f;
         const float Gravity = 1400f;
@@ -78,5 +78,29 @@ namespace SuperMario
                 _owner?.NotifyFireballDestroyed();
             }
         }
+
+        public void OnTriggerEnter(Collider other, Collider local)
+        {
+            if (_destroyed)
+                return;
+
+            var hittable = other.Entity.GetComponent<IFireballHittable>();
+            if (hittable == null)
+                return;
+
+            var reaction = hittable.OnHitByFireball();
+            switch (reaction)
+            {
+                case FireballReaction.Defeated:
+                    Destroy(false);
+                    Audio.PlaySfx(Assets.Sfx.PlayerFireHitEnemy);
+                    break;
+                case FireballReaction.Blocked:
+                    Destroy(true);
+                    break;
+            }
+        }
+
+        public void OnTriggerExit(Collider other, Collider local) { }
     }
 }

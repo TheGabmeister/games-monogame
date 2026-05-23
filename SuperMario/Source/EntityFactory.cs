@@ -68,6 +68,11 @@ namespace SuperMario
             collider.PhysicsLayer = 1 << PhysicsLayers.Projectile;
             collider.CollidesWithLayers = 1 << PhysicsLayers.Environment;
 
+            var hit = fireball.AddComponent(new BoxCollider(-size / 2f, -size / 2f, size, size));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Projectile;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Enemy;
+
             fireball.AddComponent(new Fireball(owner, facing));
         }
 
