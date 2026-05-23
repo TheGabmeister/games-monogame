@@ -1,13 +1,12 @@
 
-
 namespace SuperMario
 {
     /// <summary>
-    /// class that contains the names of all of the files processed by the Pipeline Tool
+    /// class that contains the names of all runtime content files
     /// </summary>
     /// <remarks>
-    /// Nez includes a T4 template that will auto-generate the content of this file.
-    /// See: https://github.com/prime31/Nez/blob/master/FAQs/ContentManagement.md#auto-generating-content-paths"
+    /// Auto-generated from Assets.tt. Run the T4 custom tool after adding,
+    /// removing, or renaming files under Content.
     /// </remarks>
     class Assets
     {
@@ -25,25 +24,25 @@ namespace SuperMario
 
 		public static class Sfx
 		{
-			public const string PlayerJump = @"Content/Sfx/player_jump.wav";
-			public const string PlayerHit = @"Content/Sfx/player_hit.wav";
-			public const string PlayerDie = @"Content/Sfx/player_die.wav";
-			public const string PlayerFire = @"Content/Sfx/player_fire.wav";
+			public const string GoalReached = @"Content/Sfx/goal_reached.wav";
 			public const string PickupCoin = @"Content/Sfx/pickup_coin.wav";
 			public const string PickupMushroom = @"Content/Sfx/pickup_mushroom.wav";
 			public const string PickupOneUp = @"Content/Sfx/pickup_one_up.wav";
-			public const string GoalReached = @"Content/Sfx/goal_reached.wav";
+			public const string PlayerDie = @"Content/Sfx/player_die.wav";
+			public const string PlayerFire = @"Content/Sfx/player_fire.wav";
 			public const string PlayerFireHitBlock = @"Content/Sfx/player_fire_hit_block.wav";
 			public const string PlayerFireHitEnemy = @"Content/Sfx/player_fire_hit_enemy.wav";
+			public const string PlayerHit = @"Content/Sfx/player_hit.wav";
+			public const string PlayerJump = @"Content/Sfx/player_jump.wav";
 		}
 
 		public static class Music
 		{
-			public const string MainMenu = @"Content/Music/main_menu.ogg";
 			public const string GameOver = @"Content/Music/game_over.ogg";
 			public const string LevelBounce = @"Content/Music/level_bounce.ogg";
 			public const string LevelCavern = @"Content/Music/level_cavern.ogg";
 			public const string LevelSky = @"Content/Music/level_sky.ogg";
+			public const string MainMenu = @"Content/Music/main_menu.ogg";
 		}
     }
 }
