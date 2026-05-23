@@ -68,7 +68,7 @@ namespace SuperMario
             collider.CollidesWithLayers =
                 (1 << PhysicsLayers.Player) |
                 (1 << PhysicsLayers.Enemy) |
-                (1 << PhysicsLayers.Item) |
+                (1 << PhysicsLayers.PickupBody) |
                 (1 << PhysicsLayers.Projectile);
             collider.IsTrigger = true;
 

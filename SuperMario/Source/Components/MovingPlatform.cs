@@ -40,7 +40,7 @@ namespace SuperMario
 
             var collider = platform.AddComponent(new BoxCollider(-obj.Width / 2f, -obj.Height / 2f, obj.Width, obj.Height));
             collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
-            collider.CollidesWithLayers = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Item);
+            collider.CollidesWithLayers = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.PickupBody);
 
             platform.AddComponent(new MovingPlatform(
                 axis,

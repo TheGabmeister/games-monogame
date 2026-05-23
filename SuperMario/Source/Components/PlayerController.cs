@@ -51,7 +51,10 @@ namespace SuperMario
 
             var collider = player.AddComponent(new BoxCollider(-16, -24, 32, 48));
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
-            collider.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+            collider.CollidesWithLayers =
+                (1 << PhysicsLayers.Environment) |
+                (1 << PhysicsLayers.PickupTrigger) |
+                (1 << PhysicsLayers.LevelTrigger);
 
             return player.AddComponent(new PlayerController(renderer, blinker));
         }

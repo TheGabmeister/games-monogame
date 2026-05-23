@@ -13,7 +13,7 @@ namespace SuperMario
             goal.AddComponent(new PrototypeSpriteRenderer(obj.Width, obj.Height)).SetColor(Color.Gold);
 
             var collider = goal.AddComponent(new BoxCollider(-obj.Width / 2f, -obj.Height / 2f, obj.Width, obj.Height));
-            collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
+            collider.PhysicsLayer = 1 << PhysicsLayers.LevelTrigger;
             collider.CollidesWithLayers = 1 << PhysicsLayers.Player;
             collider.IsTrigger = true;
 

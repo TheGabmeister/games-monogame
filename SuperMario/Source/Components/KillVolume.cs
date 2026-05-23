@@ -10,7 +10,7 @@ namespace SuperMario
             var center = EntityFactory.GetCenter(obj);
             var killVolume = scene.CreateEntity("killvolume", center);
             var collider = killVolume.AddComponent(new BoxCollider(-obj.Width / 2f, -obj.Height / 2f, obj.Width, obj.Height));
-            collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
+            collider.PhysicsLayer = 1 << PhysicsLayers.LevelTrigger;
             collider.CollidesWithLayers = 1 << PhysicsLayers.Player;
             collider.IsTrigger = true;
             killVolume.AddComponent(new KillVolume());

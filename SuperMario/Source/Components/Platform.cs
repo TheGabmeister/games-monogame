@@ -9,7 +9,7 @@ namespace SuperMario
         public static void Spawn(Scene scene, TmxObject obj)
         {
             var envLayer = 1 << PhysicsLayers.Environment;
-            var envCollidesWith = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Item);
+            var envCollidesWith = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.PickupBody);
             var center = EntityFactory.GetCenter(obj);
 
             var platform = scene.CreateEntity(obj.Name, center);

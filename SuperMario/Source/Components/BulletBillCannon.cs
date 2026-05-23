@@ -20,7 +20,7 @@ namespace SuperMario
 
             var body = cannon.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
             body.PhysicsLayer = 1 << PhysicsLayers.Environment;
-            body.CollidesWithLayers = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Item);
+            body.CollidesWithLayers = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.PickupBody);
 
             cannon.AddComponent(new BulletBillCannon());
         }

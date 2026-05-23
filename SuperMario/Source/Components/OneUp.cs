@@ -26,12 +26,12 @@ namespace SuperMario
             oneUp.AddComponent(new GravityBody());
 
             var body = oneUp.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
-            body.PhysicsLayer = 1 << PhysicsLayers.Item;
+            body.PhysicsLayer = 1 << PhysicsLayers.PickupBody;
             body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
 
             var pickup = oneUp.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
             pickup.IsTrigger = true;
-            pickup.PhysicsLayer = 1 << PhysicsLayers.Item;
+            pickup.PhysicsLayer = 1 << PhysicsLayers.PickupTrigger;
             pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
             oneUp.AddComponent(new OneUp(gameState));
