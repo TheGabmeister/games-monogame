@@ -40,6 +40,9 @@ namespace SuperMario
         public const float StompTopTolerance = 16f;
         public const float MovingPlatformDistance = 160f;
         public const float MovingPlatformSpeed = 80f;
+        public const float BlockBumpDistance = 8f;
+        public const float BlockBumpDuration = 0.18f;
+        public const int BrickBreakScore = 50;
         public const float GoombaWalkSpeed = 80f;
         public const float GreenKoopaTroopaWalkSpeed = 80f;
         public const float RedKoopaTroopaWalkSpeed = 80f;

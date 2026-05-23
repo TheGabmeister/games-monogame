@@ -41,6 +41,10 @@ namespace SuperMario
             _blinker = blinker;
         }
 
+        public PlayerState State => _state;
+
+        public bool CanBreakBricks => _state != PlayerState.Small;
+
         public static PlayerController Spawn(Scene scene, Vector2 position)
         {
             var player = scene.CreateEntity("player", position);
@@ -124,7 +128,10 @@ namespace SuperMario
                 if (result.Normal.Y < 0 && _velocity.Y > 0)
                     _velocity.Y = 0;
                 if (result.Normal.Y > 0 && _velocity.Y < 0)
+                {
+                    result.Collider.Entity.GetComponent<IBumpable>()?.OnBumped(this);
                     _velocity.Y = 0;
+                }
             }
         }
 

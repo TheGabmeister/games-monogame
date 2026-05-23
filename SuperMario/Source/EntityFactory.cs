@@ -18,6 +18,9 @@ namespace SuperMario
             Register("Platform", Platform.Spawn);
             Register("LeftRightLift", MovingPlatform.SpawnLeftRight);
             Register("UpDownLift", MovingPlatform.SpawnUpDown);
+            Register("QuestionBlock", (s, o) => QuestionBlock.Spawn(s, o, _gameState));
+            Register("BrickBlock", (s, o) => BrickBlock.Spawn(s, o, _gameState));
+            Register("UsedBlock", UsedBlock.Spawn);
             Register("Mushroom", (s, o) => Mushroom.Spawn(s, o, _gameState));
             Register("FireFlower", (s, o) => FireFlower.Spawn(s, o, _gameState));
             Register("OneUp", (s, o) => OneUp.Spawn(s, o, _gameState));

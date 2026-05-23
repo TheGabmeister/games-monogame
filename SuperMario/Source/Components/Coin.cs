@@ -6,7 +6,7 @@ namespace SuperMario
 {
     public class Coin : Component, ITriggerListener
     {
-        const int CoinValue = 200;
+        public const int CoinValue = 200;
 
         readonly GameState _gameState;
         bool _collected;
