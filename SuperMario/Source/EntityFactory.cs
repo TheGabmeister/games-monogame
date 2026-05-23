@@ -17,6 +17,7 @@ namespace SuperMario
             Register("PlayerStart", CreatePlayerStart);
             Register("Platform", CreatePlatform);
             Register("Mushroom", CreateMushroom);
+            Register("FireFlower", CreateFireFlower);
             Register("OneUp", CreateOneUp);
             Register("GoalTrigger", CreateGoalTrigger);
             Register("KillVolume", CreateKillVolume);
@@ -107,6 +108,29 @@ namespace SuperMario
             pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
             mushroom.AddComponent(new Mushroom());
+        }
+
+        void CreateFireFlower(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var fireFlower = scene.CreateEntity("fireflower", center);
+            fireFlower.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.OrangeRed);
+            fireFlower.AddComponent(new Mover());
+            fireFlower.AddComponent(new GravityBody());
+
+            var body = fireFlower.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Item;
+            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
+
+            var pickup = fireFlower.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            pickup.IsTrigger = true;
+            pickup.PhysicsLayer = 1 << PhysicsLayers.Item;
+            pickup.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            fireFlower.AddComponent(new FireFlower());
         }
 
         void CreateOneUp(Scene scene, TmxObject obj)

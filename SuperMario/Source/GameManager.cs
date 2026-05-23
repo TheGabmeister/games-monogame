@@ -16,21 +16,21 @@ namespace SuperMario
         public void StartGame()
         {
             _gameState = new GameState();
-            LoadLevel(Assets.Maps.Debug);
+            LoadLevel(Levels.Debug);
         }
 
-        public void LoadLevel(string levelPath)
+        public void LoadLevel(LevelDefinition level)
         {
-            var scene = new GameplayScene(levelPath, _gameState);
-            scene.LevelCompleted += () => OnLevelCompleted(levelPath);
+            var scene = new GameplayScene(level, _gameState);
+            scene.LevelCompleted += () => OnLevelCompleted(level);
             scene.GameOver += OnGameOver;
             Core.Scene = scene;
         }
 
-        void OnLevelCompleted(string currentLevel)
+        void OnLevelCompleted(LevelDefinition currentLevel)
         {
             // TODO: determine next level and load it
-            // LoadLevel(Assets.Maps.Level2);
+            // LoadLevel(Levels.World1_2);
         }
 
         void OnGameOver()

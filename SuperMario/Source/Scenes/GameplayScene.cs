@@ -6,7 +6,7 @@ namespace SuperMario
 {
     public class GameplayScene : Scene
     {
-        readonly string _levelPath;
+        readonly LevelDefinition _level;
         readonly GameState _gameState;
         EntityFactory _factory;
         PlayerController _playerController;
@@ -15,9 +15,9 @@ namespace SuperMario
         public event Action LevelCompleted;
         public event Action GameOver;
 
-        public GameplayScene(string levelPath, GameState gameState)
+        public GameplayScene(LevelDefinition level, GameState gameState)
         {
-            _levelPath = levelPath;
+            _level = level;
             _gameState = gameState;
         }
 
@@ -37,7 +37,7 @@ namespace SuperMario
         public override void OnStart()
         {
             _factory = new EntityFactory(_gameState);
-            var map = Content.LoadTiledMap(_levelPath);
+            var map = Content.LoadTiledMap(_level.MapPath);
             var objects = map.GetObjectGroup("entities");
 
             foreach (var obj in objects.Objects)
@@ -55,7 +55,7 @@ namespace SuperMario
 
             var hud = CreateEntity("hud", topLeft);
             hud.AddComponent(new TextComponent()).SetRenderLayer(RenderLayers.Hud);
-            hud.AddComponent(new HudController(_gameState));
+            hud.AddComponent(new HudController(_gameState, _level));
         }
 
         void SpawnPlayer()
