@@ -3,19 +3,27 @@ using Nez;
 
 namespace SuperMario
 {
-    public class RedKoopaParatroopa : Component, IUpdatable, IFireballHittable
+    public class KoopaParatroopa : Component, IUpdatable, IFireballHittable
     {
         readonly EntityFactory _factory;
         readonly Mover _mover;
+        readonly KoopaColor _color;
         readonly float _width;
         readonly float _height;
         readonly float _flySpeed;
         int _direction = -1;
 
-        public RedKoopaParatroopa(EntityFactory factory, Mover mover, float width, float height, float flySpeed)
+        public KoopaParatroopa(
+            EntityFactory factory,
+            Mover mover,
+            KoopaColor color,
+            float width,
+            float height,
+            float flySpeed)
         {
             _factory = factory;
             _mover = mover;
+            _color = color;
             _width = width;
             _height = height;
             _flySpeed = flySpeed;
@@ -33,7 +41,7 @@ namespace SuperMario
 
         public void OnStomped()
         {
-            _factory.CreateRedKoopaTroopa(Entity.Scene, Entity.Position, _width, _height);
+            _factory.CreateKoopaTroopa(Entity.Scene, Entity.Position, _width, _height, _color);
             Entity.Destroy();
         }
 

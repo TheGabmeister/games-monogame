@@ -230,18 +230,19 @@ namespace SuperMario
 
         void CreateGreenKoopaTroopa(Scene scene, TmxObject obj)
         {
-            CreateGreenKoopaTroopa(scene, GetCenter(obj), obj.Width, obj.Height);
+            CreateKoopaTroopa(scene, GetCenter(obj), obj.Width, obj.Height, KoopaColor.Green);
         }
 
         void CreateRedKoopaTroopa(Scene scene, TmxObject obj)
         {
-            CreateRedKoopaTroopa(scene, GetCenter(obj), obj.Width, obj.Height);
+            CreateKoopaTroopa(scene, GetCenter(obj), obj.Width, obj.Height, KoopaColor.Red);
         }
 
-        public Entity CreateGreenKoopaTroopa(Scene scene, Vector2 position, float width, float height)
+        public Entity CreateKoopaTroopa(Scene scene, Vector2 position, float width, float height, KoopaColor color)
         {
-            var koopa = scene.CreateEntity("greenkoopatroopa", position);
-            koopa.AddComponent(new PrototypeSpriteRenderer(width, height)).SetColor(Color.Green);
+            var isRed = color == KoopaColor.Red;
+            var koopa = scene.CreateEntity(isRed ? "redkoopatroopa" : "greenkoopatroopa", position);
+            koopa.AddComponent(new PrototypeSpriteRenderer(width, height)).SetColor(isRed ? Color.Red : Color.Green);
             var mover = koopa.AddComponent(new Mover());
             koopa.AddComponent(new GravityBody());
 
@@ -255,30 +256,10 @@ namespace SuperMario
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
             koopa.AddComponent(new Hitbox());
-            koopa.AddComponent(new GreenKoopaTroopa());
-            koopa.AddComponent(new EnemyWalker(mover, Constants.GreenKoopaTroopaWalkSpeed));
-            return koopa;
-        }
-
-        public Entity CreateRedKoopaTroopa(Scene scene, Vector2 position, float width, float height)
-        {
-            var koopa = scene.CreateEntity("redkoopatroopa", position);
-            koopa.AddComponent(new PrototypeSpriteRenderer(width, height)).SetColor(Color.Red);
-            var mover = koopa.AddComponent(new Mover());
-            koopa.AddComponent(new GravityBody());
-
-            var body = koopa.AddComponent(new BoxCollider(-width / 2f, -height / 2f, width, height));
-            body.PhysicsLayer = 1 << PhysicsLayers.Enemy;
-            body.CollidesWithLayers = 1 << PhysicsLayers.Environment;
-
-            var hit = koopa.AddComponent(new BoxCollider(-width / 2f, -height / 2f, width, height));
-            hit.IsTrigger = true;
-            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
-            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
-
-            koopa.AddComponent(new Hitbox());
-            koopa.AddComponent(new RedKoopaTroopa());
-            koopa.AddComponent(new EnemyWalker(mover, Constants.RedKoopaTroopaWalkSpeed));
+            koopa.AddComponent(new KoopaTroopa(color));
+            koopa.AddComponent(new EnemyWalker(
+                mover,
+                isRed ? Constants.RedKoopaTroopaWalkSpeed : Constants.GreenKoopaTroopaWalkSpeed));
             return koopa;
         }
 
@@ -302,7 +283,13 @@ namespace SuperMario
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
             para.AddComponent(new Hitbox());
-            para.AddComponent(new GreenKoopaParatroopa(this, mover, w, h, Constants.GreenKoopaParatroopaFlySpeed));
+            para.AddComponent(new KoopaParatroopa(
+                this,
+                mover,
+                KoopaColor.Green,
+                w,
+                h,
+                Constants.GreenKoopaParatroopaFlySpeed));
         }
 
         void CreateRedKoopaParatroopa(Scene scene, TmxObject obj)
@@ -325,7 +312,13 @@ namespace SuperMario
             hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
 
             para.AddComponent(new Hitbox());
-            para.AddComponent(new RedKoopaParatroopa(this, mover, w, h, Constants.RedKoopaParatroopaFlySpeed));
+            para.AddComponent(new KoopaParatroopa(
+                this,
+                mover,
+                KoopaColor.Red,
+                w,
+                h,
+                Constants.RedKoopaParatroopaFlySpeed));
         }
 
         void CreateBuzzyBeetle(Scene scene, TmxObject obj)

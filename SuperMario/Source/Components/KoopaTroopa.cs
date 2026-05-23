@@ -2,8 +2,15 @@ using Nez;
 
 namespace SuperMario
 {
-    public class RedKoopaTroopa : Component, IFireballHittable
+    public class KoopaTroopa : Component, IFireballHittable
     {
+        public KoopaTroopa(KoopaColor color)
+        {
+            Color = color;
+        }
+
+        public KoopaColor Color { get; }
+
         public FireballReaction OnHitByFireball()
         {
             Entity.Destroy();
