@@ -29,6 +29,7 @@ namespace SuperMario
             Register("PiranhaPlant", CreatePiranhaPlant);
             Register("HammerBro", CreateHammerBro);
             Register("Blooper", CreateBlooper);
+            Register("BulletBillCannon", CreateBulletBillCannon);
             Register("GoalTrigger", CreateGoalTrigger);
             Register("KillVolume", CreateKillVolume);
         }
@@ -102,6 +103,24 @@ namespace SuperMario
 
             hammer.AddComponent(new Hammer(facing));
             hammer.AddComponent(new Lifetime(Constants.HammerLifetime));
+        }
+
+        public void CreateBulletBill(Scene scene, Vector2 position, int facing)
+        {
+            const int size = 24;
+
+            var bill = scene.CreateEntity("bulletbill", position);
+            bill.AddComponent(new PrototypeSpriteRenderer(size, size)).SetColor(Color.Black);
+            bill.AddComponent(new Mover());
+
+            var hit = bill.AddComponent(new BoxCollider(-size / 2f, -size / 2f, size, size));
+            hit.IsTrigger = true;
+            hit.PhysicsLayer = 1 << PhysicsLayers.Enemy;
+            hit.CollidesWithLayers = 1 << PhysicsLayers.Player;
+
+            bill.AddComponent(new DamagePlayerTrigger());
+            bill.AddComponent(new BulletBill(facing));
+            bill.AddComponent(new Lifetime(Constants.BulletBillLifetime));
         }
 
         public static Vector2 GetCenter(TmxObject obj)
@@ -431,6 +450,22 @@ namespace SuperMario
 
             blooper.AddComponent(new DamagePlayerTrigger());
             blooper.AddComponent(new Blooper(mover));
+        }
+
+        void CreateBulletBillCannon(Scene scene, TmxObject obj)
+        {
+            var center = GetCenter(obj);
+            var w = obj.Width;
+            var h = obj.Height;
+
+            var cannon = scene.CreateEntity("bulletbillcannon", center);
+            cannon.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(Color.DimGray);
+
+            var body = cannon.AddComponent(new BoxCollider(-w / 2f, -h / 2f, w, h));
+            body.PhysicsLayer = 1 << PhysicsLayers.Environment;
+            body.CollidesWithLayers = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Item);
+
+            cannon.AddComponent(new BulletBillCannon(this));
         }
 
         void CreateGoalTrigger(Scene scene, TmxObject obj)

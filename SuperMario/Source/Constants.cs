@@ -53,6 +53,9 @@ namespace SuperMario
         public const float BlooperSpeed = 90f;
         public const float BlooperBobSpeed = 4f;
         public const float BlooperBobStrength = 24f;
+        public const float BulletBillSpeed = 180f;
+        public const float BulletBillLifetime = 5f;
+        public const float BulletBillCannonFireInterval = 4f;
         public const int StartingLives = 3;
     }
 }
