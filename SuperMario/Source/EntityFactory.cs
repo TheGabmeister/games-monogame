@@ -46,14 +46,16 @@ namespace SuperMario
         public PlayerController CreatePlayer(Scene scene, Vector2 position)
         {
             var player = scene.CreateEntity("player", position);
-            player.AddComponent(new PrototypeSpriteRenderer(32, 48)).SetColor(Color.Red);
+            var renderer = player.AddComponent(new PrototypeSpriteRenderer(32, 48));
+            renderer.SetColor(Color.Red);
+            var blinker = player.AddComponent(new Blinker(renderer));
             player.AddComponent(new Mover());
 
             var collider = player.AddComponent(new BoxCollider(-16, -24, 32, 48));
             collider.PhysicsLayer = 1 << PhysicsLayers.Player;
             collider.CollidesWithLayers = 1 << PhysicsLayers.Environment;
 
-            return player.AddComponent(new PlayerController());
+            return player.AddComponent(new PlayerController(renderer, blinker));
         }
 
         public void CreateFireball(Scene scene, Vector2 position, int facing, PlayerController owner)

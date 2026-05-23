@@ -18,6 +18,10 @@ namespace SuperMario
         const int BigHeight = 64;
 
         const int MaxFireballs = 2;
+        const float InvulnDuration = 2f;
+
+        readonly PrototypeSpriteRenderer _renderer;
+        readonly Blinker _blinker;
 
         VirtualIntegerAxis _moveAxis;
         VirtualButton _jumpButton;
@@ -29,7 +33,14 @@ namespace SuperMario
         bool _grounded;
         int _facing = 1;
         int _activeFireballs;
+        float _invulnTimer;
         PlayerState _state = PlayerState.Small;
+
+        public PlayerController(PrototypeSpriteRenderer renderer, Blinker blinker)
+        {
+            _renderer = renderer;
+            _blinker = blinker;
+        }
 
         public override void OnAddedToEntity()
         {
@@ -57,6 +68,9 @@ namespace SuperMario
 
         public void Update()
         {
+            if (_invulnTimer > 0)
+                _invulnTimer -= Time.DeltaTime;
+
             _velocity.X = _moveAxis.Value * Constants.PlayerSpeed;
 
             if (_moveAxis.Value != 0)
@@ -106,14 +120,20 @@ namespace SuperMario
 
         public void TakeHit()
         {
+            if (_invulnTimer > 0)
+                return;
+
             if (_state == PlayerState.Small)
             {
                 KillPlayer();
                 return;
             }
 
+            Audio.PlaySfx(Assets.Sfx.PlayerHit);
             SetState(PlayerState.Small);
             Entity.Position += new Vector2(0, (BigHeight - SmallHeight) / 2f);
+            _invulnTimer = InvulnDuration;
+            _blinker.Blink(InvulnDuration);
         }
 
         public void SetGameState(GameState gameState)
@@ -183,10 +203,9 @@ namespace SuperMario
                     break;
             }
 
-            var renderer = Entity.GetComponent<PrototypeSpriteRenderer>();
-            renderer.SetWidth(w);
-            renderer.SetHeight(h);
-            renderer.SetColor(color);
+            _renderer.SetWidth(w);
+            _renderer.SetHeight(h);
+            _renderer.SetColor(color);
 
             var box = Entity.GetComponent<BoxCollider>();
             box.SetSize(w, h);

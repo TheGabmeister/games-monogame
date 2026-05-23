@@ -10,7 +10,6 @@ namespace SuperMario
             if (player == null)
                 return;
 
-            Audio.PlaySfx(Assets.Sfx.PlayerHit);
             player.TakeHit();
         }
 
