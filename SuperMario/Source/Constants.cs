@@ -43,6 +43,10 @@ namespace SuperMario
         public const float BlockBumpDistance = 8f;
         public const float BlockBumpDuration = 0.18f;
         public const int BrickBreakScore = 50;
+        public const float StarmanSpeed = 220f;
+        public const float StarmanBounceForce = -420f;
+        public const float StarmanInvincibleDuration = 10f;
+        public const int StarmanPickupScore = 1000;
         public const float GoombaWalkSpeed = 80f;
         public const float GreenKoopaTroopaWalkSpeed = 80f;
         public const float RedKoopaTroopaWalkSpeed = 80f;

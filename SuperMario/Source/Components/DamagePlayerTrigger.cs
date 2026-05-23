@@ -10,6 +10,16 @@ namespace SuperMario
             if (player == null)
                 return;
 
+            if (player.IsStarInvincible)
+            {
+                var starHittable = Entity.GetComponent<IStarHittable>();
+                if (starHittable != null)
+                {
+                    starHittable.OnHitByStar(player);
+                    return;
+                }
+            }
+
             var stompable = Entity.GetComponent<IStompable>();
             if (stompable != null && player.TryStomp(local, stompable))
                 return;

@@ -5,7 +5,7 @@ using Nez.Tweens;
 
 namespace SuperMario
 {
-    public class PiranhaPlant : Component, IFireballHittable
+    public class PiranhaPlant : Component, IFireballHittable, IStarHittable
     {
         const float EmergeDuration = 1.0f;
         const float PauseDuration = 1.5f;
@@ -53,6 +53,11 @@ namespace SuperMario
         {
             Entity.Destroy();
             return FireballReaction.Defeated;
+        }
+
+        public void OnHitByStar(PlayerController player)
+        {
+            Entity.Destroy();
         }
     }
 }

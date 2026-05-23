@@ -4,7 +4,7 @@ using Nez.Tiled;
 
 namespace SuperMario
 {
-    public class Podoboo : Component, IUpdatable, IFireballHittable
+    public class Podoboo : Component, IUpdatable, IFireballHittable, IStarHittable
     {
         Mover _mover;
         Vector2 _homePosition;
@@ -70,6 +70,11 @@ namespace SuperMario
         public FireballReaction OnHitByFireball()
         {
             return FireballReaction.Blocked;
+        }
+
+        public void OnHitByStar(PlayerController player)
+        {
+            Entity.Destroy();
         }
     }
 }

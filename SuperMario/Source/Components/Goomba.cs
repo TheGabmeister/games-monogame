@@ -4,7 +4,7 @@ using Nez.Tiled;
 
 namespace SuperMario
 {
-    public class Goomba : Component, IFireballHittable, IStompable
+    public class Goomba : Component, IFireballHittable, IStompable, IStarHittable
     {
         public static void Spawn(Scene scene, TmxObject obj)
         {
@@ -40,6 +40,11 @@ namespace SuperMario
         {
             Entity.Destroy();
             return FireballReaction.Defeated;
+        }
+
+        public void OnHitByStar(PlayerController player)
+        {
+            Entity.Destroy();
         }
     }
 }

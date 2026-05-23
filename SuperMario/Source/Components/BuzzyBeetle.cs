@@ -4,7 +4,7 @@ using Nez.Tiled;
 
 namespace SuperMario
 {
-    public class BuzzyBeetle : Component, IFireballHittable, IStompable
+    public class BuzzyBeetle : Component, IFireballHittable, IStompable, IStarHittable
     {
         public static void Spawn(Scene scene, TmxObject obj)
         {
@@ -39,6 +39,11 @@ namespace SuperMario
         public FireballReaction OnHitByFireball()
         {
             return FireballReaction.Blocked;
+        }
+
+        public void OnHitByStar(PlayerController player)
+        {
+            Entity.Destroy();
         }
     }
 }

@@ -5,7 +5,7 @@ using Nez.Tiled;
 
 namespace SuperMario
 {
-    public class HammerBro : Component, IUpdatable, IFireballHittable, IStompable
+    public class HammerBro : Component, IUpdatable, IFireballHittable, IStompable, IStarHittable
     {
         readonly SpriteRenderer _renderer;
         GravityBody _body;
@@ -96,6 +96,11 @@ namespace SuperMario
         }
 
         public void OnStomped(PlayerController player)
+        {
+            Entity.Destroy();
+        }
+
+        public void OnHitByStar(PlayerController player)
         {
             Entity.Destroy();
         }

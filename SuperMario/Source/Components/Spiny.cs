@@ -4,7 +4,7 @@ using Nez.Tiled;
 
 namespace SuperMario
 {
-    public class Spiny : Component, IFireballHittable
+    public class Spiny : Component, IFireballHittable, IStarHittable
     {
         public static void Spawn(Scene scene, TmxObject obj)
         {
@@ -35,6 +35,11 @@ namespace SuperMario
         {
             Entity.Destroy();
             return FireballReaction.Defeated;
+        }
+
+        public void OnHitByStar(PlayerController player)
+        {
+            Entity.Destroy();
         }
     }
 }

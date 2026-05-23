@@ -33,6 +33,7 @@ namespace SuperMario
         int _facing = 1;
         int _activeFireballs;
         float _invulnTimer;
+        float _starTimer;
         PlayerState _state = PlayerState.Small;
 
         public PlayerController(PrototypeSpriteRenderer renderer, Blinker blinker)
@@ -44,6 +45,8 @@ namespace SuperMario
         public PlayerState State => _state;
 
         public bool CanBreakBricks => _state != PlayerState.Small;
+
+        public bool IsStarInvincible => _starTimer > 0f;
 
         public static PlayerController Spawn(Scene scene, Vector2 position)
         {
@@ -91,6 +94,8 @@ namespace SuperMario
         {
             if (_invulnTimer > 0)
                 _invulnTimer -= Time.DeltaTime;
+            if (_starTimer > 0)
+                _starTimer -= Time.DeltaTime;
 
             _velocity.X = _moveAxis.Value * Constants.PlayerSpeed;
 
@@ -205,6 +210,11 @@ namespace SuperMario
                 return;
 
             SetState(_state == PlayerState.Small ? PlayerState.Big : PlayerState.Fire);
+        }
+
+        public void ApplyStarman()
+        {
+            _starTimer = Constants.StarmanInvincibleDuration;
         }
 
         void SetState(PlayerState state)

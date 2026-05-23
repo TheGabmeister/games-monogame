@@ -25,6 +25,7 @@ namespace SuperMario
             Register("FireFlower", (s, o) => FireFlower.Spawn(s, o, _gameState));
             Register("OneUp", (s, o) => OneUp.Spawn(s, o, _gameState));
             Register("Coin", (s, o) => Coin.Spawn(s, o, _gameState));
+            Register("Starman", (s, o) => Starman.Spawn(s, o, _gameState));
             Register("Goomba", Goomba.Spawn);
             Register("GreenKoopaTroopa", KoopaTroopa.SpawnGreen);
             Register("RedKoopaTroopa", KoopaTroopa.SpawnRed);

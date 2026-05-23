@@ -3,7 +3,7 @@ using Nez;
 
 namespace SuperMario
 {
-    public class BulletBill : Component, IUpdatable, IFireballHittable, IStompable
+    public class BulletBill : Component, IUpdatable, IFireballHittable, IStompable, IStarHittable
     {
         Mover _mover;
         Vector2 _velocity;
@@ -48,6 +48,11 @@ namespace SuperMario
         }
 
         public void OnStomped(PlayerController player)
+        {
+            Entity.Destroy();
+        }
+
+        public void OnHitByStar(PlayerController player)
         {
             Entity.Destroy();
         }

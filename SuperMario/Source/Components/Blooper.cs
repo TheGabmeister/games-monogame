@@ -4,7 +4,7 @@ using Nez.Tiled;
 
 namespace SuperMario
 {
-    public class Blooper : Component, IUpdatable, IFireballHittable
+    public class Blooper : Component, IUpdatable, IFireballHittable, IStarHittable
     {
         readonly Mover _mover;
         float _bobTimer;
@@ -63,6 +63,11 @@ namespace SuperMario
         {
             Entity.Destroy();
             return FireballReaction.Defeated;
+        }
+
+        public void OnHitByStar(PlayerController player)
+        {
+            Entity.Destroy();
         }
     }
 }
