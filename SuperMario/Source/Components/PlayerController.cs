@@ -183,8 +183,10 @@ namespace SuperMario
                     break;
             }
 
-            Entity.RemoveComponent<PrototypeSpriteRenderer>();
-            Entity.AddComponent(new PrototypeSpriteRenderer(w, h)).SetColor(color);
+            var renderer = Entity.GetComponent<PrototypeSpriteRenderer>();
+            renderer.SetWidth(w);
+            renderer.SetHeight(h);
+            renderer.SetColor(color);
 
             var box = Entity.GetComponent<BoxCollider>();
             box.SetSize(w, h);
