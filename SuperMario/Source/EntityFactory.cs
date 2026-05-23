@@ -20,6 +20,8 @@ namespace SuperMario
             Register("FireFlower", CreateFireFlower);
             Register("OneUp", CreateOneUp);
             Register("Coin", CreateCoin);
+            Register("LeftRightLift", CreateLeftRightLift);
+            Register("UpDownLift", CreateUpDownLift);
             Register("Goomba", CreateGoomba);
             Register("GreenKoopaTroopa", CreateGreenKoopaTroopa);
             Register("RedKoopaTroopa", CreateRedKoopaTroopa);
@@ -156,6 +158,32 @@ namespace SuperMario
 
             if (obj.Rotation != 0)
                 platform.RotationDegrees = obj.Rotation;
+        }
+
+        void CreateLeftRightLift(Scene scene, TmxObject obj)
+        {
+            CreateMovingPlatform(scene, obj, MovingPlatformAxis.Horizontal);
+        }
+
+        void CreateUpDownLift(Scene scene, TmxObject obj)
+        {
+            CreateMovingPlatform(scene, obj, MovingPlatformAxis.Vertical);
+        }
+
+        void CreateMovingPlatform(Scene scene, TmxObject obj, MovingPlatformAxis axis)
+        {
+            var center = GetCenter(obj);
+            var platform = scene.CreateEntity(obj.Name, center);
+            platform.AddComponent(new PrototypeSpriteRenderer(obj.Width, obj.Height)).SetColor(Color.SteelBlue);
+
+            var collider = platform.AddComponent(new BoxCollider(-obj.Width / 2f, -obj.Height / 2f, obj.Width, obj.Height));
+            collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
+            collider.CollidesWithLayers = (1 << PhysicsLayers.Player) | (1 << PhysicsLayers.Item);
+
+            platform.AddComponent(new MovingPlatform(
+                axis,
+                Constants.MovingPlatformDistance,
+                Constants.MovingPlatformSpeed));
         }
 
         void CreateMushroom(Scene scene, TmxObject obj)
