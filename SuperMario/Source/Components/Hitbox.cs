@@ -11,7 +11,7 @@ namespace SuperMario
                 return;
 
             Audio.PlaySfx(Assets.Sfx.PlayerHit);
-            player.KillPlayer();
+            player.TakeHit();
         }
 
         public void OnTriggerExit(Collider other, Collider local) { }

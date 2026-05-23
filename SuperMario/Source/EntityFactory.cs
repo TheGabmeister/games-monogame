@@ -242,6 +242,7 @@ namespace SuperMario
             collider.PhysicsLayer = 1 << PhysicsLayers.Environment;
             collider.CollidesWithLayers = 1 << PhysicsLayers.Player;
             collider.IsTrigger = true;
+            killVolume.AddComponent(new KillVolume());
         }
     }
 }

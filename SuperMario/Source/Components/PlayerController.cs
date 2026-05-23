@@ -104,6 +104,18 @@ namespace SuperMario
             Entity.Destroy();
         }
 
+        public void TakeHit()
+        {
+            if (_state == PlayerState.Small)
+            {
+                KillPlayer();
+                return;
+            }
+
+            SetState(PlayerState.Small);
+            Entity.Position += new Vector2(0, (BigHeight - SmallHeight) / 2f);
+        }
+
         public void SetGameState(GameState gameState)
         {
             _gameState = gameState;

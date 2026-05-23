@@ -11,8 +11,6 @@ namespace SuperMario
                 player.KillPlayer();
         }
 
-        public void OnTriggerExit(Collider other, Collider local)
-        {
-        }
+        public void OnTriggerExit(Collider other, Collider local) { }
     }
 }
