@@ -45,6 +45,17 @@ To match a sprite drawn from the entity center, always pass `(-w/2, -h/2, w, h)`
 
 `BoxCollider.SetSize` calls `Physics.UpdateCollider(this)` when the entity is in a scene. You don't need to manually re-register.
 
+## HUD rendering with `ScreenSpaceRenderer`
+
+`ScreenSpaceRenderer`'s camera is created lazily on the first `OnSceneBackBufferSizeChanged`; before then the renderer falls back to an **identity transform**. So HUD entities should be positioned in **raw backbuffer pixels with `(0,0)` at the upper-left** — not the centered (0,0)-is-screen-center convention you'd expect from a normal camera.
+
+Standard pair for a gameplay scene with a HUD:
+
+```csharp
+AddRenderer(new RenderLayerExcludeRenderer(0, RenderLayers.Hud));   // world
+AddRenderer(new ScreenSpaceRenderer(1, RenderLayers.Hud));          // HUD
+```
+
 ## Renderables
 
 ### Mutate `PrototypeSpriteRenderer` in place
