@@ -36,13 +36,15 @@ namespace Extended.Systems
                 var transform = _transformMapper.Get(entityId);
                 var sprite = _spriteMapper.Get(entityId);
 
-                var textureSize = new Vector2(sprite.Texture.Width, sprite.Texture.Height);
-                var scale = sprite.Size / textureSize * transform.Scale;
+                var frameSize = sprite.SourceRect.HasValue
+                    ? new Vector2(sprite.SourceRect.Value.Width, sprite.SourceRect.Value.Height)
+                    : new Vector2(sprite.Texture.Width, sprite.Texture.Height);
+                var scale = sprite.Size / frameSize * transform.Scale;
 
                 _spriteBatch.Draw(
                     sprite.Texture,
                     transform.Position,
-                    null,
+                    sprite.SourceRect,
                     sprite.Color,
                     transform.Rotation,
                     sprite.Origin,

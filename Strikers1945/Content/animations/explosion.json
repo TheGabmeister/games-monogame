@@ -1,0 +1,8 @@
+{
+  "sheet": "sprites/fx/explosion",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "loop": "Once",
+  "fps": 18,
+  "frames": [0, 1, 2, 3, 4, 5]
+}

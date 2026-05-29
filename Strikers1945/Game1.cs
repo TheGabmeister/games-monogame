@@ -27,26 +27,40 @@ namespace Extended
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // WeaponSystem needs the EntityFactory, but the factory needs the World,
-            // which only exists after Build(). So build the world first, then inject
-            // the factory into the systems that spawn entities.
+            var animations = new AnimationLibrary(Content);
+            animations.Load();
+            var audio = new AudioManager(Content);
+
+            // Spawning/reacting systems need the EntityFactory, but the factory needs the
+            // World, which only exists after Build(). So build the world first, then inject
+            // the factory and shared services into the systems that need them (see AGENTS.md).
             var weaponSystem = new WeaponSystem();
+            var enemySpawnSystem = new EnemySpawnSystem();
+            var collisionSystem = new CollisionSystem();
+            var damageSystem = new DamageSystem();
 
             _world = new WorldBuilder()
                 .AddSystem(new InputSystem())
                 .AddSystem(new PlayerControlSystem())
                 .AddSystem(weaponSystem)
+                .AddSystem(enemySpawnSystem)
                 .AddSystem(new MovementSystem())
+                .AddSystem(collisionSystem)
+                .AddSystem(damageSystem)
                 .AddSystem(new LifetimeSystem())
+                .AddSystem(new AnimationSystem(animations))
                 .AddSystem(new RenderSystem(_spriteBatch))
                 .Build();
 
-            var factory = new EntityFactory(_world, Content);
+            var factory = new EntityFactory(_world, Content, animations);
             weaponSystem.Factory = factory;
-            weaponSystem.Audio = new AudioManager(Content);
+            weaponSystem.Audio = audio;
+            enemySpawnSystem.Factory = factory;
+            collisionSystem.Audio = audio;
+            damageSystem.Factory = factory;
+            damageSystem.Audio = audio;
 
-            factory.CreatePlayer(
-                new Vector2(VirtualResolution.Width / 2f, VirtualResolution.Height - 100f));
+            factory.CreatePlayer(EntityFactory.PlayerSpawn);
         }
 
         protected override void Update(GameTime gameTime)

@@ -6,21 +6,34 @@ using MonoGame.Extended.ECS;
 
 namespace Extended
 {
-    // Single place that assembles configured entities from components, so systems
-    // never new-up components inline. Grows a Create* method per entity kind
-    // (CreateEnemy, CreatePowerUp) in later phases. Textures are pulled from the
-    // ContentManager, which caches, so repeated loads are cheap.
+    // Single place that assembles configured entities from components, so systems never
+    // new-up components inline. Grows a Create* method per entity kind as phases land.
+    // Textures are pulled from the ContentManager, which caches, so repeated loads are cheap.
     public class EntityFactory
     {
+        // Where the player starts and respawns. Used by Game1 (initial spawn) and the
+        // DamageSystem (respawn after death), so both agree on one location.
+        public static Vector2 PlayerSpawn =>
+            new(VirtualResolution.Width / 2f, VirtualResolution.Height - 100f);
+
         private readonly World _world;
+        private readonly AnimationLibrary _animations;
+
         private readonly Texture2D _shipTexture;
         private readonly Texture2D _bulletTexture;
+        private readonly Texture2D _popcornTexture;
+        private readonly Texture2D _fighterTexture;
+        private readonly Texture2D _gunshipTexture;
 
-        public EntityFactory(World world, ContentManager content)
+        public EntityFactory(World world, ContentManager content, AnimationLibrary animations)
         {
             _world = world;
+            _animations = animations;
             _shipTexture = content.Load<Texture2D>("sprites/player/player_ship");
             _bulletTexture = content.Load<Texture2D>("sprites/bullets/bullet_player");
+            _popcornTexture = content.Load<Texture2D>("sprites/enemies/enemy_popcorn");
+            _fighterTexture = content.Load<Texture2D>("sprites/enemies/enemy_fighter");
+            _gunshipTexture = content.Load<Texture2D>("sprites/enemies/enemy_gunship");
         }
 
         public Entity CreatePlayer(Vector2 position)
@@ -30,6 +43,9 @@ namespace Extended
             entity.Attach(new Player(speed: 300f));
             entity.Attach(new Weapon(fireInterval: 0.15f, bulletSpeed: 600f, damage: 1));
             entity.Attach(new Sprite(_shipTexture, new Vector2(48, 48), layerDepth: 0.5f));
+            entity.Attach(new Health(1));
+            // Tiny hitbox at the ship's center — bullet-hell fair (see PLAN.md §4).
+            entity.Attach(new CircleCollider(4f, CollisionLayer.Player, CollisionLayer.Enemy));
             return entity;
         }
 
@@ -42,6 +58,49 @@ namespace Extended
             entity.Attach(new Lifetime(despawnWhenOffscreen: true));
             // Drawn behind the ship so the muzzle reads cleanly.
             entity.Attach(new Sprite(_bulletTexture, new Vector2(8, 16), layerDepth: 0.4f));
+            entity.Attach(new CircleCollider(4f, CollisionLayer.PlayerBullet, CollisionLayer.Enemy));
+            return entity;
+        }
+
+        public Entity CreateEnemy(EnemyType type, Vector2 position, Vector2 velocity)
+        {
+            // Per-archetype draw size, hit points, and score (see PLAN.md §7).
+            var (texture, size, hp, score) = type switch
+            {
+                EnemyType.Popcorn => (_popcornTexture, 32f, 2, 100),
+                EnemyType.Fighter => (_fighterTexture, 40f, 4, 200),
+                _                 => (_gunshipTexture, 64f, 10, 500),
+            };
+
+            var entity = _world.CreateEntity();
+            entity.Attach(new Transform(position));
+            entity.Attach(new Velocity(velocity));
+            entity.Attach(new Sprite(texture, new Vector2(size), layerDepth: 0.6f));
+            entity.Attach(new Enemy(type, score));
+            entity.Attach(new Health(hp));
+            // Passive layer (no mask): player + player bullets mask the enemy instead.
+            entity.Attach(new CircleCollider(size * 0.45f, CollisionLayer.Enemy));
+            entity.Attach(new Lifetime(despawnWhenOffscreen: true));
+            return entity;
+        }
+
+        public Entity CreateExplosion(Vector2 position)
+        {
+            var clip = _animations.Get("explosion");
+            if (clip == null)
+                return null;
+
+            var frame = clip.Frames[0];
+            var entity = _world.CreateEntity();
+            entity.Attach(new Transform(position));
+            entity.Attach(new Sprite(
+                clip.Texture,
+                new Vector2(frame.Width, frame.Height),
+                layerDepth: 0.1f,
+                sourceRect: frame));
+            entity.Attach(new Animator("explosion"));
+            // Lives exactly as long as the one-shot clip, then despawns (see PLAN.md §5).
+            entity.Attach(Lifetime.Timer(clip.Duration));
             return entity;
         }
     }

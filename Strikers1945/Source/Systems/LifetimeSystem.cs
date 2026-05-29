@@ -26,7 +26,19 @@ namespace Extended.Systems
 
         public override void Process(GameTime gameTime, int entityId)
         {
-            if (!_lifetimeMapper.Get(entityId).DespawnWhenOffscreen)
+            var lifetime = _lifetimeMapper.Get(entityId);
+
+            if (lifetime.HasTimer)
+            {
+                lifetime.SecondsRemaining -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (lifetime.SecondsRemaining <= 0f)
+                {
+                    DestroyEntity(entityId);
+                    return;
+                }
+            }
+
+            if (!lifetime.DespawnWhenOffscreen)
                 return;
 
             var pos = _transformMapper.Get(entityId).Position;

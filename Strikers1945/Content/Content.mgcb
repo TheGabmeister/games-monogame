@@ -296,3 +296,6 @@
 /processorParam:Quality=Best
 /build:audio/music/music_gameover.ogg
 
+#begin animations/explosion.json
+/copy:animations/explosion.json
+

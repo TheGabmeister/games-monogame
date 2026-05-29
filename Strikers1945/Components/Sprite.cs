@@ -13,16 +13,23 @@ namespace Extended.Components
         public Color Color;
         public float LayerDepth;
         public Vector2 Origin;
+        // Which part of the texture to draw. null = the whole texture; the
+        // AnimationSystem sets this per frame for sprite-sheet animations.
+        public Rectangle? SourceRect;
 
-        public Sprite(Texture2D texture, Vector2 size, Color? color = null, float layerDepth = 0f)
+        public Sprite(Texture2D texture, Vector2 size, Color? color = null, float layerDepth = 0f,
+                      Rectangle? sourceRect = null)
         {
             Texture = texture;
             Size = size;
             Color = color ?? Color.White;
             LayerDepth = layerDepth;
-            // Centered origin: position is the center of the sprite, which also
-            // makes rotation and the gameplay hitbox line up at the middle.
-            Origin = new Vector2(texture.Width / 2f, texture.Height / 2f);
+            SourceRect = sourceRect;
+            // Centered origin in the drawn frame's local space: position is the center
+            // of the sprite, so rotation and the gameplay hitbox line up at the middle.
+            // For an animated sprite the frame size, not the whole sheet, sets the center.
+            var frame = sourceRect ?? new Rectangle(0, 0, texture.Width, texture.Height);
+            Origin = new Vector2(frame.Width / 2f, frame.Height / 2f);
         }
     }
 }
