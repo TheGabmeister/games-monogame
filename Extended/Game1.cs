@@ -1,6 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+using Extended.Components;
+using Extended.Systems;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.ECS;
 
 namespace Extended
 {
@@ -8,6 +11,8 @@ namespace Extended
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private World _world;
+        private Entity _playerEntity;
 
         public Game1()
         {
@@ -18,8 +23,6 @@ namespace Extended
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
         }
 
@@ -27,7 +30,21 @@ namespace Extended
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            _world = new WorldBuilder()
+                .AddSystem(new PlayerSystem())
+                .AddSystem(new RenderSystem(_spriteBatch))
+                .Build();
+
+            // A 1x1 white pixel stands in for a sprite so this runs with no content assets.
+            // To use a real sprite instead: _playerEntity.Attach(Content.Load<Texture2D>("your-asset"));
+            var pixel = new Texture2D(GraphicsDevice, 1, 1);
+            pixel.SetData(new[] { Color.White });
+
+            _playerEntity = _world.CreateEntity();
+            _playerEntity.Attach(pixel);
+            _playerEntity.Attach(new Player(100,
+                new Vector2(GraphicsDevice.Viewport.Width / 2,
+                            GraphicsDevice.Viewport.Height / 2)));
         }
 
         protected override void Update(GameTime gameTime)
@@ -35,8 +52,7 @@ namespace Extended
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-
+            _world.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -44,7 +60,7 @@ namespace Extended
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            _world.Draw(gameTime);
 
             base.Draw(gameTime);
         }
