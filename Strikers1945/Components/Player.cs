@@ -2,15 +2,18 @@ using Microsoft.Xna.Framework;
 
 namespace Extended.Components
 {
+    // Tags the player-controlled entity and holds its control state. InputSystem
+    // writes the intent (MoveDirection); PlayerControlSystem consumes it.
+    // Weapon level, bombs, lives and invuln timer get added in later phases.
     public class Player
     {
-        public int Speed = 100;
-        public Vector2 Position;
+        public float Speed;            // virtual pixels per second
+        public Vector2 MoveDirection;  // normalized intent from InputSystem
+        public bool Firing;            // fire-button intent from InputSystem
 
-        public Player(int speed, Vector2 position)
+        public Player(float speed)
         {
             Speed = speed;
-            Position = position;
         }
     }
 }

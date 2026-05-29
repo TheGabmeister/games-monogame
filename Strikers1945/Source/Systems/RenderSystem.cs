@@ -6,35 +6,51 @@ using MonoGame.Extended.ECS.Systems;
 
 namespace Extended.Systems
 {
-    internal class RenderSystem : EntityDrawSystem
+    // Draws every entity that has a Transform + Sprite. The texture is scaled to
+    // the sprite's requested Size, so 1x1 placeholder pixels render as quads of
+    // any size and real sprites drop in unchanged later.
+    public class RenderSystem : EntityDrawSystem
     {
         private readonly SpriteBatch _spriteBatch;
-        private ComponentMapper<Texture2D> _textureMapper;
-        private ComponentMapper<Player> _playerMapper;
+        private ComponentMapper<Transform> _transformMapper;
+        private ComponentMapper<Sprite> _spriteMapper;
 
         public RenderSystem(SpriteBatch spriteBatch)
-            : base(Aspect.All(typeof(Texture2D), typeof(Player)))
+            : base(Aspect.All(typeof(Transform), typeof(Sprite)))
         {
             _spriteBatch = spriteBatch;
         }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
-            _textureMapper = mapperService.GetMapper<Texture2D>();
-            _playerMapper = mapperService.GetMapper<Player>();
+            _transformMapper = mapperService.GetMapper<Transform>();
+            _spriteMapper = mapperService.GetMapper<Sprite>();
         }
 
         public override void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(SpriteSortMode.BackToFront, samplerState: SamplerState.PointClamp);
+
             foreach (var entityId in ActiveEntities)
             {
-                var texture = _textureMapper.Get(entityId);
-                var player = _playerMapper.Get(entityId);
-                _spriteBatch.Draw(texture,
-                    new Rectangle((int)player.Position.X, (int)player.Position.Y, 64, 64),
-                    Color.White);
+                var transform = _transformMapper.Get(entityId);
+                var sprite = _spriteMapper.Get(entityId);
+
+                var textureSize = new Vector2(sprite.Texture.Width, sprite.Texture.Height);
+                var scale = sprite.Size / textureSize * transform.Scale;
+
+                _spriteBatch.Draw(
+                    sprite.Texture,
+                    transform.Position,
+                    null,
+                    sprite.Color,
+                    transform.Rotation,
+                    sprite.Origin,
+                    scale,
+                    SpriteEffects.None,
+                    sprite.LayerDepth);
             }
+
             _spriteBatch.End();
         }
     }

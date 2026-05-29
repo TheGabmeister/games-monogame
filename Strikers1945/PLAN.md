@@ -44,22 +44,23 @@ So we agree on the inspiration before trimming to scope:
 ## 3. ECS Architecture
 
 We extend the existing setup (`Components/` = plain data, `Source/Systems/` = behavior).
-The current `Player` component bundles position+speed; we split that into small reusable
-components so systems compose. (On where we *don't* force ECS, see §6.)
+Phase 0 already split the original position+speed `Player` into small reusable components
+(`Transform`/`Velocity`/`Sprite`); `Player` is now just a tag + control-state component, so
+systems compose. (On where we *don't* force ECS, see §6.)
 
 ### Components (data only)
 | Component | Fields | Used by |
 |---|---|---|
 | `Transform` | `Vector2 Position`, `float Rotation`, `float Scale` | everything visible |
 | `Velocity` | `Vector2 Value` | MovementSystem |
-| `Sprite` | `Texture2D`, source rect, `Vector2 Origin`, `Color`, `float LayerDepth` | RenderSystem |
-| `Player` | input state, weapon level, bomb count, lives, invuln timer | PlayerControlSystem |
+| `Sprite` | `Texture2D`, `Vector2 Size`, `Vector2 Origin`, `Color`, `float LayerDepth`, `Rectangle? SourceRect` (null = whole texture) | RenderSystem |
+| `Animator` | clip id, elapsed, speed, queued clip id | AnimationSystem (writes current frame's rect → `Sprite.SourceRect`) |
+| `Player` | speed, input intent (move/fire); + weapon level, bombs, lives, invuln timer (later phases) | PlayerControlSystem |
 | `Enemy` | type id, score value, path id | EnemyAISystem |
-| `Weapon` | fire interval, cooldown timer, pattern id, level | WeaponSystem |
+| `Weapon` | fire interval, cooldown, bullet speed, damage (+ pattern id/level later) | WeaponSystem |
 | `Bullet` | damage | CollisionSystem |
-| `Faction` | `enum { Player, Enemy }` | CollisionSystem (who hits whom) |
 | `Health` | `int Current/Max` | DamageSystem |
-| `CircleCollider` | `float Radius` | CollisionSystem |
+| `CircleCollider` | `float Radius`, `CollisionLayer Layer`, `CollisionLayer Mask` | CollisionSystem |
 | `Lifetime` | seconds remaining, or "despawn when offscreen" flag | LifetimeSystem |
 | `MovementPattern` | path/script id + elapsed time | MovementPatternSystem |
 | `Emitter` | bullet-pattern descriptor + timers | EmitterSystem |
@@ -75,12 +76,13 @@ Tag-style components (`Player`, `Bullet`) double as filters for `Aspect.All(...)
 5. `EnemyAISystem` / `MovementPatternSystem` — drive enemy + scripted-bullet motion.
 6. `EmitterSystem` — enemies emit bullet patterns (aimed/spread/ring/spiral).
 7. `MovementSystem` — `Position += Velocity * dt` for everything plain-moving.
-8. `CollisionSystem` — circle checks across factions (see §4).
+8. `CollisionSystem` — circle checks filtered by layer/mask (see §4).
 9. `DamageSystem` — apply damage, kill at 0 HP, spawn pickups/explosions.
 10. `LifetimeSystem` — despawn expired / offscreen entities (bullet cleanup).
 11. `BackgroundScrollSystem` — scroll the stage.
-12. `RenderSystem` — draw sprites by layer (generalized from the current square-drawer).
-13. `HudSystem` — score, lives, bombs.
+12. `AnimationSystem` — advance `Animator` clips; write the current frame's source-rect into `Sprite`.
+13. `RenderSystem` — draw all `Transform`+`Sprite` entities by `LayerDepth` (back-to-front, PointClamp); honors `Sprite.SourceRect` once animation lands.
+14. `HudSystem` — score, lives, bombs.
 
 ### EntityFactory
 A single `EntityFactory` (per the StarWarrior sample referenced in AGENTS.md) builds
@@ -91,15 +93,27 @@ configured entities: `CreatePlayer()`, `CreateEnemy(type, pos)`, `CreateBullet(.
 
 ## 4. Key Technical Decisions
 
-- **Resolution.** Fixed **600×800 portrait** virtual canvas, scaled to the window. All
-  spawn/hitbox math is in virtual pixels so it's window-size independent.
+- **Resolution.** Fixed **600×800 portrait** virtual canvas (`VirtualResolution`). All
+  spawn/hitbox math is in virtual pixels so it's window-size independent. Phase 0 sizes the
+  back buffer to the canvas; render-target scaling to an arbitrary window is a Phase 5 polish step.
 - **Input.** Keyboard **and** gamepad from the start. `InputSystem` normalizes both into a
   single intent (move vector, fire, bomb) so no other system cares which device is used.
-- **Collision = circles.** Bullet hell standard. The player's hitbox is much smaller than
-  its sprite (~3–4px). Pairs we actually test:
-  - enemy bullets → player (1 player, so O(bullets) — cheap)
-  - player bullets → enemies (few enemies — cheap)
-  - player → power-ups / enemies (graze/ram)
+- **Collision = circles + layer masks.** Bullet hell standard; the player's hitbox is much
+  smaller than its sprite (~3–4px). Each `CircleCollider` carries a `Layer` (what it *is*)
+  and a `Mask` (what it collides with), both a `[Flags] enum CollisionLayer { Player,
+  PlayerBullet, Enemy, EnemyBullet, PowerUp }`. `CollisionSystem` reports a hit for a pair
+  when `(a.Layer & b.Mask) != 0` in either ordering, so passive entities (enemies, power-ups)
+  carry no mask and are detected by whoever masks them. Default layer/mask assignments live
+  in `EntityFactory`:
+
+  | Entity | Layer | Mask (collides with) |
+  |---|---|---|
+  | Player ship | `Player` | `Enemy, EnemyBullet, PowerUp` |
+  | Player bullet | `PlayerBullet` | `Enemy` |
+  | Enemy | `Enemy` | *(none — others mask it)* |
+  | Enemy bullet | `EnemyBullet` | `Player` |
+  | Power-up | `PowerUp` | *(none — player masks it)* |
+
   Brute force is fine at v1 scale; revisit spatial hashing only if profiling demands it.
 - **Bullets: naive create/destroy first.** Create and destroy bullet entities each frame
   as needed — no pooling yet. If GC/perf hurts under dense patterns, add object pooling
@@ -107,32 +121,61 @@ configured entities: `CreatePlayer()`, `CreateEnemy(type, pos)`, `CreateBullet(.
 - **Bullet patterns as data.** Patterns (spread count, angle, speed, spiral rate) live in
   the `Emitter`/`MovementPattern` component as parameters, not hardcoded per enemy — so we
   author enemies by tuning numbers, not writing code.
-- **Frame-rate independence.** Scale all motion by `gameTime` dt. The current
-  `PlayerSystem` moves by a fixed `+= 5` per frame — Phase 0 fixes this.
-- **Assets.** Placeholder sprites only for now (see §7). Real art/SFX is a later pass.
+- **Frame-rate independence.** Scale all motion by frame delta seconds — done in Phase 0;
+  `MovementSystem` integrates `Position += Velocity * dt`. Never move by a fixed per-frame amount.
+- **Animation = data-driven, ECS-owned playback.** Three-way split so it scales to v2 (bosses,
+  banking, charge) without refactor. Clip *definitions* (frames, per-frame duration, loop mode
+  `Once/Loop/PingPong/HoldLast`, optional frame triggers) live in an `AnimationLibrary`
+  singleton — loaded once, shared across all instances (100 enemies share one clip). Per-entity
+  state is the `Animator` component (pure data). `AnimationSystem` advances it and writes the
+  current frame's source-rect into `Sprite`, so `RenderSystem` stays animation-agnostic.
+  Gameplay systems only set `Animator.ClipId`; the system plays whatever is set, so new states
+  need no system changes. We own the frame-stepping (not Extended's `AnimatedSprite`) to get
+  frame triggers (muzzle flash, SFX-on-frame, active-frame hitboxes). Use Extended's
+  `Texture2DAtlas`/`Texture2DRegion` for slicing only. `Clip` is plain data deserialized from
+  JSON under `Content/animations/` at startup — **JSON from v1**, no code-defined clips, so the
+  authoring path never moves. Each clip JSON names its sprite-sheet load path, grid size, frame
+  indices, loop mode, fps/per-frame duration, and triggers; `AnimationLibrary` loads the texture
+  via `Content.Load`, slices it, and registers the clip by id.
+- **Assets.** Real placeholder sprites exist under `Content/sprites/` and placeholder audio
+  under `Content/audio/`, wired in per phase as entities are introduced (see §5 / §7 / §8).
+  `AudioManager` already plays one-shot SFX (starting with the player shot); broader SFX/music
+  hookup lands as the relevant systems do.
 
 ---
 
 ## 5. Phased Roadmap (vertical slices)
 
-Each phase ends in something runnable.
+Each phase ends in something runnable. Real sprites already exist under `Content/sprites/`
+(see §7), so each phase wires the relevant art into its `EntityFactory.Create*` methods as
+the entities are introduced — rather than deferring all art to the end.
 
-- **Phase 0 — Foundation.** Set 600×800 portrait canvas. Split `Player` into
+- **Phase 0 — Foundation.** ✅ *Done.* Set 600×800 portrait canvas. Split `Player` into
   `Transform`/`Velocity`/`Sprite`; add the generalized `RenderSystem` + `MovementSystem` +
-  `EntityFactory`; add `InputSystem` (keyboard+gamepad); actually spawn the player; clamp
-  movement to screen bounds. *(Today no player entity is created, so nothing renders — this
-  phase fixes that.)*
-- **Phase 1 — Player shooting.** `Weapon` + `WeaponSystem`; player bullets travel up and
-  despawn offscreen via `LifetimeSystem`.
+  `EntityFactory`; add `InputSystem` (keyboard+gamepad); spawn the player; clamp movement
+  to screen bounds.
+  *Sprites:* `sprites/player/player_ship`.
+- **Phase 1 — Player shooting.** ✅ *Done.* `Weapon` + `WeaponSystem`; player bullets travel
+  up and despawn offscreen via `LifetimeSystem`.
+  *Sprites:* `sprites/bullets/bullet_player`.
 - **Phase 2 — Enemies & combat.** `EnemySpawnSystem`, basic moving enemies, `CircleCollider`
-  + `CollisionSystem` + `Health`/`DamageSystem`; killing enemies and dying.
+  (with `CollisionLayer` layer/mask) + `CollisionSystem` + `Health`/`DamageSystem`; killing
+  enemies and dying. Introduces `AnimationLibrary` + `Animator` + `AnimationSystem` (and adds
+  `Sprite.SourceRect`, which `RenderSystem` starts honoring), scoped to a single `explosion`
+  clip defined in `animations/explosion.json` (`Once`, self-despawns via `Lifetime`) — this
+  stands up the JSON clip loader so later clips are pure data, no new code.
+  *Sprites:* `sprites/enemies/enemy_popcorn`, `enemy_fighter`, `enemy_gunship`;
+  `sprites/fx/explosion` on death.
 - **Phase 3 — Bullet hell.** `EmitterSystem` with parameterized patterns (aimed, spread,
   ring, spiral); tiny player hitbox; invulnerability frames on respawn.
+  *Sprites:* `sprites/bullets/bullet_enemy_round`, `bullet_enemy_needle`.
 - **Phase 4 — Stage & arcade loop.** Scrolling background, a full wave timeline ending in
   STAGE CLEAR, score/lives/bomb HUD, bomb that clears bullets, power-up drops that level
   the weapon, game-over.
+  *Sprites:* `backgrounds/bg_tile`; `sprites/powerups/powerup_weapon`, `powerup_bomb`,
+  `powerup_score`; `sprites/hud/hud_life_icon`, `hud_bomb_icon`.
 - **Phase 5 — Polish.** Title/game-over/pause screens, explosion particles, SFX/music
-  hooks, difficulty tuning. (Real art swaps in for placeholders here.)
+  hooks, difficulty tuning, banking frames (`player_ship_left`/`_right`).
 
 Post-v1 candidates: **boss fights**, charge shot, multiple ships, stage 2, medal chains.
 
@@ -150,7 +193,7 @@ Post-v1 candidates: **boss fights**, charge shot, multiple ships, stage 2, medal
    plain classes the systems read from, rather than contorted into the ECS.
 5. **Performance:** start with naive create/destroy; add pooling only if measured perf
    demands it.
-6. **Assets:** placeholder sprites only for now (see §7).
+6. **Assets:** placeholder sprites and SFX/music only for now (see §7–§8).
 
 ---
 
@@ -200,8 +243,9 @@ screen). Simple, readable, single-frame PNGs with transparency unless noted. Hit
 | `hud_bomb_icon` | ~24×24 | Small bomb icon for bomb stock. |
 | Font | — | A bitmap/SpriteFont for score & "STAGE CLEAR"/"GAME OVER". |
 
-Until these arrive, every entity renders as a solid colored quad (the current 1×1-pixel
-approach), so development is never blocked on art.
+These now exist and are wired in per phase. The `RenderSystem` scales any texture to the
+requested `Size`, so a 1×1 placeholder pixel still stands in for anything not yet authored —
+development is never blocked on art.
 
 ---
 
@@ -229,7 +273,9 @@ to layer — many can play at once during dense fire.
 | `music_title` | loop (.ogg) | Title screen music. |
 | `music_gameover` | one-shot/short | Game-over sting. |
 
-Until these arrive, the SFX/music systems are wired as no-ops, so audio is never a blocker.
+These now exist. `AudioManager` (`Source/AudioManager.cs`) loads one-shot SFX on demand and
+silently ignores any sound not yet authored, so audio is never a blocker. Music playback
+wiring comes later.
 
 ---
 
@@ -252,6 +298,7 @@ Content/
     powerups/             # powerup_weapon/bomb/score
     fx/                   # explosion sheet
     hud/                  # life/bomb icons
+  animations/             # *.json clip definitions (raw-copied, NOT pipeline-built)
   backgrounds/            # bg_tile
   fonts/                  # SpriteFont (.spritefont) for score / messages
   audio/
@@ -263,7 +310,13 @@ Load-path convention (mirrors the folders): `sprites/enemies/enemy_fighter`,
 `audio/sfx/sfx_bomb`, `fonts/main`, etc.
 
 ### What goes where
-- **`Content/`** — anything the game loads at runtime (sprites, audio, fonts). Pipeline-built.
+- **`Content/`** — anything the game loads at runtime (sprites, audio, fonts). Pipeline-built
+  into `.xnb`, except the animation JSON below.
+- **`Content/animations/*.json`** — clip definitions, the one exception: **raw-copied, not
+  pipeline-built** (no `.xnb`). Read with `TitleContainer.OpenStream` + `System.Text.Json` at
+  startup, not `Content.Load<T>`. In `Content.mgcb` add them with `/copy:` (build action Copy)
+  so they land in `bin/.../Content/animations/`. The *sprite sheets* they reference are normal
+  pipeline-built textures loaded via `Content.Load<Texture2D>`.
 - **`Assets/`** (already exists) — build-time/app resources that are *not* loaded through the
   content pipeline: the app icon (`Icon.ico`/`Icon.bmp`) and `app.manifest`. Leave as-is.
 - **Source art** (artist's layered `.aseprite`/`.psd`, raw audio project files) does **not**

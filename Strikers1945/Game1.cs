@@ -1,4 +1,3 @@
-using Extended.Components;
 using Extended.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,47 +8,51 @@ namespace Extended
 {
     public class Game1 : Game
     {
-        private GraphicsDeviceManager _graphics;
+        private readonly GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private World _world;
-        private Entity _playerEntity;
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = VirtualResolution.Width,
+                PreferredBackBufferHeight = VirtualResolution.Height,
+            };
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            // WeaponSystem needs the EntityFactory, but the factory needs the World,
+            // which only exists after Build(). So build the world first, then inject
+            // the factory into the systems that spawn entities.
+            var weaponSystem = new WeaponSystem();
+
             _world = new WorldBuilder()
-                .AddSystem(new PlayerSystem())
+                .AddSystem(new InputSystem())
+                .AddSystem(new PlayerControlSystem())
+                .AddSystem(weaponSystem)
+                .AddSystem(new MovementSystem())
+                .AddSystem(new LifetimeSystem())
                 .AddSystem(new RenderSystem(_spriteBatch))
                 .Build();
 
-            // A 1x1 white pixel stands in for a sprite so this runs with no content assets.
-            // To use a real sprite instead: _playerEntity.Attach(Content.Load<Texture2D>("your-asset"));
-            var pixel = new Texture2D(GraphicsDevice, 1, 1);
-            pixel.SetData(new[] { Color.White });
+            var factory = new EntityFactory(_world, Content);
+            weaponSystem.Factory = factory;
+            weaponSystem.Audio = new AudioManager(Content);
 
-            _playerEntity = _world.CreateEntity();
-            _playerEntity.Attach(pixel);
-            _playerEntity.Attach(new Player(100,
-                new Vector2(GraphicsDevice.Viewport.Width / 2,
-                            GraphicsDevice.Viewport.Height / 2)));
+            factory.CreatePlayer(
+                new Vector2(VirtualResolution.Width / 2f, VirtualResolution.Height - 100f));
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             _world.Update(gameTime);
@@ -59,9 +62,7 @@ namespace Extended
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
             _world.Draw(gameTime);
-
             base.Draw(gameTime);
         }
     }
