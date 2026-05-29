@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="armor" x1="0" y1="8" x2="0" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e8e1cf"/>
+      <stop offset="0.5" stop-color="#797a6b"/>
+      <stop offset="1" stop-color="#2e3432"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#0f1412" stroke-width="2" stroke-linejoin="round">
+    <path d="M32 6 L42 23 L61 33 L45 39 L40 56 L32 49 L24 56 L19 39 L3 33 L22 23 Z" fill="#666f66"/>
+    <path d="M32 8 C42 20 45 40 36 58 L32 62 L28 58 C19 40 22 20 32 8 Z" fill="url(#armor)"/>
+    <path d="M25 20 C27 13 37 13 39 20 L39 30 L25 30 Z" fill="#202b39"/>
+    <path d="M27 21 C29 17 35 17 37 21 L37 26 L27 26 Z" fill="#8bd7ff"/>
+    <circle cx="18" cy="38" r="4" fill="#d3b84b"/>
+    <circle cx="46" cy="38" r="4" fill="#d3b84b"/>
+    <path d="M12 36 L12 46" stroke="#171b1a" stroke-width="4" stroke-linecap="round"/>
+    <path d="M52 36 L52 46" stroke="#171b1a" stroke-width="4" stroke-linecap="round"/>
+    <path d="M28 45 L36 45 L34 55 L30 55 Z" fill="#242927"/>
+  </g>
+</svg>

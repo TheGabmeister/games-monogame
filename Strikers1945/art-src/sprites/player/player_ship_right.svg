@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <g transform="rotate(10 24 24)">
+    <defs>
+      <linearGradient id="body" x1="0" y1="4" x2="0" y2="44" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#f4fbff"/>
+        <stop offset="0.52" stop-color="#67c8ec"/>
+        <stop offset="1" stop-color="#1f5f9b"/>
+      </linearGradient>
+      <linearGradient id="wing" x1="6" y1="18" x2="42" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#d6f7ff"/>
+        <stop offset="1" stop-color="#2381c6"/>
+      </linearGradient>
+    </defs>
+    <g stroke="#07121e" stroke-width="1.5" stroke-linejoin="round">
+      <path d="M24 3 L30 19 L44 29 L31 33 L28 43 L24 38 L20 43 L17 33 L4 29 L18 19 Z" fill="url(#wing)"/>
+      <path d="M24 4 C29 13 30 26 27 39 L24 44 L21 39 C18 26 19 13 24 4 Z" fill="url(#body)"/>
+      <path d="M21 16 C22 11 26 11 27 16 L27 24 L21 24 Z" fill="#1b2f54"/>
+      <path d="M22 17 C23 14 25 14 26 17 L26 20 L22 20 Z" fill="#9be8ff" opacity="0.88"/>
+      <path d="M16 30 L9 34 L18 35 Z" fill="#f2d14c"/>
+      <path d="M33 30 L41 34 L30 35 Z" fill="#f2d14c"/>
+      <circle cx="24" cy="31" r="2.2" fill="#ffffff"/>
+    </g>
+  </g>
+</svg>

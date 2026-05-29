@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="64" viewBox="0 0 384 64">
+  <defs>
+    <radialGradient id="hot" cx="50%" cy="45%" r="55%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.3" stop-color="#ffe56b"/>
+      <stop offset="0.62" stop-color="#ff6b2b"/>
+      <stop offset="1" stop-color="#631018" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g>
+    <circle cx="32" cy="32" r="8" fill="url(#hot)"/>
+    <circle cx="96" cy="32" r="15" fill="url(#hot)"/>
+    <circle cx="91" cy="27" r="7" fill="#fff3a0"/>
+    <circle cx="160" cy="32" r="23" fill="url(#hot)"/>
+    <path d="M160 6 L167 24 L188 18 L174 34 L193 48 L169 45 L160 61 L151 45 L127 48 L146 34 L132 18 L153 24 Z" fill="#ff8d28" opacity="0.85"/>
+    <circle cx="224" cy="32" r="27" fill="url(#hot)"/>
+    <path d="M224 4 L232 25 L257 18 L239 36 L259 54 L232 49 L224 62 L216 49 L189 54 L209 36 L191 18 L216 25 Z" fill="#ffd85a" opacity="0.72"/>
+    <circle cx="288" cy="32" r="24" fill="#7e2024" opacity="0.55"/>
+    <circle cx="279" cy="25" r="15" fill="#ff8d28" opacity="0.65"/>
+    <circle cx="299" cy="35" r="12" fill="#ffe56b" opacity="0.5"/>
+    <circle cx="352" cy="32" r="28" fill="#4b342f" opacity="0.28"/>
+    <circle cx="339" cy="26" r="13" fill="#8c4b32" opacity="0.45"/>
+    <circle cx="363" cy="36" r="16" fill="#61202a" opacity="0.36"/>
+  </g>
+</svg>
