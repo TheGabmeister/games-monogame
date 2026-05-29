@@ -206,3 +206,93 @@
 /processorParam:TextureFormat=Color
 /build:sprites/hud/hud_bomb_icon.png
 
+#begin audio/sfx/sfx_player_shot.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_player_shot.wav
+
+#begin audio/sfx/sfx_enemy_shot.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_enemy_shot.wav
+
+#begin audio/sfx/sfx_enemy_hit.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_enemy_hit.wav
+
+#begin audio/sfx/sfx_enemy_explode.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_enemy_explode.wav
+
+#begin audio/sfx/sfx_player_explode.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_player_explode.wav
+
+#begin audio/sfx/sfx_powerup.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_powerup.wav
+
+#begin audio/sfx/sfx_powerup_weapon.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_powerup_weapon.wav
+
+#begin audio/sfx/sfx_bomb.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_bomb.wav
+
+#begin audio/sfx/sfx_graze.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_graze.wav
+
+#begin audio/sfx/sfx_menu_move.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_menu_move.wav
+
+#begin audio/sfx/sfx_menu_select.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_menu_select.wav
+
+#begin audio/sfx/sfx_stage_clear.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:audio/sfx/sfx_stage_clear.wav
+
+#begin audio/music/music_stage.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/music/music_stage.ogg
+
+#begin audio/music/music_title.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/music/music_title.ogg
+
+#begin audio/music/music_gameover.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/music/music_gameover.ogg
+
