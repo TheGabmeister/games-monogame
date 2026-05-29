@@ -40,6 +40,20 @@ Do not replace it with a deep relative path into the user's NuGet cache such as 
 
 When adding game assets, add them through `Content/Content.mgcb` so they are built into `.xnb` files and loaded through `Content.Load<T>()`.
 
+## ECS (MonoGame.Extended.ECS)
+
+Namespaces are `MonoGame.Extended.ECS` (`World`, `WorldBuilder`, `Entity`, `Aspect`) and `MonoGame.Extended.ECS.Systems` — **not** `MonoGame.Extended.Entities`. System base classes: `EntityProcessingSystem` (per-entity `Process`), `EntityUpdateSystem` (one `Update`, loop `ActiveEntities` yourself), `EntityDrawSystem`.
+
+Local ECS code lives in `Components/` (plain data classes) and `Systems/`.
+
+Reference samples on this machine at `D:\MonoGame-Extended-Samples` (clone of the official samples repo):
+
+- `Demos/Sandbox` — simplest; the rain demo. Best starting point.
+- `Games/Platformer` — `EntityFactory` pattern, tile collisions.
+- `Games/StarWarrior` — full game; 8 components / 10 systems. The reference architecture.
+
+`Games/SpaceGame` has an `Entities/` folder but does **not** use the ECS framework — don't cite it as an ECS example.
+
 ## Coding Style
 
 - Keep game logic in `Game1.cs` unless the feature is large enough to justify a new type.
