@@ -1,4 +1,3 @@
-using System;
 using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
@@ -6,40 +5,48 @@ using MonoGame.Extended.ECS.Systems;
 
 namespace Strikers.Systems
 {
-    // A simple timed spawner: every Interval seconds it drops one enemy in at the top
-    // of the playfield, cycling through the archetypes, up to a concurrent cap. This is
-    // the Phase 2 stand-in; the full wave/timeline scheduler arrives in Phase 4 (see
-    // PLAN.md §5). Enemy motion is plain downward Velocity, integrated by MovementSystem.
+    // Plays back the stage's wave timeline (see Stage / PLAN.md §5): it advances a clock
+    // while the run is live and spawns every wave entry whose time has come, in order.
+    // Once the whole timeline has fired and the playfield is empty of enemies, the stage
+    // is cleared and the GameState flips to STAGE CLEAR. The timeline itself is the plain
+    // Stage class — this system just reads from it (ECS-where-it-earns-its-keep, §6).
     public class EnemySpawnSystem : EntityUpdateSystem
     {
-        // Set by Game1 after the World is built (see the factory-wiring note in AGENTS.md).
+        // Set by Game1 after the World is built (factory-wiring note in AGENTS.md).
         public EntityFactory Factory;
+        public Stage Stage;
+        public GameState State;
+        public AudioManager Audio;
 
-        private const float Interval = 1.1f;
-        private const int MaxConcurrent = 12;
-        private const float Margin = 40f;
+        private float _elapsed;
+        private int _index;
 
-        private readonly Random _rng = new();
-        private float _timer;
-        private int _cycle;
-
+        // Aspect is the live-enemy set, so ActiveEntities.Count tells us when the field
+        // is clear for the STAGE CLEAR check.
         public EnemySpawnSystem() : base(Aspect.All(typeof(Enemy))) { }
 
         public override void Initialize(IComponentMapperService mapperService) { }
 
         public override void Update(GameTime gameTime)
         {
-            _timer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (_timer > 0f || ActiveEntities.Count >= MaxConcurrent)
+            if (State == null || State.Phase != GamePhase.Playing || Stage == null)
                 return;
 
-            _timer = Interval;
+            _elapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            var type = (EnemyType)(_cycle++ % 3);
-            var x = MathHelper.Lerp(Margin, VirtualResolution.Width - Margin, (float)_rng.NextDouble());
-            var speed = _rng.Next(110, 170);
+            var spawns = Stage.Spawns;
+            while (_index < spawns.Count && spawns[_index].Time <= _elapsed)
+            {
+                var s = spawns[_index++];
+                Factory.CreateEnemy(s.Type, s.Position, s.Velocity);
+            }
 
-            Factory.CreateEnemy(type, new Vector2(x, -Margin), new Vector2(0f, speed));
+            // Whole timeline fired and nothing left alive → the stage is won.
+            if (_index >= spawns.Count && ActiveEntities.Count == 0)
+            {
+                State.Phase = GamePhase.StageClear;
+                Audio?.Play(Assets.Sfx.StageClear);
+            }
         }
     }
 }

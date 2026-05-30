@@ -12,6 +12,10 @@ namespace Strikers.Systems
     {
         private ComponentMapper<Player> _playerMapper;
 
+        // Previous-frame bomb-button state, so the bomb fires once per press (edge), not
+        // every frame it's held.
+        private bool _bombHeld;
+
         public InputSystem() : base(Aspect.All(typeof(Player))) { }
 
         public override void Initialize(IComponentMapperService mapperService)
@@ -31,6 +35,7 @@ namespace Strikers.Systems
             if (kb.IsKeyDown(Keys.Down)  || kb.IsKeyDown(Keys.S)) dir.Y += 1;
 
             var firing = kb.IsKeyDown(Keys.Space) || kb.IsKeyDown(Keys.Z);
+            var bombHeld = kb.IsKeyDown(Keys.X) || kb.IsKeyDown(Keys.LeftShift);
 
             var pad = GamePad.GetState(PlayerIndex.One);
             if (pad.IsConnected)
@@ -45,6 +50,8 @@ namespace Strikers.Systems
                 dir.Y -= pad.ThumbSticks.Left.Y;
 
                 if (pad.Buttons.A == ButtonState.Pressed) firing = true;
+                if (pad.Buttons.B == ButtonState.Pressed || pad.Buttons.X == ButtonState.Pressed)
+                    bombHeld = true;
             }
 
             // Cap to unit length so diagonals/stick don't move faster than cardinal.
@@ -53,6 +60,9 @@ namespace Strikers.Systems
 
             player.MoveDirection = dir;
             player.Firing = firing;
+            // Edge-trigger: true only on the frame the bomb button goes down.
+            player.BombPressed = bombHeld && !_bombHeld;
+            _bombHeld = bombHeld;
         }
     }
 }

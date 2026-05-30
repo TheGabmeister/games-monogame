@@ -12,6 +12,8 @@ namespace Strikers.Systems
     {
         // Shared player-position snapshot for systems that aim at the player (set each frame).
         public PlayerTracker Tracker;
+        // Set by Game1 after the World is built; freezes the ship once the run ends.
+        public GameState State;
 
         private ComponentMapper<Player> _playerMapper;
         private ComponentMapper<Transform> _transformMapper;
@@ -28,6 +30,10 @@ namespace Strikers.Systems
 
         public override void Process(GameTime gameTime, int entityId)
         {
+            // No flying or shooting once the stage is cleared or the run is over.
+            if (State != null && State.Phase != GamePhase.Playing)
+                return;
+
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             var player = _playerMapper.Get(entityId);
             var transform = _transformMapper.Get(entityId);

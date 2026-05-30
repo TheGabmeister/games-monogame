@@ -15,12 +15,14 @@ namespace Strikers.Systems
     {
         // Shared one-shot SFX service; set by Game1 after the World is built.
         public AudioManager Audio;
+        public GameState State;
 
         private ComponentMapper<Transform> _transformMapper;
         private ComponentMapper<CircleCollider> _colliderMapper;
         private ComponentMapper<Bullet> _bulletMapper;
         private ComponentMapper<Health> _healthMapper;
         private ComponentMapper<Player> _playerMapper;
+        private ComponentMapper<PowerUp> _powerUpMapper;
 
         private readonly List<int> _entities = new();
         private readonly HashSet<int> _consumed = new();
@@ -34,10 +36,15 @@ namespace Strikers.Systems
             _bulletMapper = mapperService.GetMapper<Bullet>();
             _healthMapper = mapperService.GetMapper<Health>();
             _playerMapper = mapperService.GetMapper<Player>();
+            _powerUpMapper = mapperService.GetMapper<PowerUp>();
         }
 
         public override void Update(GameTime gameTime)
         {
+            // No collisions once the run ends — leftover bullets become harmless.
+            if (State != null && State.Phase != GamePhase.Playing)
+                return;
+
             _entities.Clear();
             _entities.AddRange(ActiveEntities);
             _consumed.Clear();
@@ -87,7 +94,7 @@ namespace Strikers.Systems
                     _healthMapper.Get(enemyId).Current -= _bulletMapper.Get(bulletId).Damage;
                     DestroyEntity(bulletId);
                     _consumed.Add(bulletId);
-                    Audio?.Play("audio/sfx/sfx_enemy_hit");
+                    Audio?.Play(Assets.Sfx.EnemyHit);
                 }
                 return;
             }
@@ -106,12 +113,48 @@ namespace Strikers.Systems
                 return;
             }
 
+            // Player touches a power-up: apply it and consume the pickup.
+            if (TryPair(c1, c2, e1, e2, CollisionLayer.Player, CollisionLayer.PowerUp,
+                        out int collectorId, out int pickupId))
+            {
+                if (_powerUpMapper.Has(pickupId))
+                {
+                    ApplyPickup(collectorId, _powerUpMapper.Get(pickupId).Kind);
+                    DestroyEntity(pickupId);
+                    _consumed.Add(pickupId);
+                }
+                return;
+            }
+
             // Player rams an enemy: lethal to the player (DamageSystem handles the death).
             if (TryPair(c1, c2, e1, e2, CollisionLayer.Player, CollisionLayer.Enemy,
                         out int playerId, out int _))
             {
                 if (PlayerVulnerable(playerId))
                     _healthMapper.Get(playerId).Current = 0;
+            }
+        }
+
+        // Grants the pickup's effect to the collecting player (see PLAN.md §3).
+        private void ApplyPickup(int playerId, PowerUpKind kind)
+        {
+            var player = _playerMapper.Get(playerId);
+            switch (kind)
+            {
+                case PowerUpKind.Weapon:
+                    if (player.WeaponLevel < EntityFactory.MaxWeaponLevel)
+                        player.WeaponLevel++;
+                    Audio?.Play(Assets.Sfx.PowerUpWeapon);
+                    break;
+                case PowerUpKind.Bomb:
+                    if (player.Bombs < EntityFactory.MaxBombs)
+                        player.Bombs++;
+                    Audio?.Play(Assets.Sfx.PowerUp);
+                    break;
+                default: // Score
+                    if (State != null) State.Score += 500;
+                    Audio?.Play(Assets.Sfx.PowerUp);
+                    break;
             }
         }
 

@@ -16,6 +16,7 @@ namespace Strikers.Systems
         public EntityFactory Factory;
         public AudioManager Audio;
         public PlayerTracker Tracker;
+        public GameState State;
 
         private ComponentMapper<Emitter> _emitterMapper;
         private ComponentMapper<Transform> _transformMapper;
@@ -30,6 +31,10 @@ namespace Strikers.Systems
 
         public override void Process(GameTime gameTime, int entityId)
         {
+            // Enemies hold fire once the run is over (STAGE CLEAR / GAME OVER).
+            if (State != null && State.Phase != GamePhase.Playing)
+                return;
+
             var emitter = _emitterMapper.Get(entityId);
             if (emitter.Cooldown > 0f)
                 emitter.Cooldown -= (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -43,7 +48,7 @@ namespace Strikers.Systems
 
             emitter.Cooldown = emitter.FireInterval;
             FireVolley(position, emitter);
-            Audio?.Play("audio/sfx/sfx_enemy_shot");
+            Audio?.Play(Assets.Sfx.EnemyShot);
         }
 
         private void FireVolley(Vector2 position, Emitter e)

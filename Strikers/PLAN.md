@@ -170,11 +170,16 @@ the entities are introduced — rather than deferring all art to the end.
   ring, spiral); tiny player hitbox; invulnerability frames on respawn. (Fighter fires aimed
   needles, gunship a round spiral; spread/ring are implemented but not yet assigned to an enemy.)
   *Sprites:* `sprites/bullets/bullet_enemy_round`, `bullet_enemy_needle`.
-- **Phase 4 — Stage & arcade loop.** Scrolling background, a full wave timeline ending in
-  STAGE CLEAR, score/lives/bomb HUD, bomb that clears bullets, power-up drops that level
-  the weapon, game-over.
+- **Phase 4 — Stage & arcade loop.** ✅ *Done.* Scrolling background (`BackgroundScrollSystem`,
+  two wrapping tiles); a full wave timeline (plain `Stage` class played back by
+  `EnemySpawnSystem`) ending in STAGE CLEAR; `HudSystem` showing score/power/lives/bombs +
+  STAGE CLEAR / GAME OVER banner; `BombSystem` (clears enemy bullets, blows up on-screen
+  enemies, grants i-frames); `PowerUp` drops (weapon level / bomb / score) picked up via
+  `CollisionSystem`; weapon-level fan in `WeaponSystem`; lives/respawn/game-over in
+  `DamageSystem`. Flow + score live in the plain `GameState` service (PLAN.md §6); gameplay
+  systems gate on `GameState.Phase == Playing`. Enter / Start restarts after the run ends.
   *Sprites:* `backgrounds/bg_tile`; `sprites/powerups/powerup_weapon`, `powerup_bomb`,
-  `powerup_score`; `sprites/hud/hud_life_icon`, `hud_bomb_icon`.
+  `powerup_score`; `sprites/hud/hud_life_icon`, `hud_bomb_icon`; `fonts/main`.
 - **Phase 5 — Polish.** Title/game-over/pause screens, explosion particles, SFX/music
   hooks, difficulty tuning, banking frames (`player_ship_left`/`_right`).
 

@@ -20,6 +20,12 @@ namespace Strikers
         private readonly World _world;
         private readonly AnimationLibrary _animations;
 
+        // Player arcade starting stock (spare ships + bombs). Weapon starts at level 1.
+        public const int StartingLives = 2;
+        public const int StartingBombs = 2;
+        public const int MaxWeaponLevel = 4;
+        public const int MaxBombs = 6;
+
         private readonly Texture2D _shipTexture;
         private readonly Texture2D _bulletTexture;
         private readonly Texture2D _roundBulletTexture;
@@ -27,18 +33,26 @@ namespace Strikers
         private readonly Texture2D _popcornTexture;
         private readonly Texture2D _fighterTexture;
         private readonly Texture2D _gunshipTexture;
+        private readonly Texture2D _bgTexture;
+        private readonly Texture2D _powerWeaponTexture;
+        private readonly Texture2D _powerBombTexture;
+        private readonly Texture2D _powerScoreTexture;
 
         public EntityFactory(World world, ContentManager content, AnimationLibrary animations)
         {
             _world = world;
             _animations = animations;
-            _shipTexture = content.Load<Texture2D>("sprites/player/player_ship");
-            _bulletTexture = content.Load<Texture2D>("sprites/bullets/bullet_player");
-            _roundBulletTexture = content.Load<Texture2D>("sprites/bullets/bullet_enemy_round");
-            _needleBulletTexture = content.Load<Texture2D>("sprites/bullets/bullet_enemy_needle");
-            _popcornTexture = content.Load<Texture2D>("sprites/enemies/enemy_popcorn");
-            _fighterTexture = content.Load<Texture2D>("sprites/enemies/enemy_fighter");
-            _gunshipTexture = content.Load<Texture2D>("sprites/enemies/enemy_gunship");
+            _shipTexture = content.Load<Texture2D>(Assets.Sprites.PlayerShip);
+            _bulletTexture = content.Load<Texture2D>(Assets.Sprites.BulletPlayer);
+            _roundBulletTexture = content.Load<Texture2D>(Assets.Sprites.BulletEnemyRound);
+            _needleBulletTexture = content.Load<Texture2D>(Assets.Sprites.BulletEnemyNeedle);
+            _popcornTexture = content.Load<Texture2D>(Assets.Sprites.EnemyPopcorn);
+            _fighterTexture = content.Load<Texture2D>(Assets.Sprites.EnemyFighter);
+            _gunshipTexture = content.Load<Texture2D>(Assets.Sprites.EnemyGunship);
+            _bgTexture = content.Load<Texture2D>(Assets.Backgrounds.Tile);
+            _powerWeaponTexture = content.Load<Texture2D>(Assets.Sprites.PowerUpWeapon);
+            _powerBombTexture = content.Load<Texture2D>(Assets.Sprites.PowerUpBomb);
+            _powerScoreTexture = content.Load<Texture2D>(Assets.Sprites.PowerUpScore);
         }
 
         public Entity CreatePlayer(Vector2 position)
@@ -46,13 +60,18 @@ namespace Strikers
             var entity = _world.CreateEntity();
             entity.Attach(new Transform(position));
             // A couple of seconds of i-frames so the player isn't killed the instant they spawn.
-            entity.Attach(new Player(speed: 300f) { InvulnTimer = 2f });
+            entity.Attach(new Player(speed: 300f)
+            {
+                InvulnTimer = 2f,
+                Lives = StartingLives,
+                Bombs = StartingBombs,
+            });
             entity.Attach(new Weapon(fireInterval: 0.15f, bulletSpeed: 600f, damage: 1));
             entity.Attach(new Sprite(_shipTexture, new Vector2(48, 48), layerDepth: 0.5f));
             entity.Attach(new Health(1));
             // Tiny hitbox at the ship's center — bullet-hell fair (see PLAN.md §4).
             entity.Attach(new CircleCollider(4f, CollisionLayer.Player,
-                CollisionLayer.Enemy | CollisionLayer.EnemyBullet));
+                CollisionLayer.Enemy | CollisionLayer.EnemyBullet | CollisionLayer.PowerUp));
             return entity;
         }
 
@@ -145,6 +164,47 @@ namespace Strikers
             // Lives exactly as long as the one-shot clip, then despawns (see PLAN.md §5).
             entity.Attach(Lifetime.Timer(clip.Duration));
             return entity;
+        }
+
+        // A power-up dropped by a dead enemy. Drifts straight down; the player picks it
+        // up on contact (passive PowerUp layer — the player's collider masks it).
+        public Entity CreatePowerUp(PowerUpKind kind, Vector2 position)
+        {
+            var texture = kind switch
+            {
+                PowerUpKind.Weapon => _powerWeaponTexture,
+                PowerUpKind.Bomb   => _powerBombTexture,
+                _                  => _powerScoreTexture,
+            };
+
+            var entity = _world.CreateEntity();
+            entity.Attach(new Transform(position));
+            entity.Attach(new Velocity(new Vector2(0f, 80f)));
+            entity.Attach(new PowerUp(kind));
+            entity.Attach(new Sprite(texture, new Vector2(24, 24), layerDepth: 0.55f));
+            entity.Attach(new CircleCollider(14f, CollisionLayer.PowerUp));
+            entity.Attach(new Lifetime(despawnWhenOffscreen: true));
+            return entity;
+        }
+
+        // Two stacked full-screen tiles scrolling down; BackgroundScrollSystem wraps each
+        // back to the top as it leaves, for a seamless loop. Drawn farthest back.
+        public void CreateBackground()
+        {
+            var size = new Vector2(VirtualResolution.Width, VirtualResolution.Height);
+            const float scroll = 60f;
+            float cx = VirtualResolution.Width / 2f;
+            float cy = VirtualResolution.Height / 2f;
+
+            for (int i = 0; i < 2; i++)
+            {
+                var tile = _world.CreateEntity();
+                // First tile fills the screen; the second sits one screen above it.
+                tile.Attach(new Transform(new Vector2(cx, cy - i * VirtualResolution.Height)));
+                tile.Attach(new Velocity(new Vector2(0f, scroll)));
+                tile.Attach(new Sprite(_bgTexture, size, layerDepth: 0.95f));
+                tile.Attach(new Background());
+            }
         }
     }
 }
