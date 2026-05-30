@@ -20,6 +20,7 @@ namespace Extended.Systems
         private ComponentMapper<CircleCollider> _colliderMapper;
         private ComponentMapper<Bullet> _bulletMapper;
         private ComponentMapper<Health> _healthMapper;
+        private ComponentMapper<Player> _playerMapper;
 
         private readonly List<int> _entities = new();
         private readonly HashSet<int> _consumed = new();
@@ -32,6 +33,7 @@ namespace Extended.Systems
             _colliderMapper = mapperService.GetMapper<CircleCollider>();
             _bulletMapper = mapperService.GetMapper<Bullet>();
             _healthMapper = mapperService.GetMapper<Health>();
+            _playerMapper = mapperService.GetMapper<Player>();
         }
 
         public override void Update(GameTime gameTime)
@@ -90,14 +92,33 @@ namespace Extended.Systems
                 return;
             }
 
+            // Enemy bullet strikes the player: lethal unless invulnerable; spend the bullet.
+            // While invulnerable the bullet passes through untouched.
+            if (TryPair(c1, c2, e1, e2, CollisionLayer.EnemyBullet, CollisionLayer.Player,
+                        out int enemyBulletId, out int hitPlayerId))
+            {
+                if (PlayerVulnerable(hitPlayerId))
+                {
+                    _healthMapper.Get(hitPlayerId).Current = 0;
+                    DestroyEntity(enemyBulletId);
+                    _consumed.Add(enemyBulletId);
+                }
+                return;
+            }
+
             // Player rams an enemy: lethal to the player (DamageSystem handles the death).
             if (TryPair(c1, c2, e1, e2, CollisionLayer.Player, CollisionLayer.Enemy,
                         out int playerId, out int _))
             {
-                if (_healthMapper.Has(playerId))
+                if (PlayerVulnerable(playerId))
                     _healthMapper.Get(playerId).Current = 0;
             }
         }
+
+        // The player can be killed only when it has Health and isn't in its i-frames.
+        private bool PlayerVulnerable(int playerId) =>
+            _healthMapper.Has(playerId) &&
+            !(_playerMapper.Has(playerId) && _playerMapper.Get(playerId).InvulnTimer > 0f);
 
         // If the two colliders are exactly {layerA, layerB}, binds ea/eb to the entity
         // carrying layerA / layerB respectively. Order-independent.

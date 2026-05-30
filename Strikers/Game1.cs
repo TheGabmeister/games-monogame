@@ -30,20 +30,24 @@ namespace Extended
             var animations = new AnimationLibrary(Content);
             animations.Load();
             var audio = new AudioManager(Content);
+            var tracker = new PlayerTracker();
 
             // Spawning/reacting systems need the EntityFactory, but the factory needs the
             // World, which only exists after Build(). So build the world first, then inject
             // the factory and shared services into the systems that need them (see AGENTS.md).
+            var playerControlSystem = new PlayerControlSystem { Tracker = tracker };
             var weaponSystem = new WeaponSystem();
             var enemySpawnSystem = new EnemySpawnSystem();
+            var emitterSystem = new EmitterSystem();
             var collisionSystem = new CollisionSystem();
             var damageSystem = new DamageSystem();
 
             _world = new WorldBuilder()
                 .AddSystem(new InputSystem())
-                .AddSystem(new PlayerControlSystem())
+                .AddSystem(playerControlSystem)
                 .AddSystem(weaponSystem)
                 .AddSystem(enemySpawnSystem)
+                .AddSystem(emitterSystem)
                 .AddSystem(new MovementSystem())
                 .AddSystem(collisionSystem)
                 .AddSystem(damageSystem)
@@ -56,6 +60,9 @@ namespace Extended
             weaponSystem.Factory = factory;
             weaponSystem.Audio = audio;
             enemySpawnSystem.Factory = factory;
+            emitterSystem.Factory = factory;
+            emitterSystem.Audio = audio;
+            emitterSystem.Tracker = tracker;
             collisionSystem.Audio = audio;
             damageSystem.Factory = factory;
             damageSystem.Audio = audio;

@@ -14,6 +14,9 @@ namespace Extended.Systems
         public EntityFactory Factory;
         public AudioManager Audio;
 
+        // Invulnerability granted on respawn so the player isn't instantly re-killed.
+        private const float RespawnInvuln = 2.5f;
+
         private ComponentMapper<Health> _healthMapper;
         private ComponentMapper<Transform> _transformMapper;
         private ComponentMapper<Player> _playerMapper;
@@ -38,10 +41,11 @@ namespace Extended.Systems
 
             if (_playerMapper.Has(entityId))
             {
-                // Player death: respawn at the start position and restore health.
+                // Player death: respawn at the start position, restore health, grant i-frames.
                 Audio?.Play("audio/sfx/sfx_player_explode");
                 transform.Position = EntityFactory.PlayerSpawn;
                 health.Current = health.Max;
+                _playerMapper.Get(entityId).InvulnTimer = RespawnInvuln;
             }
             else
             {

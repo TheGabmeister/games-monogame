@@ -158,7 +158,7 @@ the entities are introduced — rather than deferring all art to the end.
 - **Phase 1 — Player shooting.** ✅ *Done.* `Weapon` + `WeaponSystem`; player bullets travel
   up and despawn offscreen via `LifetimeSystem`.
   *Sprites:* `sprites/bullets/bullet_player`.
-- **Phase 2 — Enemies & combat.** `EnemySpawnSystem`, basic moving enemies, `CircleCollider`
+- **Phase 2 — Enemies & combat.** ✅ *Done.* `EnemySpawnSystem`, basic moving enemies, `CircleCollider`
   (with `CollisionLayer` layer/mask) + `CollisionSystem` + `Health`/`DamageSystem`; killing
   enemies and dying. Introduces `AnimationLibrary` + `Animator` + `AnimationSystem` (and adds
   `Sprite.SourceRect`, which `RenderSystem` starts honoring), scoped to a single `explosion`
@@ -166,8 +166,9 @@ the entities are introduced — rather than deferring all art to the end.
   stands up the JSON clip loader so later clips are pure data, no new code.
   *Sprites:* `sprites/enemies/enemy_popcorn`, `enemy_fighter`, `enemy_gunship`;
   `sprites/fx/explosion` on death.
-- **Phase 3 — Bullet hell.** `EmitterSystem` with parameterized patterns (aimed, spread,
-  ring, spiral); tiny player hitbox; invulnerability frames on respawn.
+- **Phase 3 — Bullet hell.** ✅ *Done.* `EmitterSystem` with parameterized patterns (aimed, spread,
+  ring, spiral); tiny player hitbox; invulnerability frames on respawn. (Fighter fires aimed
+  needles, gunship a round spiral; spread/ring are implemented but not yet assigned to an enemy.)
   *Sprites:* `sprites/bullets/bullet_enemy_round`, `bullet_enemy_needle`.
 - **Phase 4 — Stage & arcade loop.** Scrolling background, a full wave timeline ending in
   STAGE CLEAR, score/lives/bomb HUD, bomb that clears bullets, power-up drops that level

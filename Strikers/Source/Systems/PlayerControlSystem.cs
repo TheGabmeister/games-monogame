@@ -10,6 +10,9 @@ namespace Extended.Systems
     // because the clamp has to happen right after the move, in one place.
     public class PlayerControlSystem : EntityProcessingSystem
     {
+        // Shared player-position snapshot for systems that aim at the player (set each frame).
+        public PlayerTracker Tracker;
+
         private ComponentMapper<Player> _playerMapper;
         private ComponentMapper<Transform> _transformMapper;
         private ComponentMapper<Sprite> _spriteMapper;
@@ -39,6 +42,32 @@ namespace Extended.Systems
             transform.Position = new Vector2(
                 MathHelper.Clamp(transform.Position.X, half.X, VirtualResolution.Width  - half.X),
                 MathHelper.Clamp(transform.Position.Y, half.Y, VirtualResolution.Height - half.Y));
+
+            UpdateInvulnerability(player, entityId, dt);
+
+            if (Tracker != null)
+            {
+                Tracker.Position = transform.Position;
+                Tracker.HasPlayer = true;
+            }
+        }
+
+        // Counts down post-spawn i-frames and blinks the sprite so they read clearly.
+        private void UpdateInvulnerability(Player player, int entityId, float dt)
+        {
+            if (player.InvulnTimer <= 0f || !_spriteMapper.Has(entityId))
+                return;
+
+            player.InvulnTimer -= dt;
+            var sprite = _spriteMapper.Get(entityId);
+            if (player.InvulnTimer <= 0f)
+            {
+                sprite.Color = Color.White; // restore once invulnerability ends
+                return;
+            }
+
+            bool visible = ((int)(player.InvulnTimer * 12f) & 1) == 0;
+            sprite.Color = visible ? Color.White : Color.White * 0.25f;
         }
     }
 }
