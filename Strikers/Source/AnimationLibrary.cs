@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Extended
+namespace Strikers
 {
     // Loads sprite-sheet animation clips from JSON under Content/animations/ and hands
     // them out by id. A plain service (not ECS): clip definitions are shared global

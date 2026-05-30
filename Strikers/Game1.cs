@@ -1,10 +1,10 @@
-using Extended.Systems;
+using Strikers.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.ECS;
 
-namespace Extended
+namespace Strikers
 {
     public class Game1 : Game
     {

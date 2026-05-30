@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 
-namespace Extended
+namespace Strikers
 {
     // A plain (non-ECS) service for one-shot sound effects. Audio is global state,
     // not a per-entity thing, so it lives outside the ECS (see PLAN.md §6). Systems

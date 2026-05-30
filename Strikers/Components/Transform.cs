@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Extended.Components
+namespace Strikers.Components
 {
     // Where an entity is in the world. Read by the RenderSystem and written by
     // movement/control systems. Shared by everything visible.

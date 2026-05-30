@@ -1,4 +1,4 @@
-namespace Extended.Components
+namespace Strikers.Components
 {
     // A circular gameplay hitbox centered on the entity's Transform.Position. Layer
     // is what this entity is; Mask is what it collides with. The CollisionSystem only

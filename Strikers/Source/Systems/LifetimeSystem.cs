@@ -1,9 +1,9 @@
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Destroys entities that have outlived their usefulness. For now that means
     // bullets that have travelled off the playfield; a timed-life branch can be

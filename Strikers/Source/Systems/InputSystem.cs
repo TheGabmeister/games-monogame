@@ -1,10 +1,10 @@
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Reads keyboard + gamepad and normalizes both into the player's MoveDirection
     // intent, so no other system has to know which device is in use.

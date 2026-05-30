@@ -14,7 +14,7 @@ STAGE CLEAR, score/lives/bomb HUD, power-up drops, game-over (PLAN.md §5).
 
 - Entry point: `Program.cs`
 - Main game class: `Game1.cs` — composes the ECS world + wires non-ECS services
-- Project file: `Extended.csproj`
+- Project file: `Strikers.csproj`
 - Content pipeline file: `Content/Content.mgcb`
 - MonoGame.Extended pipeline DLLs: `pipeline-references/`
 

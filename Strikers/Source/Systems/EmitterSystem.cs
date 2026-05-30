@@ -1,10 +1,10 @@
 using System;
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Drives enemy bullet emitters: counts down each Emitter's cooldown and, when it
     // fires, spawns a volley shaped entirely by the emitter's data — aimed, spread,

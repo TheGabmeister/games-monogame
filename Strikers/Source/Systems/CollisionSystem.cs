@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Brute-force circle collision filtered by layer/mask (see PLAN.md §4). Every pair
     // of colliders whose layers mask each other is distance-tested; on a hit the

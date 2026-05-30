@@ -1,10 +1,10 @@
 using System;
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // A simple timed spawner: every Interval seconds it drops one enemy in at the top
     // of the playfield, cycling through the archetypes, up to a concurrent cap. This is

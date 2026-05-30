@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Extended
+namespace Strikers
 {
     // How a clip behaves once it runs past its last frame.
     public enum LoopMode { Once, Loop, PingPong, HoldLast }

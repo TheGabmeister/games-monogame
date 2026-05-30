@@ -1,4 +1,4 @@
-namespace Extended
+namespace Strikers
 {
     // The fixed portrait canvas all gameplay math is expressed in (see PLAN.md §4).
     // In Phase 0 the back buffer is sized to match; render-target scaling to an

@@ -1,9 +1,9 @@
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Generic velocity integrator: Position += Velocity * dt. Drives bullets and
     // enemies from Phase 1 on. The player is intentionally not velocity-driven

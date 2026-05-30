@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Extended
+namespace Strikers
 {
     // Shared snapshot of the player's current position, written by PlayerControlSystem
     // and read by systems that need to aim at the player (EmitterSystem). A plain

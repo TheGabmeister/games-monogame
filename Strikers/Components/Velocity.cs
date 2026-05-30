@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Extended.Components
+namespace Strikers.Components
 {
     // Velocity in virtual pixels per second. The MovementSystem integrates this
     // into Transform.Position each frame. Used by bullets/enemies (Phase 1+).

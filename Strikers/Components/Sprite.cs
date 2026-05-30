@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Extended.Components
+namespace Strikers.Components
 {
     // How an entity is drawn. Size is the desired draw size in virtual pixels;
     // the RenderSystem scales the texture to fit, so a 1x1 placeholder pixel can

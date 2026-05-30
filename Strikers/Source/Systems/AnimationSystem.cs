@@ -1,9 +1,9 @@
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Advances each Animator's clip and writes the current frame's source rectangle
     // into its Sprite, so the RenderSystem stays animation-agnostic. The system just

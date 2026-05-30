@@ -1,6 +1,6 @@
 using System;
 
-namespace Extended.Components
+namespace Strikers.Components
 {
     // Bitmask of collision categories (see PLAN.md §4). A collider's Layer says what
     // it is; its Mask says which layers it collides with. [Flags] from the start so a

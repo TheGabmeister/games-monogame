@@ -1,11 +1,11 @@
 using System;
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.ECS;
 
-namespace Extended
+namespace Strikers
 {
     // Single place that assembles configured entities from components, so systems never
     // new-up components inline. Grows a Create* method per entity kind as phases land.

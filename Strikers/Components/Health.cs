@@ -1,4 +1,4 @@
-namespace Extended.Components
+namespace Strikers.Components
 {
     // Hit points. CollisionSystem subtracts from Current; DamageSystem reaps the
     // entity once it reaches zero (see PLAN.md §4).

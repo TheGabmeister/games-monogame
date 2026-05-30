@@ -1,4 +1,4 @@
-namespace Extended.Components
+namespace Strikers.Components
 {
     public enum EnemyType { Popcorn, Fighter, Gunship }
 

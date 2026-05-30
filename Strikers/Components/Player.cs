@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Extended.Components
+namespace Strikers.Components
 {
     // Tags the player-controlled entity and holds its control state. InputSystem
     // writes the intent (MoveDirection); PlayerControlSystem consumes it.

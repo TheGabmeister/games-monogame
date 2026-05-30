@@ -1,10 +1,10 @@
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Ticks each weapon's cooldown and, while its owner holds fire, spawns a
     // bullet travelling straight up every FireInterval seconds. Player-only for

@@ -1,9 +1,9 @@
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Moves the player from its MoveDirection intent and clamps it inside the
     // playfield. Player movement is owned here (not the generic MovementSystem)

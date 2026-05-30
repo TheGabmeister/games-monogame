@@ -1,4 +1,4 @@
-namespace Extended.Components
+namespace Strikers.Components
 {
     // An auto-firing main shot. WeaponSystem counts Cooldown down each frame and,
     // while the owner is firing, spawns a bullet every FireInterval seconds.

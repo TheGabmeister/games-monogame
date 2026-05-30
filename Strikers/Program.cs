@@ -1,2 +1,2 @@
-﻿using var game = new Extended.Game1();
+using var game = new Strikers.Game1();
 game.Run();

@@ -1,4 +1,4 @@
-namespace Extended.Components
+namespace Strikers.Components
 {
     // Controls when an entity should be despawned. Bullets set DespawnWhenOffscreen so
     // LifetimeSystem destroys them once they leave the playfield; short-lived effects

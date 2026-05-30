@@ -1,4 +1,4 @@
-namespace Extended.Components
+namespace Strikers.Components
 {
     // Per-entity animation playback state — pure data (see PLAN.md §4). Gameplay
     // systems set ClipId; AnimationSystem advances Elapsed and writes the current

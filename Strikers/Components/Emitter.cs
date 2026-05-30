@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Extended.Components
+namespace Strikers.Components
 {
     public enum BulletPattern { Aimed, Spread, Ring, Spiral }
     public enum BulletKind { Round, Needle }

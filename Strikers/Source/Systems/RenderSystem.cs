@@ -1,10 +1,10 @@
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Draws every entity that has a Transform + Sprite. The texture is scaled to
     // the sprite's requested Size, so 1x1 placeholder pixels render as quads of

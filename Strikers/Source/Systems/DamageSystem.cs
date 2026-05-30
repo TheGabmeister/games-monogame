@@ -1,9 +1,9 @@
-using Extended.Components;
+using Strikers.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 
-namespace Extended.Systems
+namespace Strikers.Systems
 {
     // Reaps anything whose Health has hit zero (see PLAN.md §4). Enemies blow up and are
     // removed; the player blows up and respawns (lives + invuln frames come in later
