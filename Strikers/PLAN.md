@@ -139,8 +139,8 @@ configured entities: `CreatePlayer()`, `CreateEnemy(type, pos)`, `CreateBullet(.
   via `Content.Load`, slices it, and registers the clip by id.
 - **Assets.** Real placeholder sprites exist under `Content/sprites/` and placeholder audio
   under `Content/audio/`, wired in per phase as entities are introduced (see §5 / §7 / §8).
-  `AudioManager` already plays one-shot SFX (starting with the player shot); broader SFX/music
-  hookup lands as the relevant systems do.
+  `SfxManager` plays one-shot SFX and `MusicManager` streams looping music (`Source/`); broader
+  SFX/music hookup lands as the relevant systems/screens do.
 
 ---
 
@@ -182,6 +182,7 @@ the entities are introduced — rather than deferring all art to the end.
   `powerup_score`; `sprites/hud/hud_life_icon`, `hud_bomb_icon`; `fonts/main`.
 - **Phase 5 — Polish.** Title/game-over/pause screens, explosion particles, SFX/music
   hooks, difficulty tuning, banking frames (`player_ship_left`/`_right`).
+  **Implementation detail in §10.**
 
 Post-v1 candidates: **boss fights**, charge shot, multiple ships, stage 2, medal chains.
 
@@ -279,9 +280,11 @@ to layer — many can play at once during dense fire.
 | `music_title` | loop (.ogg) | Title screen music. |
 | `music_gameover` | one-shot/short | Game-over sting. |
 
-These now exist. `AudioManager` (`Source/AudioManager.cs`) loads one-shot SFX on demand and
-silently ignores any sound not yet authored, so audio is never a blocker. Music playback
-wiring comes later.
+These now exist. `SfxManager` (`Source/SfxManager.cs`) loads one-shot SFX on demand and
+`MusicManager` (`Source/MusicManager.cs`) streams looping music via `MediaPlayer`; both
+silently ignore any sound not yet authored, so audio is never a blocker. The stage track
+loops during a run today; the full title/game-over music flow lands with the screen split
+(§10).
 
 ---
 
@@ -332,3 +335,80 @@ Load-path convention (mirrors the folders): `sprites/enemies/enemy_fighter`,
 > Pipeline reminder (from AGENTS.md): add each new asset through `Content/Content.mgcb` and
 > keep the `/reference:..\pipeline-references\MonoGame.Extended.Content.Pipeline.dll` line —
 > don't point it at a deep NuGet-cache path, or `mgcb` fails with a vague `MSB3073`.
+
+---
+
+## 10. Phase 5 plan — Polish (detail)
+
+Phase 4 already models in-run flow as `GameState.Phase` (a plain service, §6.4) with
+`HudSystem` drawing the STAGE CLEAR / GAME OVER banner over the live, *frozen* world, and
+gameplay systems gated on `Phase == Playing`. Phase 5 builds on that, it doesn't replace it.
+
+### Screens — yes, but only for the title↔gameplay split
+
+**Decision: adopt `MonoGame.Extended.Screens` for the top-level screen only; keep pause /
+stage-clear / game-over as in-run `GameState.Phase` overlays.**
+
+`ScreenManager`, `GameScreen`, and `FadeTransition` are already in the `MonoGame.Extended`
+6.0.0 package (no new dependency — the Pong sample uses exactly this). Wiring:
+
+- `Game1` adds `Components.Add<ScreenManager>()` and shrinks to device setup + showing the
+  first screen. Persistent services (`AnimationLibrary`, `SfxManager`, `MusicManager`, fonts) load once.
+- `TitleScreen : GameScreen` — logo + "PRESS ENTER / START", `music_title`, menu SFX. On
+  confirm → `LoadScreen(new GameplayScreen(this), new FadeTransition(GraphicsDevice, Color.Black, 0.5f))`.
+- `GameplayScreen : GameScreen` — owns everything `Game1` builds today (the ECS `World`,
+  `EntityFactory`, `GameState`, `Stage`, system wiring, the `NewGame()` rebuild). Its
+  `Update`/`Draw` just call `_world.Update`/`Draw`.
+
+Why this boundary: a *title* is a genuine separate screen with its own content and music, so
+`ScreenManager` earns its keep there. But **pause, STAGE CLEAR and GAME OVER must keep the
+gameplay world intact behind them** (frozen ship, still-animating explosions, the score just
+earned) — swapping them to separate `GameScreen`s would tear that down and create a second
+flow-control mechanism competing with `GameState.Phase`. So they stay as overlays. Both
+`ScreenManager` (a non-ECS `GameComponent`) and `GameState` are non-ECS, consistent with §6.
+
+`GamePhase` grows one value — `Paused` — for the final set `Playing, Paused, StageClear,
+GameOver` (Title is not a phase; it lives in `TitleScreen`).
+
+### Pause
+- Move "exit" off `Esc` (to gamepad Back / window close) and make `Esc`/Start a pause toggle.
+  `GameplayScreen` (or a tiny system) flips `GameState.Phase` Playing↔Paused on the edge.
+- No new gating needed — the existing `Phase == Playing` checks already freeze gameplay.
+  `HudSystem.DrawBanner` gets a `Paused` → "PAUSED" case.
+
+### Explosion particles
+- Either `MonoGame.Extended.Particles` (`ParticleEffect`/`ParticleEmitter`, also in the
+  package) or, lighter, a handful of short-lived spark entities (`Transform`+`Velocity`+
+  `Lifetime.Timer`) — no new dependency, fits current systems. Layer it *over* the existing
+  `explosion` sprite-sheet clip; keep the clip. `EntityFactory.CreateExplosion` spawns the
+  extra burst, so nothing else changes. Decide by effort during the phase.
+
+### SFX / music hooks
+- Audio is split into two plain services: `SfxManager` (one-shots via `SoundEffect`) and
+  `MusicManager` (looping/streamed `Song`s via `MediaPlayer`). One-shots route through
+  `SfxManager.Play(Assets.Sfx.*)`. Wire the remaining authored sounds + their `Assets.Sfx.*`
+  consts: `sfx_menu_move`/`sfx_menu_select` in `TitleScreen`; `sfx_graze` in `CollisionSystem`
+  (near-miss test against a slightly larger player radius, optional graze-score bonus).
+- **Music flow is the remaining piece.** `MusicManager` (`Play(name, loop)` / `Stop`, with a
+  no-op-if-already-playing guard) and `Assets.Music.*` (`music_title`/`music_stage`/
+  `music_gameover`) already exist; `GameplayScreen` loops `music_stage` on a run today. Phase 5
+  ties the rest to the screen/flow states: `TitleScreen` plays `music_title`; GAME OVER plays
+  `music_gameover`; STAGE CLEAR stops music for the jingle. Gameplay *systems* never touch
+  music — screens/flow drive it.
+
+### Difficulty tuning
+- Pure data, no code-shape change (the point of patterns-as-data, §4): tune
+  `Stage.CreateDefault()` timings/counts, `Emitter` intervals/speeds, enemy HP/score in
+  `EntityFactory`. Optionally a `Difficulty` enum the `Stage`/factory read to scale numbers;
+  v1 can ship one tuned curve.
+
+### Banking frames
+- Art exists (`player_ship_left`/`_right`, already in `Content.mgcb`); add their
+  `Assets.Sprites.*` consts. Data-driven via the animation system: define
+  `player_idle`/`player_bank_left`/`player_bank_right` clips in `Content/animations/*.json`
+  and have `PlayerControlSystem` set `Animator.ClipId` from the sign of `MoveDirection.X`. No
+  new system — `AnimationSystem` already writes the frame into `Sprite.SourceRect`.
+
+### Suggested order
+Screens scaffolding (Title/Gameplay split) → pause → music + remaining SFX → banking frames →
+explosion particles → difficulty pass. Each step stays independently runnable.

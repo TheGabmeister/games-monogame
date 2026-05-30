@@ -14,7 +14,7 @@ namespace Strikers.Systems
     public class CollisionSystem : EntityUpdateSystem
     {
         // Shared one-shot SFX service; set by Game1 after the World is built.
-        public AudioManager Audio;
+        public SfxManager Sfx;
         public GameState State;
 
         private ComponentMapper<Transform> _transformMapper;
@@ -94,7 +94,7 @@ namespace Strikers.Systems
                     _healthMapper.Get(enemyId).Current -= _bulletMapper.Get(bulletId).Damage;
                     DestroyEntity(bulletId);
                     _consumed.Add(bulletId);
-                    Audio?.Play(Assets.Sfx.EnemyHit);
+                    Sfx?.Play(Assets.Sfx.EnemyHit);
                 }
                 return;
             }
@@ -144,16 +144,16 @@ namespace Strikers.Systems
                 case PowerUpKind.Weapon:
                     if (player.WeaponLevel < EntityFactory.MaxWeaponLevel)
                         player.WeaponLevel++;
-                    Audio?.Play(Assets.Sfx.PowerUpWeapon);
+                    Sfx?.Play(Assets.Sfx.PowerUpWeapon);
                     break;
                 case PowerUpKind.Bomb:
                     if (player.Bombs < EntityFactory.MaxBombs)
                         player.Bombs++;
-                    Audio?.Play(Assets.Sfx.PowerUp);
+                    Sfx?.Play(Assets.Sfx.PowerUp);
                     break;
                 default: // Score
                     if (State != null) State.Score += 500;
-                    Audio?.Play(Assets.Sfx.PowerUp);
+                    Sfx?.Play(Assets.Sfx.PowerUp);
                     break;
             }
         }

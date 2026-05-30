@@ -16,7 +16,7 @@ namespace Strikers.Systems
         // Set by Game1 after the World is built — the factory needs the World, which
         // doesn't exist until Build(), so it can't be a constructor argument.
         public EntityFactory Factory;
-        public AudioManager Audio;
+        public SfxManager Sfx;
         public GameState State;
 
         // Spread between adjacent shots in the angled patterns.
@@ -55,7 +55,7 @@ namespace Strikers.Systems
             var position = _transformMapper.Get(entityId).Position;
             FireVolley(position, weapon, player.WeaponLevel);
             weapon.Cooldown = weapon.FireInterval;
-            Audio?.Play(Assets.Sfx.PlayerShot);
+            Sfx?.Play(Assets.Sfx.PlayerShot);
         }
 
         // Bullet count and spread widen with the weapon level (capped in EntityFactory).

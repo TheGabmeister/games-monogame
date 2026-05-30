@@ -1,8 +1,8 @@
 namespace Strikers
 {
     // Canonical content load paths, mirroring the Content/ folder tree and Content.mgcb.
-    // Load paths are plain strings handed to Content.Load / AudioManager.Play, so a typo
-    // only fails at runtime (and AudioManager silently ignores a missing sound) — keeping
+    // Load paths are plain strings handed to Content.Load / SfxManager / MusicManager, so a
+    // typo only fails at runtime (and the audio services silently ignore a missing sound) — keeping
     // them here, one const per asset, gives a single place to get them right. Add a const
     // alongside its siblings whenever you register a new asset in Content.mgcb.
     public static class Assets
@@ -48,6 +48,13 @@ namespace Strikers
             public const string PowerUpWeapon = "audio/sfx/sfx_powerup_weapon";
             public const string Bomb = "audio/sfx/sfx_bomb";
             public const string StageClear = "audio/sfx/sfx_stage_clear";
+        }
+
+        public static class Music
+        {
+            public const string Title = "audio/music/music_title";
+            public const string Stage = "audio/music/music_stage";
+            public const string GameOver = "audio/music/music_gameover";
         }
     }
 }

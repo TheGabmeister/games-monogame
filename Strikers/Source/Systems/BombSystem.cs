@@ -13,7 +13,7 @@ namespace Strikers.Systems
     public class BombSystem : EntityUpdateSystem
     {
         // Set by Game1 after the World is built (factory-wiring note in AGENTS.md).
-        public AudioManager Audio;
+        public SfxManager Sfx;
         public GameState State;
 
         // Brief invulnerability covering the screen-clear so a bomb is never a death trap.
@@ -60,7 +60,7 @@ namespace Strikers.Systems
             if (!fire)
                 return;
 
-            Audio?.Play(Assets.Sfx.Bomb);
+            Sfx?.Play(Assets.Sfx.Bomb);
 
             foreach (var id in _entities)
             {

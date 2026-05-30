@@ -14,7 +14,7 @@ namespace Strikers.Systems
     {
         // Set by Game1 after the World is built (factory-wiring note in AGENTS.md).
         public EntityFactory Factory;
-        public AudioManager Audio;
+        public SfxManager Sfx;
         public PlayerTracker Tracker;
         public GameState State;
 
@@ -48,7 +48,7 @@ namespace Strikers.Systems
 
             emitter.Cooldown = emitter.FireInterval;
             FireVolley(position, emitter);
-            Audio?.Play(Assets.Sfx.EnemyShot);
+            Sfx?.Play(Assets.Sfx.EnemyShot);
         }
 
         private void FireVolley(Vector2 position, Emitter e)

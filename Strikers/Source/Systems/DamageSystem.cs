@@ -15,7 +15,7 @@ namespace Strikers.Systems
     {
         // Set by Game1 after the World is built (factory-wiring note in AGENTS.md).
         public EntityFactory Factory;
-        public AudioManager Audio;
+        public SfxManager Sfx;
         public GameState State;
 
         // Invulnerability granted on respawn so the player isn't instantly re-killed.
@@ -55,7 +55,7 @@ namespace Strikers.Systems
 
         private void KillPlayer(int entityId, Health health, Transform transform)
         {
-            Audio?.Play(Assets.Sfx.PlayerExplode);
+            Sfx?.Play(Assets.Sfx.PlayerExplode);
             var player = _playerMapper.Get(entityId);
 
             if (player.Lives > 0)
@@ -80,7 +80,7 @@ namespace Strikers.Systems
 
         private void KillEnemy(int entityId, Vector2 position)
         {
-            Audio?.Play(Assets.Sfx.EnemyExplode);
+            Sfx?.Play(Assets.Sfx.EnemyExplode);
 
             if (_enemyMapper.Has(entityId))
             {

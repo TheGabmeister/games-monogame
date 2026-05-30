@@ -15,7 +15,8 @@ namespace Strikers
         // Resources that outlive a single run, loaded once and reused when the stage is
         // restarted (textures/sounds are cached by the ContentManager anyway).
         private AnimationLibrary _animations;
-        private AudioManager _audio;
+        private SfxManager _sfx;
+        private MusicManager _music;
         private SpriteFont _font;
         private Texture2D _lifeIcon;
         private Texture2D _bombIcon;
@@ -41,7 +42,8 @@ namespace Strikers
 
             _animations = new AnimationLibrary(Content);
             _animations.Load();
-            _audio = new AudioManager(Content);
+            _sfx = new SfxManager(Content);
+            _music = new MusicManager(Content);
             _font = Content.Load<SpriteFont>(Assets.Fonts.Main);
             _lifeIcon = Content.Load<Texture2D>(Assets.Sprites.HudLifeIcon);
             _bombIcon = Content.Load<Texture2D>(Assets.Sprites.HudBombIcon);
@@ -86,19 +88,24 @@ namespace Strikers
 
             var factory = new EntityFactory(_world, Content, _animations);
             weaponSystem.Factory = factory;
-            weaponSystem.Audio = _audio;
-            bombSystem.Audio = _audio;
+            weaponSystem.Sfx = _sfx;
+            bombSystem.Sfx = _sfx;
             enemySpawnSystem.Factory = factory;
-            enemySpawnSystem.Audio = _audio;
+            enemySpawnSystem.Sfx = _sfx;
             emitterSystem.Factory = factory;
-            emitterSystem.Audio = _audio;
+            emitterSystem.Sfx = _sfx;
             emitterSystem.Tracker = tracker;
-            collisionSystem.Audio = _audio;
+            collisionSystem.Sfx = _sfx;
             damageSystem.Factory = factory;
-            damageSystem.Audio = _audio;
+            damageSystem.Sfx = _sfx;
 
             factory.CreateBackground();
             factory.CreatePlayer(EntityFactory.PlayerSpawn);
+
+            // Loop the stage track for the run. Full title/game-over music flow lands with
+            // the screen split in Phase 5 (PLAN.md §10); the no-op-if-already-playing guard
+            // keeps a restart from restarting the song.
+            _music.Play(Assets.Music.Stage);
         }
 
         protected override void Update(GameTime gameTime)

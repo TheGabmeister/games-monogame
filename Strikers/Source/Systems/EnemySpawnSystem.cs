@@ -16,7 +16,7 @@ namespace Strikers.Systems
         public EntityFactory Factory;
         public Stage Stage;
         public GameState State;
-        public AudioManager Audio;
+        public SfxManager Sfx;
 
         private float _elapsed;
         private int _index;
@@ -45,7 +45,7 @@ namespace Strikers.Systems
             if (_index >= spawns.Count && ActiveEntities.Count == 0)
             {
                 State.Phase = GamePhase.StageClear;
-                Audio?.Play(Assets.Sfx.StageClear);
+                Sfx?.Play(Assets.Sfx.StageClear);
             }
         }
     }
