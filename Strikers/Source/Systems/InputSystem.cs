@@ -10,6 +10,8 @@ namespace Strikers.Systems
     // intent, so no other system has to know which device is in use.
     public class InputSystem : EntityProcessingSystem
     {
+        public GameState State;
+
         private ComponentMapper<Player> _playerMapper;
 
         // Previous-frame bomb-button state, so the bomb fires once per press (edge), not
@@ -25,6 +27,15 @@ namespace Strikers.Systems
 
         public override void Process(GameTime gameTime, int entityId)
         {
+            if (State != null && State.Phase != GamePhase.Playing)
+            {
+                var pausedPlayer = _playerMapper.Get(entityId);
+                pausedPlayer.MoveDirection = Vector2.Zero;
+                pausedPlayer.Firing = false;
+                pausedPlayer.BombPressed = false;
+                return;
+            }
+
             var player = _playerMapper.Get(entityId);
             var dir = Vector2.Zero;
 

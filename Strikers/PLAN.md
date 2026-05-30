@@ -180,8 +180,10 @@ the entities are introduced — rather than deferring all art to the end.
   systems gate on `GameState.Phase == Playing`. Enter / Start restarts after the run ends.
   *Sprites:* `backgrounds/bg_tile`; `sprites/powerups/powerup_weapon`, `powerup_bomb`,
   `powerup_score`; `sprites/hud/hud_life_icon`, `hud_bomb_icon`; `fonts/main`.
-- **Phase 5 — Polish.** Title/game-over/pause screens, explosion particles, SFX/music
-  hooks, difficulty tuning, banking frames (`player_ship_left`/`_right`).
+- **Phase 5 — Polish.** ✅ *Done.* `MonoGame.Extended.Screens` title/gameplay split,
+  pause overlay, title/stage/game-over music flow, menu + graze SFX, bullet graze scoring,
+  explosion spark entities layered over the sprite-sheet clip, banking-frame animation clips,
+  and a light difficulty pass.
   **Implementation detail in §10.**
 
 Post-v1 candidates: **boss fights**, charge shot, multiple ships, stage 2, medal chains.
@@ -355,8 +357,8 @@ stage-clear / game-over as in-run `GameState.Phase` overlays.**
 - `Game1` adds `Components.Add<ScreenManager>()` and shrinks to device setup + showing the
   first screen. Persistent services (`AnimationLibrary`, `SfxManager`, `MusicManager`, fonts) load once.
 - `TitleScreen : GameScreen` — logo + "PRESS ENTER / START", `music_title`, menu SFX. On
-  confirm → `LoadScreen(new GameplayScreen(this), new FadeTransition(GraphicsDevice, Color.Black, 0.5f))`.
-- `GameplayScreen : GameScreen` — owns everything `Game1` builds today (the ECS `World`,
+  confirm → `ReplaceScreen(new GameplayScreen(this), new FadeTransition(GraphicsDevice, Color.Black, 0.5f))`.
+- `GameplayScreen : GameScreen` — owns the run state (the ECS `World`,
   `EntityFactory`, `GameState`, `Stage`, system wiring, the `NewGame()` rebuild). Its
   `Update`/`Draw` just call `_world.Update`/`Draw`.
 

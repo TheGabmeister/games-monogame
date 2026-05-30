@@ -6,6 +6,7 @@ namespace Strikers.Components
     public class Bullet
     {
         public int Damage;
+        public bool Grazed;
 
         public Bullet(int damage)
         {

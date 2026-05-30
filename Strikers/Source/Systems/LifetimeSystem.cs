@@ -10,6 +10,8 @@ namespace Strikers.Systems
     // added when explosions/effects need it.
     public class LifetimeSystem : EntityProcessingSystem
     {
+        public GameState State;
+
         // Generous margin so an entity is fully out of view before it's removed.
         private const float Margin = 64f;
 
@@ -27,6 +29,8 @@ namespace Strikers.Systems
         public override void Process(GameTime gameTime, int entityId)
         {
             var lifetime = _lifetimeMapper.Get(entityId);
+            if (State != null && State.Phase != GamePhase.Playing && !lifetime.HasTimer)
+                return;
 
             if (lifetime.HasTimer)
             {

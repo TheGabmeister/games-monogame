@@ -88,11 +88,24 @@ namespace Strikers.Systems
             if (State == null || State.Phase == GamePhase.Playing)
                 return;
 
-            string title = State.Phase == GamePhase.StageClear ? "STAGE CLEAR" : "GAME OVER";
-            var titleColor = State.Phase == GamePhase.StageClear ? Color.Gold : Color.OrangeRed;
+            string title = State.Phase switch
+            {
+                GamePhase.Paused => "PAUSED",
+                GamePhase.StageClear => "STAGE CLEAR",
+                _ => "GAME OVER",
+            };
+            var titleColor = State.Phase switch
+            {
+                GamePhase.Paused => Color.Cyan,
+                GamePhase.StageClear => Color.Gold,
+                _ => Color.OrangeRed,
+            };
 
             DrawCentered(title, VirtualResolution.Height / 2f - 30f, titleColor, 2f);
-            DrawCentered("PRESS ENTER", VirtualResolution.Height / 2f + 30f, Color.White, 1f);
+            if (State.Phase == GamePhase.Paused)
+                DrawCentered("PRESS ESC / START", VirtualResolution.Height / 2f + 30f, Color.White, 1f);
+            else
+                DrawCentered("PRESS ENTER", VirtualResolution.Height / 2f + 30f, Color.White, 1f);
         }
 
         private void DrawCentered(string text, float centerY, Color color, float scale)

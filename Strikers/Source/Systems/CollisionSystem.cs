@@ -27,6 +27,9 @@ namespace Strikers.Systems
         private readonly List<int> _entities = new();
         private readonly HashSet<int> _consumed = new();
 
+        private const float GrazePadding = 18f;
+        private const int GrazeScore = 10;
+
         public CollisionSystem() : base(Aspect.All(typeof(Transform), typeof(CircleCollider))) { }
 
         public override void Initialize(IComponentMapperService mapperService)
@@ -73,6 +76,8 @@ namespace Strikers.Systems
                     Resolve(a, ca, b, cb);
                 }
             }
+
+            AwardGrazes();
         }
 
         private bool Overlaps(int a, CircleCollider ca, int b, CircleCollider cb)
@@ -155,6 +160,55 @@ namespace Strikers.Systems
                     if (State != null) State.Score += 500;
                     Sfx?.Play(Assets.Sfx.PowerUp);
                     break;
+            }
+        }
+
+        private void AwardGrazes()
+        {
+            foreach (var playerId in _entities)
+            {
+                if (_consumed.Contains(playerId) || !_playerMapper.Has(playerId))
+                    continue;
+                if (!_colliderMapper.Has(playerId) || !_transformMapper.Has(playerId))
+                    continue;
+
+                var playerCollider = _colliderMapper.Get(playerId);
+                if (playerCollider.Layer != CollisionLayer.Player)
+                    continue;
+
+                var playerPos = _transformMapper.Get(playerId).Position;
+
+                foreach (var bulletId in _entities)
+                {
+                    if (_consumed.Contains(bulletId) || !_bulletMapper.Has(bulletId))
+                        continue;
+                    if (!_colliderMapper.Has(bulletId) || !_transformMapper.Has(bulletId))
+                        continue;
+
+                    var bulletCollider = _colliderMapper.Get(bulletId);
+                    if (bulletCollider.Layer != CollisionLayer.EnemyBullet)
+                        continue;
+
+                    var bullet = _bulletMapper.Get(bulletId);
+                    if (bullet.Grazed)
+                        continue;
+
+                    float hitRadius = playerCollider.Radius + bulletCollider.Radius;
+                    float grazeRadius = hitRadius + GrazePadding;
+                    float distanceSquared = Vector2.DistanceSquared(
+                        playerPos, _transformMapper.Get(bulletId).Position);
+
+                    if (distanceSquared <= hitRadius * hitRadius ||
+                        distanceSquared > grazeRadius * grazeRadius)
+                    {
+                        continue;
+                    }
+
+                    bullet.Grazed = true;
+                    if (State != null)
+                        State.Score += GrazeScore;
+                    Sfx?.Play(Assets.Sfx.Graze);
+                }
             }
         }
 

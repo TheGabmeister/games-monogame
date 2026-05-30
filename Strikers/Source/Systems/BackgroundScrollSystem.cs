@@ -12,6 +12,8 @@ namespace Strikers.Systems
     // center Y = Height/2 and has fully exited once its center passes Height + Height/2.
     public class BackgroundScrollSystem : EntityProcessingSystem
     {
+        public GameState State;
+
         private const float Wrap = VirtualResolution.Height + VirtualResolution.Height / 2f;
         private const float TwoScreens = 2f * VirtualResolution.Height;
 
@@ -26,6 +28,9 @@ namespace Strikers.Systems
 
         public override void Process(GameTime gameTime, int entityId)
         {
+            if (State != null && State.Phase != GamePhase.Playing)
+                return;
+
             var transform = _transformMapper.Get(entityId);
             if (transform.Position.Y >= Wrap)
                 transform.Position = new Vector2(transform.Position.X, transform.Position.Y - TwoScreens);

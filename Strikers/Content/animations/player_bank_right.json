@@ -1,0 +1,8 @@
+{
+  "sheet": "sprites/player/player_ship_right",
+  "frameWidth": 48,
+  "frameHeight": 48,
+  "loop": "HoldLast",
+  "fps": 1,
+  "frames": [0]
+}

@@ -304,3 +304,11 @@
 #begin animations/explosion.json
 /copy:animations/explosion.json
 
+#begin animations/player_idle.json
+/copy:animations/player_idle.json
+
+#begin animations/player_bank_left.json
+/copy:animations/player_bank_left.json
+
+#begin animations/player_bank_right.json
+/copy:animations/player_bank_right.json

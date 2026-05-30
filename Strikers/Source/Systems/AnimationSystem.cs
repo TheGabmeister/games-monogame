@@ -38,7 +38,10 @@ namespace Strikers.Systems
 
             var frame = ResolveFrame(clip, animator.Elapsed, out var finished);
             animator.Finished = finished;
-            _spriteMapper.Get(entityId).SourceRect = clip.Frames[frame];
+            var sprite = _spriteMapper.Get(entityId);
+            sprite.Texture = clip.Texture;
+            sprite.SourceRect = clip.Frames[frame];
+            sprite.Origin = new Vector2(clip.Frames[frame].Width / 2f, clip.Frames[frame].Height / 2f);
 
             // When a finished clip has a queued follow-up, switch to it and restart.
             if (finished && animator.QueuedClipId != null)

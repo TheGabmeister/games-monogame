@@ -27,6 +27,7 @@ namespace Strikers
         public const int MaxBombs = 6;
 
         private readonly Texture2D _shipTexture;
+        private readonly Texture2D _sparkTexture;
         private readonly Texture2D _bulletTexture;
         private readonly Texture2D _roundBulletTexture;
         private readonly Texture2D _needleBulletTexture;
@@ -44,6 +45,7 @@ namespace Strikers
             _animations = animations;
             _shipTexture = content.Load<Texture2D>(Assets.Sprites.PlayerShip);
             _bulletTexture = content.Load<Texture2D>(Assets.Sprites.BulletPlayer);
+            _sparkTexture = content.Load<Texture2D>(Assets.Sprites.BulletEnemyRound);
             _roundBulletTexture = content.Load<Texture2D>(Assets.Sprites.BulletEnemyRound);
             _needleBulletTexture = content.Load<Texture2D>(Assets.Sprites.BulletEnemyNeedle);
             _popcornTexture = content.Load<Texture2D>(Assets.Sprites.EnemyPopcorn);
@@ -66,8 +68,9 @@ namespace Strikers
                 Lives = StartingLives,
                 Bombs = StartingBombs,
             });
-            entity.Attach(new Weapon(fireInterval: 0.15f, bulletSpeed: 600f, damage: 1));
+            entity.Attach(new Weapon(fireInterval: 0.13f, bulletSpeed: 620f, damage: 1));
             entity.Attach(new Sprite(_shipTexture, new Vector2(48, 48), layerDepth: 0.5f));
+            entity.Attach(new Animator("player_idle"));
             entity.Attach(new Health(1));
             // Tiny hitbox at the ship's center — bullet-hell fair (see PLAN.md §4).
             entity.Attach(new CircleCollider(4f, CollisionLayer.Player,
@@ -94,8 +97,8 @@ namespace Strikers
             var (texture, size, hp, score) = type switch
             {
                 EnemyType.Popcorn => (_popcornTexture, 32f, 2, 100),
-                EnemyType.Fighter => (_fighterTexture, 40f, 4, 200),
-                _                 => (_gunshipTexture, 64f, 10, 500),
+                EnemyType.Fighter => (_fighterTexture, 40f, 3, 200),
+                _                 => (_gunshipTexture, 64f, 9, 500),
             };
 
             var entity = _world.CreateEntity();
@@ -115,11 +118,11 @@ namespace Strikers
             {
                 case EnemyType.Fighter:
                     entity.Attach(new Emitter(BulletPattern.Aimed, BulletKind.Needle,
-                        fireInterval: 1.1f, bulletSpeed: 260f, damage: 1));
+                        fireInterval: 1.25f, bulletSpeed: 245f, damage: 1));
                     break;
                 case EnemyType.Gunship:
                     entity.Attach(new Emitter(BulletPattern.Spiral, BulletKind.Round,
-                        fireInterval: 0.16f, bulletSpeed: 130f, damage: 1, bulletCount: 3, spinRate: 0.36f));
+                        fireInterval: 0.18f, bulletSpeed: 120f, damage: 1, bulletCount: 3, spinRate: 0.34f));
                     break;
             }
 
@@ -152,6 +155,8 @@ namespace Strikers
             if (clip == null)
                 return null;
 
+            CreateExplosionSparks(position);
+
             var frame = clip.Frames[0];
             var entity = _world.CreateEntity();
             entity.Attach(new Transform(position));
@@ -164,6 +169,27 @@ namespace Strikers
             // Lives exactly as long as the one-shot clip, then despawns (see PLAN.md §5).
             entity.Attach(Lifetime.Timer(clip.Duration));
             return entity;
+        }
+
+        private void CreateExplosionSparks(Vector2 position)
+        {
+            const int count = 14;
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count;
+                float speed = 90f + 12f * (i % 5);
+                var velocity = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * speed;
+
+                var spark = _world.CreateEntity();
+                spark.Attach(new Transform(position));
+                spark.Attach(new Velocity(velocity));
+                spark.Attach(new Sprite(
+                    _sparkTexture,
+                    new Vector2(5f + i % 3),
+                    i % 2 == 0 ? Color.Gold : Color.OrangeRed,
+                    layerDepth: 0.08f));
+                spark.Attach(Lifetime.Timer(0.22f + 0.03f * (i % 4)));
+            }
         }
 
         // A power-up dropped by a dead enemy. Drifts straight down; the player picks it

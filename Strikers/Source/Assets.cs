@@ -10,6 +10,8 @@ namespace Strikers
         public static class Sprites
         {
             public const string PlayerShip = "sprites/player/player_ship";
+            public const string PlayerShipLeft = "sprites/player/player_ship_left";
+            public const string PlayerShipRight = "sprites/player/player_ship_right";
 
             public const string BulletPlayer = "sprites/bullets/bullet_player";
             public const string BulletEnemyRound = "sprites/bullets/bullet_enemy_round";
@@ -47,6 +49,9 @@ namespace Strikers
             public const string PowerUp = "audio/sfx/sfx_powerup";
             public const string PowerUpWeapon = "audio/sfx/sfx_powerup_weapon";
             public const string Bomb = "audio/sfx/sfx_bomb";
+            public const string Graze = "audio/sfx/sfx_graze";
+            public const string MenuMove = "audio/sfx/sfx_menu_move";
+            public const string MenuSelect = "audio/sfx/sfx_menu_select";
             public const string StageClear = "audio/sfx/sfx_stage_clear";
         }
 

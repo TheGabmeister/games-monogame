@@ -18,6 +18,7 @@ namespace Strikers.Systems
         private ComponentMapper<Player> _playerMapper;
         private ComponentMapper<Transform> _transformMapper;
         private ComponentMapper<Sprite> _spriteMapper;
+        private ComponentMapper<Animator> _animatorMapper;
 
         public PlayerControlSystem() : base(Aspect.All(typeof(Player), typeof(Transform))) { }
 
@@ -26,6 +27,7 @@ namespace Strikers.Systems
             _playerMapper = mapperService.GetMapper<Player>();
             _transformMapper = mapperService.GetMapper<Transform>();
             _spriteMapper = mapperService.GetMapper<Sprite>();
+            _animatorMapper = mapperService.GetMapper<Animator>();
         }
 
         public override void Process(GameTime gameTime, int entityId)
@@ -39,6 +41,7 @@ namespace Strikers.Systems
             var transform = _transformMapper.Get(entityId);
 
             transform.Position += player.MoveDirection * player.Speed * dt;
+            UpdateBankingAnimation(player, entityId);
 
             // Keep the whole sprite on-screen by clamping against its half-size.
             var half = Vector2.Zero;
@@ -56,6 +59,27 @@ namespace Strikers.Systems
                 Tracker.Position = transform.Position;
                 Tracker.HasPlayer = true;
             }
+        }
+
+        private void UpdateBankingAnimation(Player player, int entityId)
+        {
+            if (!_animatorMapper.Has(entityId))
+                return;
+
+            var animator = _animatorMapper.Get(entityId);
+            var next = player.MoveDirection.X switch
+            {
+                < -0.2f => "player_bank_left",
+                > 0.2f => "player_bank_right",
+                _ => "player_idle",
+            };
+
+            if (animator.ClipId == next)
+                return;
+
+            animator.ClipId = next;
+            animator.Elapsed = 0f;
+            animator.Finished = false;
         }
 
         // Counts down post-spawn i-frames and blinks the sprite so they read clearly.

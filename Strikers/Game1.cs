@@ -1,29 +1,25 @@
-using Strikers.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended.ECS;
+using MonoGame.Extended;
+using MonoGame.Extended.Screens;
+using MonoGame.Extended.Screens.Transitions;
 
 namespace Strikers
 {
     public class Game1 : Game
     {
         private readonly GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
-        private World _world;
+        private readonly ScreenManager _screenManager;
 
         // Resources that outlive a single run, loaded once and reused when the stage is
-        // restarted (textures/sounds are cached by the ContentManager anyway).
-        private AnimationLibrary _animations;
-        private SfxManager _sfx;
-        private MusicManager _music;
-        private SpriteFont _font;
-        private Texture2D _lifeIcon;
-        private Texture2D _bombIcon;
-
-        // Global arcade flow + score (see PLAN.md §6). Recreated for each new run.
-        private GameState _gameState;
-        private bool _confirmHeld; // edge-detect the restart button
+        // restarted. Textures/sounds are cached by the ContentManager anyway.
+        public SpriteBatch SpriteBatch { get; private set; }
+        public AnimationLibrary Animations { get; private set; }
+        public SfxManager Sfx { get; private set; }
+        public MusicManager Music { get; private set; }
+        public SpriteFont Font { get; private set; }
+        public Texture2D LifeIcon { get; private set; }
+        public Texture2D BombIcon { get; private set; }
 
         public Game1()
         {
@@ -34,102 +30,25 @@ namespace Strikers
             };
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            _screenManager = Components.Add<ScreenManager>();
         }
 
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            base.LoadContent();
 
-            _animations = new AnimationLibrary(Content);
-            _animations.Load();
-            _sfx = new SfxManager(Content);
-            _music = new MusicManager(Content);
-            _font = Content.Load<SpriteFont>(Assets.Fonts.Main);
-            _lifeIcon = Content.Load<Texture2D>(Assets.Sprites.HudLifeIcon);
-            _bombIcon = Content.Load<Texture2D>(Assets.Sprites.HudBombIcon);
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            Animations = new AnimationLibrary(Content);
+            Animations.Load();
+            Sfx = new SfxManager(Content);
+            Music = new MusicManager(Content);
+            Font = Content.Load<SpriteFont>(Assets.Fonts.Main);
+            LifeIcon = Content.Load<Texture2D>(Assets.Sprites.HudLifeIcon);
+            BombIcon = Content.Load<Texture2D>(Assets.Sprites.HudBombIcon);
 
-            NewGame();
-        }
-
-        // Builds a fresh world for a run and wires the spawning/reacting systems with the
-        // factory + shared services. The factory needs the built World, so we build first
-        // then inject (see AGENTS.md). Called at startup and on restart after the run ends.
-        private void NewGame()
-        {
-            _gameState = new GameState();
-            var stage = Stage.CreateDefault();
-            var tracker = new PlayerTracker();
-
-            var playerControlSystem = new PlayerControlSystem { Tracker = tracker, State = _gameState };
-            var weaponSystem = new WeaponSystem { State = _gameState };
-            var bombSystem = new BombSystem { State = _gameState };
-            var enemySpawnSystem = new EnemySpawnSystem { Stage = stage, State = _gameState };
-            var emitterSystem = new EmitterSystem { State = _gameState };
-            var collisionSystem = new CollisionSystem { State = _gameState };
-            var damageSystem = new DamageSystem { State = _gameState };
-            var hudSystem = new HudSystem(_spriteBatch, _font, _lifeIcon, _bombIcon) { State = _gameState };
-
-            _world = new WorldBuilder()
-                .AddSystem(new InputSystem())
-                .AddSystem(playerControlSystem)
-                .AddSystem(bombSystem)
-                .AddSystem(weaponSystem)
-                .AddSystem(enemySpawnSystem)
-                .AddSystem(emitterSystem)
-                .AddSystem(new MovementSystem())
-                .AddSystem(new BackgroundScrollSystem())
-                .AddSystem(collisionSystem)
-                .AddSystem(damageSystem)
-                .AddSystem(new LifetimeSystem())
-                .AddSystem(new AnimationSystem(_animations))
-                .AddSystem(new RenderSystem(_spriteBatch))
-                .AddSystem(hudSystem)
-                .Build();
-
-            var factory = new EntityFactory(_world, Content, _animations);
-            weaponSystem.Factory = factory;
-            weaponSystem.Sfx = _sfx;
-            bombSystem.Sfx = _sfx;
-            enemySpawnSystem.Factory = factory;
-            enemySpawnSystem.Sfx = _sfx;
-            emitterSystem.Factory = factory;
-            emitterSystem.Sfx = _sfx;
-            emitterSystem.Tracker = tracker;
-            collisionSystem.Sfx = _sfx;
-            damageSystem.Factory = factory;
-            damageSystem.Sfx = _sfx;
-
-            factory.CreateBackground();
-            factory.CreatePlayer(EntityFactory.PlayerSpawn);
-
-            // Loop the stage track for the run. Full title/game-over music flow lands with
-            // the screen split in Phase 5 (PLAN.md §10); the no-op-if-already-playing guard
-            // keeps a restart from restarting the song.
-            _music.Play(Assets.Music.Stage);
-        }
-
-        protected override void Update(GameTime gameTime)
-        {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-                Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
-            // After STAGE CLEAR / GAME OVER, the confirm button starts a fresh run.
-            bool confirm = Keyboard.GetState().IsKeyDown(Keys.Enter) ||
-                           GamePad.GetState(PlayerIndex.One).Buttons.Start == ButtonState.Pressed;
-            if (_gameState.Phase != GamePhase.Playing && confirm && !_confirmHeld)
-                NewGame();
-            _confirmHeld = confirm;
-
-            _world.Update(gameTime);
-            base.Update(gameTime);
-        }
-
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            _world.Draw(gameTime);
-            base.Draw(gameTime);
+            _screenManager.ShowScreen(new Screens.TitleScreen(this),
+                new FadeTransition(GraphicsDevice, Color.Black, 0.5f));
         }
     }
 }

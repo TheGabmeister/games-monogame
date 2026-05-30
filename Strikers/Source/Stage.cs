@@ -51,7 +51,7 @@ namespace Strikers
         }
 
         // The one v1 stage: fodder sweeps, fighters, a couple of gunships, building to a
-        // final trio of gunships. Tuned so the player wants the weapon power-ups the
+        // final pair of gunships. Tuned so the player wants the weapon power-ups the
         // gunships drop to clear the finale.
         public static Stage CreateDefault()
         {
@@ -64,9 +64,9 @@ namespace Strikers
             s.AddLine(21.0f, EnemyType.Popcorn, 6, 0.30f, 100f, 500f, 150f);
             s.AddLine(28.0f, EnemyType.Fighter, 4, 0.60f,  80f, 520f,  90f);
             s.AddLine(34.0f, EnemyType.Popcorn,10, 0.18f,  60f, 540f, 180f);
-            s.AddLine(42.0f, EnemyType.Gunship, 2, 1.20f, 180f, 420f,  70f);
+            s.AddLine(42.0f, EnemyType.Gunship, 2, 1.35f, 180f, 420f,  65f);
             s.AddLine(44.0f, EnemyType.Fighter, 3, 0.70f, 120f, 480f, 100f);
-            s.AddLine(52.0f, EnemyType.Gunship, 3, 1.00f, 120f, 480f,  60f);
+            s.AddLine(52.0f, EnemyType.Gunship, 2, 1.20f, 160f, 440f,  60f);
             return s;
         }
     }
